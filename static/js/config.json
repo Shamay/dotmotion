@@ -1,0 +1,21 @@
+[
+  {
+    "number_of_dots": 200,
+
+    "coherentAxis": "verticalAxis",
+
+    "response_ends_trial": true,
+    "fill_ITT": false,
+
+    "cue_duration": 500,
+    "trial_duration": 2000,
+    "inter_trial_interval": 500,
+    "feedback_duration":800,
+
+    "fixation_cross": true,
+    "task_feedback": true,
+
+    "responseAfterTimeout": false,
+    "dot_timeout": 0
+  }
+]
