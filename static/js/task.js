@@ -662,15 +662,8 @@ for (line in lines){
 }
 //---------Run the experiment---------
 
-/* record id, condition, counterbalance on every trial */
-jsPsych.data.addProperties({
-    uniqueId: uniqueId,
-    condition: condition,
-    counterbalance: counterbalance
-});
-
 //Initiate the experiment
-jsPsych.init({
+/*jsPsych.init({
   timeline: timeline,
   //show_progress_bar: true,
   on_finish: function(){ //Execute this when the experiment finishes
@@ -720,17 +713,24 @@ function outputData(cue_shape, rt, acc){
   link.setAttribute('download', 'output.csv');
   document.body.appendChild(link)
   document.querySelector('#download-csv').click()
-}
+}*/
 
+// record id, condition, counterbalance on every trial
+jsPsych.data.addProperties({
+    uniqueId: uniqueId,
+    condition: condition,
+    counterbalance: counterbalance
+});
 
-/*jsPsych.init({
-    display_element: 'jspsych-target',
+jsPsych.init({
+    //display_element: 'jspsych-target',
     timeline: timeline,
     // record data to psiTurk after each trial
     on_data_update: function(data) {
         psiturk.recordTrialData(data);
     },
     on_finish: function() {
+      jsPsych.data.displayData(); //Display the data onto the browser screen
         // record proportion correct as unstructured data
         psiturk.recordUnstructuredData("bonus", jsPsych.data.get()
                                        .filter([{stimulus_type: 'incongruent'},
@@ -743,10 +743,10 @@ function outputData(cue_shape, rt, acc){
         psiturk.saveData({
             success: function() {
                 // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
-                psiturk.computeBonus("compute_bonus", function () {
+                psiturk.computeBonus("compute_bonus", function(){
                     psiturk.completeHIT();
                 });
             }
         });
     },
-});*/
+});
