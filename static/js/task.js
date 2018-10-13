@@ -49,9 +49,15 @@ var cue = {
   trial_duration: config.cue_duration, //Duration of each cue in ms
 
   on_start: function(cue){
-    cue.stimulus = "<div style='width: 700px;'>" +
-       "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
-    "</div>";
+    if(typeof cue.cue_shape === "undefined"){
+      cue.stimulus = "<div style='width: 700px;'>" +
+         "<div style='float: center;'><img src='/static/images/circle.png'></img></div>" +
+      "</div>";
+    }else{
+      cue.stimulus = "<div style='width: 700px;'>" +
+         "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
+      "</div>";
+    }
   }
 }
 
@@ -64,6 +70,7 @@ var fixation = {
   on_start: function(fixation){
     // get data from previous trial
     var data = jsPsych.data.get().last(1).values()[0];
+    console.log(data);
 
     // prompt whether the previous trial was correct or not
     if(config.task_feedback){
@@ -72,7 +79,24 @@ var fixation = {
       }else if(data.correct){
         fixation.prompt = '<div class = centerbox><div style="color:green;font-size:60px"; class = center-text>Correct!</div></div>';
       }else if(!data.correct){
-        fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect</div></div>';
+        if(data.task == 'motion'){
+          if(data.correct_choice == 'a'){
+            fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
+            "</div><p>Press A for mostly downward motion.</p></div>";
+          }else if(data.correct_choice == 'l'){
+            fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
+            "</div><p>Press L for mostly upward motion.</p></div>";
+          }
+        }else if(data.task == 'color'){
+          if(data.correct_choice == 'a'){
+            fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
+            "</div><p>Press A for mostly red dots.</p></div>";
+          }else if(data.correct_choice == 'l'){
+            fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
+            "</div><p>Press L for mostly blue dots.</p></div>";
+          }
+        }
+        fixation.trial_duration = fixation.trial_duration + 3000;
       }else if(config.fixation_cross){
         fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
       }
@@ -116,7 +140,11 @@ var stimulus = {
   dot_timeout: config.dot_timeout,
 
   on_start: function(stimulus){
-    var data = jsPsych.data.get().last(2).values()[0];
+    if (stimulus.phase == '1.1') {
+      var data = { correct : ""};
+    }else{
+      var data = jsPsych.data.get().last(2).values()[0];
+    }
 
     if(stimulus.phase == '1.1'){
       if(typeof data.correct === "undefined"){
@@ -183,8 +211,10 @@ if (config.coherentAxis ==  'verticalAxis'){
 var introduction = {
   type: 'instructions',
   pages: [
-      'Welcome to the experiment. Click next to begin.',
-      "<p>In this experiment, a swarm of red and blue moving dots appear on the screen.</p> Click next for a visual."
+      'Welcome to the dot-motion experiment! Click next to continue.',
+      "<p>In this experiment, a swarm of red and blue moving dots will be moving on the screen.</p>" +
+      "<div style='float: center;'><img src='/static/images/example.png'></img></div>" +
+      "<p>Click next for a moving example.</p>"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -195,13 +225,13 @@ var introduction = {
 /* define instructions block */
 var instructions_motion = {
   type: 'instructions',
-  pages: ["<p>Now that you've seen the stimulus,<br/> " +
+  pages: ["<p>Now that you've seen the stimulus, " +
   "there are two sets of tasks:</p> <strong>Motion</strong> tasks and <strong>Color</strong> tasks",
 
       "<p>In the <strong>motion</strong> task, you must discern which direction the majority of the dots are going.</p>" +
       "<p>If the majority of dots are going <strong>downwards</strong>, " +
-      "press the letter A as fast as you can.</p>" +
-      "<p>If the majority of dots are going <strong>upwards</strong>, press the letter L " +
+      "press the letter A as fast as you can.</br>" +
+      "If the majority of dots are going <strong>upwards</strong>, press the letter L " +
       "as fast as you can.</p>" +
       "<div style='width: 700px;'>"+
       "<div style='float: left;'><img src='/static/images/down.png'></img>" +
@@ -210,9 +240,10 @@ var instructions_motion = {
       "<p class='small'><strong>Press the L key</strong></p></div>" +
       "</div>",
 
-      "<p>In the first stage of the experiment, we will continually increase the difficulty " +
-      "of the tasks until we find an appropriate level for you.</p><p>We will begin with just the " +
-      "motion task. Remember to press A when the majority of the dots are moving down and L for up.</p>" +
+      "<p>We will begin with just the <strong>motion</strong> task. </br> Remember to " +
+      "press A when the majority of the dots are moving down and L for up.</p>" +
+      "<p>In the first stage of the experiment, we will slowly increase the difficulty " +
+      "of the tasks until we reach an appropriate level.</p>" +
       "Please ready your fingers on the A and L keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
@@ -234,9 +265,10 @@ var instructions_color = {
       "<p class='small'><strong>Press the L key</strong></p></div>" +
       "</div>",
 
-      "<p>As in the previous stage of the experiment, we will continually increase the difficulty " +
-      "of the tasks until we find an appropriate level for you.</p><p>We will begin with just the " +
-      "motion task. Remember to press A when the majority of the dots are mostly red and L for mostly blue.</p>" +
+      "<p>We will begin with just the <strong>motion</strong> task. </br> Remember to " +
+      "press A when the majority of the dots are moving down and L for up.</p>" +
+      "<p>Again, we will slowly increase the difficulty " +
+      "of the tasks until we reach an appropriate level.</p>" +
       "Please ready your fingers on the A and L keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
@@ -364,43 +396,45 @@ var mapping = {
 var instructions_cue = {
   type: 'instructions',
   pages: [
-      '<p>Welcome to the SECOND PHASE. We introduce a set of cues that appear before each of the two tasks (motion and color)</p>' +
+      '<p>Welcome to the <strong>Phase 2</strong>. </br> Now, we will add a set of cues that appear ' +
+      'before each of the two tasks (motion and color).</br>They will indicate which task you are performing.</p>' +
       'Click next for a visual example.'
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(instructions_cue);
-//timeline.push(cue, stimulus);
+timeline.push(instructions_cue);
+timeline.push(cue, stimulus);
 
 /* define instructions block */
 var instructions_cue2 = {
   type: 'instructions',
   pages: [
-    "<p> A series of cues will appear on the screen.You are asked to match them to the appropriate task (motion or color).</p>",
+    "<p> A series of cues will appear on the screen.</br>"+
+    "You are asked to match them to the appropriate task (motion or color).</p>",
     "<p>To cue the <strong>motion</strong> task, you will be shown of the two cues below.</p>" +
       "<div style='width: 700px;'>"+
       "<div style='float: left;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-      "<p class='small'><strong>Press the Q key</strong></p></div>" +
+      "<p class='small'><strong>"+mapping[1]+" cues motion (Q)</strong></p></div>" +
       "<div class='float: right;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-      "<p class='small'><strong>Press the Q key</strong></p></div>" +
+      "<p class='small'><strong>"+mapping[2]+" cues motion (Q)</strong></p></div>" +
       "</div>",
     "<p>To cue the <strong>color</strong> task, you will be shown of the two cues below.</p>" +
       "<div style='width: 700px;'>"+
       "<div style='float: left;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-      "<p class='small'><strong>Press the P key</strong></p></div>" +
+      "<p class='small'><strong>"+mapping[3]+" cues color (P)</strong></p></div>" +
       "<div class='float: right;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-      "<p class='small'><strong>Press the P key</strong></p></div>" +
+      "<p class='small'><strong>"+mapping[4]+" cues color (P)</strong></p></div>" +
       "</div>",
-    "<p>In this stage of the experiment, we will display a series of cues " +
-      "to give you practice associating cues and their tasks.</p><p>We will begin with just the " +
-      "motion task. Remember to press Q for motion task cues (diamond, square) and P for color task cues (triangle, circle).</p>" +
+    "<p> Let's practice associating cues and their tasks.</p>" +
+      "<p>Remember to press Q for motion task cues ("+mapping[1]+", "+mapping[2]+") "+
+      "and P for color task cues ("+mapping[3]+", "+mapping[4]+").</p>" +
       "Please ready your fingers on the Q and P keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(instructions_cue2);
+timeline.push(instructions_cue2);
 
 var cue_phase = {
   type: "html-keyboard-response",
@@ -550,7 +584,7 @@ var cue_sequence = {
     }
   }
 
-//timeline.push(cue_sequence);
+timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
