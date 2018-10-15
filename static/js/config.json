@@ -10,7 +10,7 @@
     "cue_duration": 500,
     "trial_duration": 2000,
     "inter_trial_interval": 500,
-    "feedback_duration":800,
+    "feedback_duration":1200,
 
     "fixation_cross": true,
     "task_feedback": true,

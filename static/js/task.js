@@ -37,7 +37,7 @@ timeline.push({
 
 
 //---------Create trials---------
-
+var practice = true;
 var cue = {
   type: 'html-keyboard-response',
   stimulus: '',
@@ -54,9 +54,17 @@ var cue = {
          "<div style='float: center;'><img src='/static/images/circle.png'></img></div>" +
       "</div>";
     }else{
-      cue.stimulus = "<div style='width: 700px;'>" +
-         "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
-      "</div>";
+      if(practice){
+        cue.stimulus = "<div style='width: 700px;'>" +
+           "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
+        "(this cues a " + cue.task + " task)</div>";
+        cue.trial_duration = cue.trial_duration + 2000;
+      }else{
+        cue.stimulus = "<div style='width: 700px;'>" +
+           "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
+        "</div>";
+      }
+
     }
   }
 }
@@ -70,7 +78,6 @@ var fixation = {
   on_start: function(fixation){
     // get data from previous trial
     var data = jsPsych.data.get().last(1).values()[0];
-    console.log(data);
 
     // prompt whether the previous trial was correct or not
     if(config.task_feedback){
@@ -188,7 +195,7 @@ var stimulus = {
         stimulus.colorCoherence = currentColorCoherence;
         console.log(currentColorCoherence);
       }
-    }else if(stimulus.phase == '3'){
+    }else if(stimulus.phase == '4'){
       stimulus.stage = 'task_exp';
       config.task_feedback = false; //turn off task feedback in third stage
     }
@@ -219,8 +226,8 @@ var introduction = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(introduction);
-//timeline.push(stimulus);
+timeline.push(introduction);
+timeline.push(stimulus);
 
 /* define instructions block */
 var instructions_motion = {
@@ -344,7 +351,7 @@ var color_stimulus = [
   }
 ]
 
-//timeline.push(instructions_motion);
+timeline.push(instructions_motion);
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
@@ -357,10 +364,10 @@ for(i = 0; i < numTrials; i++){
         size: 1
       }
     }
-  //timeline.push(stim_sequence);
+  timeline.push(stim_sequence);
 }
 
-//timeline.push(instructions_color);
+timeline.push(instructions_color);
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
@@ -373,13 +380,14 @@ for(i = 0; i < numTrials; i++){
         size: 1,
             }
     }
-  //timeline.push(stim_sequence);
+  timeline.push(stim_sequence);
 }
 
 // --------------------
 // SECOND PHASE
 // --------------------
 var trial_counter = 0;
+if (trial_counter == 0) {var sum = 0;}
 var response_array = [];
 var end_phase = false;
 var maxTrials = 100;
@@ -396,7 +404,7 @@ var mapping = {
 var instructions_cue = {
   type: 'instructions',
   pages: [
-      '<p>Welcome to the <strong>Phase 2</strong>. </br> Now, we will add a set of cues that appear ' +
+      '<div style="font-size:32px"><p>Welcome to the <strong>Phase 2</strong>. </div></br> Now, we will add a set of cues that appear ' +
       'before each of the two tasks (motion and color).</br>They will indicate which task you are performing.</p>' +
       'Click next for a visual example.'
   ],
@@ -466,19 +474,17 @@ var cue_response = {
     }else{
       response_array.push(0);
     }
-    console.log("trial_counter", trial_counter);
-    console.log(response_array);
 
     if(response_array.length >= 20){ // start checking at 20 trials
       var temp = response_array.slice(trial_counter - 20);
-      console.log(temp.length);
-      var sum = temp.reduce(function(pv, cv) { return pv + cv; }, 0);
-      console.log(sum);
+      sum = temp.reduce(function(pv, cv) { return pv + cv; }, 0);
       if(sum >= 18 || trial_counter >= 100){
         end_phase = true;
       }
+    }else{
+      sum = response_array.reduce(function(pv, cv) { return pv + cv; }, 0);
     }
-    console.log(data.cue, data.key_press, data.correct, trial_counter);
+    console.log(data.cue, data.key_press, data.correct, trial_counter, sum);
     cue_response.stimulus = generateCue(data.cue, data.key_press, data.correct);
   }
 }
@@ -492,11 +498,12 @@ var cue_fixation = {
 
 function generateCue(cue, answer = '', correct = true){
   if(answer == null){
-    return "<div class='row'>"+
+    return "<div class='row'>" +
+           "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
               "<div class='column' style='border:3px solid grey'>" +
-              "<p class='small'><strong>Motion Trial</strong></p></div>" +
+              "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
               "<div class='column' style='border:3px solid grey'>" +
-              "<p class='small'><strong>Color Trial</strong></p></div>" +
+              "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
            "</div>" +
            "<div style='width: 700px; height: 258.667px'>" +
               "<div style='justify-content: center; display: flex; font-size:60px;" +
@@ -505,20 +512,22 @@ function generateCue(cue, answer = '', correct = true){
   }else if(answer == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('q')){
       if(correct){
         return "<div class='row'>"+
+                "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
                   "<div class='column' style='border:3px solid green'>" +
-                  "<p class='small'><strong>Motion Trial</strong></p></div>" +
+                  "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                   "<div class='column' style='border:3px solid grey'>" +
-                  "<p class='small'><strong>Color Trial</strong></p></div>" +
+                  "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
                "</div>" +
                "<div style='width: 700px;'>" +
                   "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
                "</div>"
       }else{
         return "<div class='row'>"+
+               "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
                   "<div class='column' style='border:3px solid red'>" +
-                  "<p class='small'><strong>Motion Trial</strong></p></div>" +
+                  "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                   "<div class='column' style='border:3px solid grey'>" +
-                  "<p class='small'><strong>Color Trial</strong></p></div>" +
+                  "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
                "</div>" +
                "<div style='width: 700px;'>" +
                   "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
@@ -527,31 +536,34 @@ function generateCue(cue, answer = '', correct = true){
   }else if(answer == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('p')){
     if(correct){
       return "<div class='row'>"+
+             "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
                 "<div class='column' style='border:3px solid grey'>" +
-                "<p class='small'><strong>Motion Trial</strong></p></div>" +
+                "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                 "<div class='column' style='border:3px solid green'>" +
-                "<p class='small'><strong>Color Trial</strong></p></div>" +
+                "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
              "</div>" +
              "<div style='width: 700px;'>" +
                 "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
              "</div>"
     }else{
       return "<div class='row'>"+
+             "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
                 "<div class='column' style='border:3px solid grey'>" +
-                "<p class='small'><strong>Motion Trial</strong></p></div>" +
+                "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                 "<div class='column' style='border:3px solid red'>" +
-                "<p class='small'><strong>Color Trial</strong></p></div>" +
+                "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
              "</div>" +
              "<div style='width: 700px;'>" +
                 "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
              "</div>"
     }
   }else{
-    return "<div class='row'>"+
+    return "<div style='color:grey'; class='row'>"+
+           "-</div><div class='row'>" +
               "<div class='column' style='border:3px solid grey'>" +
-              "<p class='small'><strong>Motion Trial</strong></p></div>" +
+              "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
               "<div class='column' style='border:3px solid grey'>" +
-              "<p class='small'><strong>Color Trial</strong></p></div>" +
+              "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
            "</div>" +
            "<div style='width: 700px;'>" +
               "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
@@ -567,7 +579,7 @@ var cue_stimuli = [
 ];
 
 var cue_sequence = {
-  timeline: [cue_phase, cue_response,cue_fixation],
+  timeline: [cue_phase, cue_response, cue_fixation],
   timeline_variables: cue_stimuli,
   randomize_order: true,
   repetitions: 1,
