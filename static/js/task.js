@@ -58,7 +58,7 @@ var cue = {
         cue.stimulus = "<div style='width: 700px;'>" +
            "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
         "(this cues a " + cue.task + " task)</div>";
-        cue.trial_duration = cue.trial_duration + 2000;
+        cue.trial_duration = cue.trial_duration + 1500;
       }else{
         cue.stimulus = "<div style='width: 700px;'>" +
            "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
@@ -138,145 +138,12 @@ var stimulus = {
   colorCoherence: jsPsych.timelineVariable('colorCoherence'),
 
   number_of_dots: config.number_of_dots, //Total number of dots in the aperture
-  trial_duration: config.trial_duration, //Duration of each trial in ms
+  trial_duration: jsPsych.timelineVariable('trial_duration'), //Duration of each trial in ms
+  dot_timeout: jsPsych.timelineVariable('dot_timeout'),
 
   response_ends_trial: config.response_ends_trial, //Whether response ends the trial or not
   fill_ITT: config.fill_ITT, // Whether to standardize trial length or not, condition on response_ends_trial being true
   text: jsPsych.timelineVariable('text'),
-
-  on_start: function(stimulus){
-    var data = jsPsych.data.get().last(2).values()[0];
-
-    if(stimulus.phase == '3'){
-      stimulus.stage = 'task_prc';
-    }else if(stimulus.phase == '4'){
-      stimulus.stage = 'task_exp';
-      config.task_feedback = false; //turn off task feedback in third stage
-    }
-  }
-}
-
-//convert vertical/horizontal to degree notation
-var degrees;
-if (config.coherentAxis ==  'verticalAxis'){
-  degrees = 270;
-}else if (config.coherentAxis ==  "horizontalAxis") {
-  degrees = 180;
-}
-
-// --------------------
-// FIRST PHASE
-// --------------------
-//staircasing phase
-var numTrials = 10;
-var currentMotionCoherence = 0.75;
-var currentColorCoherence = 0.75;
-var learningRate = 0.011;
-var minCoherence = 0.52;
-var maxCoherence = 0.80;
-var percentageCorrect = 0;
-
-/* define introduction block */
-var introduction = {
-  type: 'instructions',
-  pages: [
-      'Welcome to the dot-motion experiment! Click next to continue.',
-      "<p>In this experiment, a swarm of red and blue moving dots will be moving on the screen.</p>" +
-      "<p>Click next for a moving example.</p>"
-  ],
-  show_clickable_nav: true,
-  post_trial_gap: 1000
-};
-timeline.push(introduction);
-//timeline.push(stimulus);
-
-var stimulus_example = {
-  timeline: [stimulus],
-  timeline_variables: [{
-    task: 'motion',
-    correct_response: 'a',
-    coherent_direction: degrees,
-    coherent_color: 'blue',
-    text: 'Dots moving down'
-  }],
-}
-timeline.push(stimulus_example);
-
-/* define instructions block */
-var instructions_motion = {
-  type: 'instructions',
-  pages: ["<p>Now that you've seen the stimulus, " +
-  "there are two sets of tasks:</p> <strong>Motion</strong> tasks and <strong>Color</strong> tasks",
-
-      "<p>In the <strong>motion</strong> task, you must discern which direction the majority of the dots are going.</p>" +
-      "<p>If the majority of dots are going <strong>downwards</strong>, " +
-      "press the letter A as fast as you can.</br>" +
-      "If the majority of dots are going <strong>upwards</strong>, press the letter L " +
-      "as fast as you can.</p>" +
-      "<div style='width: 700px;'>"+
-      "<div style='float: left;'><img src='/static/images/down.png'></img>" +
-      "<p class='small'><strong>Press the A key</strong></p></div>" +
-      "<div class='float: right;'><img src='/static/images/up.png'></img>" +
-      "<p class='small'><strong>Press the L key</strong></p></div>" +
-      "</div>",
-
-      "<p>We will begin with just the <strong>motion</strong> task. </br> Remember to " +
-      "press A when the majority of the dots are moving down and L for up.</p>" +
-      "<p>In the first stage of the experiment, we will slowly increase the difficulty " +
-      "of the tasks until we reach an appropriate level.</p>" +
-      "Please ready your fingers on the A and L keys and press next whenever you're ready!"
-  ],
-  show_clickable_nav: true,
-  post_trial_gap: 1000
-};
-
-/* define instructions block */
-var instructions_color = {
-  type: 'instructions',
-  pages: ["<p>In the <strong>color</strong> task, you must discern the color of the majority of the dots.</p>" +
-      "<p>If the majority of dots are <strong>red</strong>, " +
-      "press the letter A as fast as you can.</p>" +
-      "<p>If the majority of dots are <strong>blue</strong>, press the letter L " +
-      "as fast as you can.</p>" +
-      "<div style='width: 700px;'>"+
-      "<div style='float: left;'><img src='/static/images/red.png'></img>" +
-      "<p class='small'><strong>Press the A key</strong></p></div>" +
-      "<div class='float: right;'><img src='/static/images/blue.png'></img>" +
-      "<p class='small'><strong>Press the L key</strong></p></div>" +
-      "</div>",
-
-      "<p>We will begin with just the <strong>motion</strong> task. </br> Remember to " +
-      "press A when the majority of the dots are moving down and L for up.</p>" +
-      "<p>Again, we will slowly increase the difficulty " +
-      "of the tasks until we reach an appropriate level.</p>" +
-      "Please ready your fingers on the A and L keys and press next whenever you're ready!"
-  ],
-  show_clickable_nav: true,
-  post_trial_gap: 1000
-};
-
-// staircasing stimulus
-var stc_stimulus = {
-  type: "dotmotion",
-  stage: "task", // task or task_exp
-  RDK_type: 3, //The type of RDK used
-  choices: ['a', 'l'], //Choices available to be keyed in by participant
-
-  phase: jsPsych.timelineVariable('phase'),
-  task: jsPsych.timelineVariable('task'),
-  correct_choice: jsPsych.timelineVariable('correct_response'),
-  coherent_direction: jsPsych.timelineVariable('coherent_direction'),
-  coherent_color: jsPsych.timelineVariable('coherent_color'),
-  cue_shape: jsPsych.timelineVariable('cue_shape'),
-  motionCoherence:  jsPsych.timelineVariable('motionCoherence'),
-  colorCoherence: jsPsych.timelineVariable('colorCoherence'),
-
-  number_of_dots: config.number_of_dots, //Total number of dots in the aperture
-  trial_duration: config.trial_duration + config.dot_timeout, //Duration of each trial in ms
-  dot_timeout: config.dot_timeout,
-
-  response_ends_trial: config.response_ends_trial, //Whether response ends the trial or not
-  fill_ITT: config.fill_ITT, // Whether to standardize trial length or not, condition on response_ends_trial being true
 
   on_start: function(stimulus){
     var data = jsPsych.data.get().last(2).values()[0];
@@ -323,8 +190,21 @@ var stc_stimulus = {
       stimulus.colorCoherence = currentColorCoherence;
       console.log(currentColorCoherence);
 
+    }else if(stimulus.phase == '3'){
+      stimulus.stage = 'task_prc';
+    }else if(stimulus.phase == '4'){
+      stimulus.stage = 'task_exp';
+      config.task_feedback = false; //turn off task feedback in third stage
     }
   }
+}
+
+//convert vertical/horizontal to degree notation
+var degrees;
+if (config.coherentAxis ==  'verticalAxis'){
+  degrees = 270;
+}else if (config.coherentAxis ==  "horizontalAxis") {
+  degrees = 180;
 }
 
 var motion_stimulus = [
@@ -387,12 +267,114 @@ var color_stimulus = [
   }
 ]
 
+// --------------------
+// FIRST PHASE
+// --------------------
+//staircasing phase
+var numTrials = 10;
+var currentMotionCoherence = 0.75;
+var currentColorCoherence = 0.75;
+var learningRate = 0.011;
+var minCoherence = 0.52;
+var maxCoherence = 0.80;
+var percentageCorrect = 0;
+
+/* define introduction block */
+var introduction = {
+  type: 'instructions',
+  pages: [
+      'Welcome to the dot-motion experiment! Click next to continue.',
+      "<p>In this experiment, a swarm of red and blue moving dots will be moving on the screen.</p>" +
+      "<p>Click next for a moving example.</p>"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+timeline.push(introduction);
+timeline.push(stimulus);
+
+
+/* define instructions block */
+var instructions_motion = {
+  type: 'instructions',
+  pages: ["<p>Now that you've seen the stimulus, " +
+  "there are two sets of tasks:</p> <strong>Motion</strong> tasks and <strong>Color</strong> tasks",
+
+      "<p>In the <strong>motion</strong> task, you must discern which direction the majority of the dots are going.</p>" +
+      "<p>If the majority of dots are going <strong>downwards</strong>, " +
+      "press the letter A as fast as you can.</br>" +
+      "If the majority of dots are going <strong>upwards</strong>, press the letter L " +
+      "as fast as you can.</p>" +
+      "<div style='width: 700px;'>"+
+      "<div style='float: left;'><img src='/static/images/down.png'></img>" +
+      "<p class='small'><strong>Press the A key</strong></p></div>" +
+      "<div class='float: right;'><img src='/static/images/up.png'></img>" +
+      "<p class='small'><strong>Press the L key</strong></p></div>" +
+      "</div>",
+
+      "<p>We will begin with just the <strong>motion</strong> task. </br> Remember to " +
+      "press A when the majority of the dots are moving down and L for up.</p>" +
+      "<p>In the first stage of the experiment, we will slowly increase the difficulty " +
+      "of the tasks until we reach an appropriate level.</p>" +
+      "Please ready your fingers on the A and L keys and press next whenever you're ready!"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+/* define instructions block */
+var instructions_color = {
+  type: 'instructions',
+  pages: ["<p>In the <strong>color</strong> task, you must discern the color of the majority of the dots.</p>" +
+      "<p>If the majority of dots are <strong>red</strong>, " +
+      "press the letter A as fast as you can.</p>" +
+      "<p>If the majority of dots are <strong>blue</strong>, press the letter L " +
+      "as fast as you can.</p>" +
+      "<div style='width: 700px;'>"+
+      "<div style='float: left;'><img src='/static/images/red.png'></img>" +
+      "<p class='small'><strong>Press the A key</strong></p></div>" +
+      "<div class='float: right;'><img src='/static/images/blue.png'></img>" +
+      "<p class='small'><strong>Press the L key</strong></p></div>" +
+      "</div>",
+
+      "<p>We will begin with just the <strong>motion</strong> task. </br> Remember to " +
+      "press A when the majority of the dots are moving down and L for up.</p>" +
+      "<p>Again, we will slowly increase the difficulty " +
+      "of the tasks until we reach an appropriate level.</p>" +
+      "Please ready your fingers on the A and L keys and press next whenever you're ready!"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
 timeline.push(instructions_motion);
+
+var stimulus_example = {
+  timeline: [stimulus],
+  timeline_variables: [{
+    task: 'motion',
+    correct_response: 'a',
+    coherent_direction: degrees,
+    coherent_color: 'blue',
+    text: 'Dots moving down'
+  }],
+}
+//timeline.push(stimulus_example);
+
+// staircasing trials
+var motion_stimulus_stc = motion_stimulus;
+var color_stimulus_stc = color_stimulus;
+for(i = 0; i < motion_stimulus.length; i++){
+  motion_stimulus_stc[i]['trial_duration'] = 3000;
+  motion_stimulus_stc[i]['dot_timeout'] = 1500;
+  color_stimulus_stc[i]['trial_duration'] = 3000;
+  color_stimulus_stc[i]['dot_timeout'] = 1500;
+}
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
-    timeline: [stc_stimulus, fixation],
-    timeline_variables: motion_stimulus,
+    timeline: [stimulus, fixation],
+    timeline_variables: motion_stimulus_stc,
     randomize_order: true,
     repetitions: 1,
     sample: {
@@ -407,8 +389,8 @@ timeline.push(instructions_color);
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
-    timeline: [stc_stimulus, fixation],
-    timeline_variables: color_stimulus,
+    timeline: [stimulus, fixation],
+    timeline_variables: color_stimulus_stc,
     randomize_order: true,
     repetitions: 1,
     sample: {

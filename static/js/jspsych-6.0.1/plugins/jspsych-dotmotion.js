@@ -11,15 +11,25 @@ jsPsych.plugins["dotmotion"] = (function() {
     parameters: {}
   }
 
+
   plugin.trial = function(display_element, trial) {
     //trial = jsPsych.pluginAPI.evaluateFunctionParameters(trial);
+
+    $.ajax({
+      url: '/static/js/config.json',
+      async: false,
+      dataType: 'json',
+      success: function (response) {
+        config = response[0]
+      }
+    });
 
 		//Note on '||' logical operator: If the first option is 'undefined', it evalutes to 'false' and the second option is returned as the assignment
     trial.task = trial.task || 'undefined';
     trial.choices = trial.choices || [];
 		trial.correct_choice = trial.correct_choice || 'undefined';
-		trial.trial_duration = trial.trial_duration || 500;
-    trial.dot_timeout = trial.dot_timeout || 0;
+		trial.trial_duration = trial.trial_duration || config.trial_duration;
+    trial.dot_timeout = trial.dot_timeout || config.dot_timeout;
 		trial.post_trial_gap = trial.post_trial_gap || 500;
 		trial.number_of_dots = trial.number_of_dots || 300;
 		trial.number_of_sets = trial.number_of_sets || 1;
