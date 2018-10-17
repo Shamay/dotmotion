@@ -142,59 +142,13 @@ var stimulus = {
 
   response_ends_trial: config.response_ends_trial, //Whether response ends the trial or not
   fill_ITT: config.fill_ITT, // Whether to standardize trial length or not, condition on response_ends_trial being true
-
-  responseAfterTimeout: config.responseAfterTimeout,
-  dot_timeout: config.dot_timeout,
+  text: jsPsych.timelineVariable('text'),
 
   on_start: function(stimulus){
-    if (stimulus.phase == '1.1') {
-      var data = { correct : ""};
-    }else{
-      var data = jsPsych.data.get().last(2).values()[0];
-    }
+    var data = jsPsych.data.get().last(2).values()[0];
 
-    if(stimulus.phase == '1.1'){
-      if(typeof data.correct === "undefined"){
-        stimulus.motionCoherence = 0.8;
-        console.log(currentMotionCoherence);
-      }else if(data.correct){
-        if(currentMotionCoherence > minCoherence){
-          currentMotionCoherence = currentMotionCoherence - learningRate;
-        }
-        stimulus.motionCoherence = currentMotionCoherence;
-        console.log(currentMotionCoherence);
-      }else{
-        if(currentMotionCoherence < maxCoherence){
-          if(currentMotionCoherence + 2*learningRate >= maxCoherence){
-            currentMotionCoherence = maxCoherence;
-          }else{
-            currentMotionCoherence = currentMotionCoherence + 2*learningRate;
-          }
-        }
-        stimulus.motionCoherence = currentMotionCoherence;
-        console.log(currentMotionCoherence);
-      }
-    }else if(stimulus.phase == '1.2'){
-      if(typeof data.correct === "undefined"){
-        stimulus.colorCoherence = 0.8;
-        console.log(currentColorCoherence);
-      }else if(data.correct){
-        if(currentColorCoherence > minCoherence){
-          currentColorCoherence = currentColorCoherence - learningRate;
-        }
-        stimulus.colorCoherence = currentColorCoherence;
-        console.log(currentColorCoherence);
-      }else{
-        if(currentColorCoherence < maxCoherence){
-          if(currentColorCoherence + 2*learningRate >= maxCoherence){
-            currentColorCoherence = maxCoherence;
-          }else{
-            currentColorCoherence = currentMotionCoherence + 2*learningRate;
-          }
-        }
-        stimulus.colorCoherence = currentColorCoherence;
-        console.log(currentColorCoherence);
-      }
+    if(stimulus.phase == '3'){
+      stimulus.stage = 'task_prc';
     }else if(stimulus.phase == '4'){
       stimulus.stage = 'task_exp';
       config.task_feedback = false; //turn off task feedback in third stage
@@ -213,6 +167,14 @@ if (config.coherentAxis ==  'verticalAxis'){
 // --------------------
 // FIRST PHASE
 // --------------------
+//staircasing phase
+var numTrials = 10;
+var currentMotionCoherence = 0.75;
+var currentColorCoherence = 0.75;
+var learningRate = 0.011;
+var minCoherence = 0.52;
+var maxCoherence = 0.80;
+var percentageCorrect = 0;
 
 /* define introduction block */
 var introduction = {
@@ -220,14 +182,25 @@ var introduction = {
   pages: [
       'Welcome to the dot-motion experiment! Click next to continue.',
       "<p>In this experiment, a swarm of red and blue moving dots will be moving on the screen.</p>" +
-      "<div style='float: center;'><img src='/static/images/example.png'></img></div>" +
       "<p>Click next for a moving example.</p>"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
 timeline.push(introduction);
-timeline.push(stimulus);
+//timeline.push(stimulus);
+
+var stimulus_example = {
+  timeline: [stimulus],
+  timeline_variables: [{
+    task: 'motion',
+    correct_response: 'a',
+    coherent_direction: degrees,
+    coherent_color: 'blue',
+    text: 'Dots moving down'
+  }],
+}
+timeline.push(stimulus_example);
 
 /* define instructions block */
 var instructions_motion = {
@@ -282,14 +255,77 @@ var instructions_color = {
   post_trial_gap: 1000
 };
 
-//staircasing phase
-var numTrials = 10;
-var currentMotionCoherence = 0.8;
-var currentColorCoherence = 0.8;
-var learningRate = 0.025;
-var minCoherence = 0.55;
-var maxCoherence = 0.90;
-var percentageCorrect = 0;
+// staircasing stimulus
+var stc_stimulus = {
+  type: "dotmotion",
+  stage: "task", // task or task_exp
+  RDK_type: 3, //The type of RDK used
+  choices: ['a', 'l'], //Choices available to be keyed in by participant
+
+  phase: jsPsych.timelineVariable('phase'),
+  task: jsPsych.timelineVariable('task'),
+  correct_choice: jsPsych.timelineVariable('correct_response'),
+  coherent_direction: jsPsych.timelineVariable('coherent_direction'),
+  coherent_color: jsPsych.timelineVariable('coherent_color'),
+  cue_shape: jsPsych.timelineVariable('cue_shape'),
+  motionCoherence:  jsPsych.timelineVariable('motionCoherence'),
+  colorCoherence: jsPsych.timelineVariable('colorCoherence'),
+
+  number_of_dots: config.number_of_dots, //Total number of dots in the aperture
+  trial_duration: config.trial_duration + config.dot_timeout, //Duration of each trial in ms
+  dot_timeout: config.dot_timeout,
+
+  response_ends_trial: config.response_ends_trial, //Whether response ends the trial or not
+  fill_ITT: config.fill_ITT, // Whether to standardize trial length or not, condition on response_ends_trial being true
+
+  on_start: function(stimulus){
+    var data = jsPsych.data.get().last(2).values()[0];
+
+    if(stimulus.phase == '1.1'){
+      // update coherence
+      if(typeof data.correct === "undefined"){
+        currentMotionCoherence = currentMotionCoherence + (2*learningRate - 0.002);
+      }else if(data.correct){
+        if(currentMotionCoherence > minCoherence){
+          currentMotionCoherence = currentMotionCoherence - learningRate;
+        }
+      }else{
+        if(currentMotionCoherence < maxCoherence){
+          if(currentMotionCoherence + (2*learningRate - 0.002) >= maxCoherence){
+            currentMotionCoherence = maxCoherence;
+          }else{
+            currentMotionCoherence = currentMotionCoherence + (2*learningRate - 0.002);
+          }
+        }
+      }
+
+      stimulus.motionCoherence = currentMotionCoherence;
+      console.log(stimulus.motionCoherence);
+
+    }else if(stimulus.phase == '1.2'){
+      // update coherence
+      if(typeof data.correct === "undefined"){
+        currentColorCoherence = currentMotionCoherence + (2*learningRate - 0.002);
+      }else if(data.correct){
+        if(currentColorCoherence > minCoherence){
+          currentColorCoherence = currentColorCoherence - learningRate;
+        }
+      }else{
+        if(currentColorCoherence < maxCoherence){
+          if(currentColorCoherence + (2*learningRate - 0.002) >= maxCoherence){
+            currentColorCoherence = maxCoherence;
+          }else{
+            currentColorCoherence = currentMotionCoherence + (2*learningRate - 0.002);
+          }
+        }
+      }
+
+      stimulus.colorCoherence = currentColorCoherence;
+      console.log(currentColorCoherence);
+
+    }
+  }
+}
 
 var motion_stimulus = [
   {// Motion trial 1
@@ -355,7 +391,7 @@ timeline.push(instructions_motion);
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
-    timeline: [stimulus, fixation],
+    timeline: [stc_stimulus, fixation],
     timeline_variables: motion_stimulus,
     randomize_order: true,
     repetitions: 1,
@@ -371,7 +407,7 @@ timeline.push(instructions_color);
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
-    timeline: [stimulus, fixation],
+    timeline: [stc_stimulus, fixation],
     timeline_variables: color_stimulus,
     randomize_order: true,
     repetitions: 1,

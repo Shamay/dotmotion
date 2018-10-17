@@ -37,6 +37,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 		trial.reinsert_type = trial.reinsert_type || 2;
 		trial.aperture_center_x = trial.aperture_center_x || window.innerWidth/2;
 		trial.aperture_center_y = trial.aperture_center_y || window.innerHeight/2;
+    trial.text = trial.text || '';
 
 		//Coherence can be zero, but logical operators evaluate it to false. So we do it manually
 		if(typeof trial.motionCoherence === 'undefined'){
@@ -49,9 +50,6 @@ jsPsych.plugins["dotmotion"] = (function() {
 		}
 
 		//Logical operators won't work for boolean parameters like they do for non-boolean parameters above, so we do it manually
-    if (typeof trial.responseAfterTimeout === 'undefined'){
-      trial.responseAfterTimeout = false;
-    }
   	if (typeof trial.response_ends_trial === 'undefined') {
 			trial.response_ends_trial = true;
 		}
@@ -146,7 +144,8 @@ jsPsych.plugins["dotmotion"] = (function() {
 
 		//The document body IS 'display_element' (i.e. <body class="jspsych-display-element"> .... </body> )
 		var body = document.getElementsByClassName("jspsych-display-element")[0];
-		//Remove the margins and paddings of the display_element
+
+    //Remove the margins and paddings of the display_element
 		body.style.margin = 0;
 		body.style.padding = 0;
 		body.style.backgroundColor = backgroundColor; //Match the background of the display element to the background color of the canvas so that the removal of the canvas at the end of the trial is not noticed
@@ -528,6 +527,19 @@ jsPsych.plugins["dotmotion"] = (function() {
 		function draw() {
 			//Clear the canvas to draw new dots
 			ctx.clearRect(0, 0, width, height)
+
+      //write something
+      ctx.font = "45px Open Sans, Arial, sans-serif";
+      ctx.textAlign= "center";
+      ctx.fillStyle = "white";
+      ctx.fillText(trial.text, width/2, height/4);
+
+      /*var img = new Image();
+      img.onload = function () {
+        ctx.drawImage(img, width/2, height/2);
+      }
+      img.src = "/static/images/down.png";*/
+
 			//Loop through the dots one by one and draw them
 			for (var i = 0; i < nDots; i++) {
 				dot = dotArray[i];
@@ -829,7 +841,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 		//Function to make the dots move on the canvas
 		function animateDotMotion() {
 			//Start to listen to subject's key responses
-      if (!trial.responseAfterTimeout && trial.dot_timeout == 0){
+      if (trial.dot_timeout == 0){
 			   startKeyboardListener();
        }
 
@@ -837,9 +849,7 @@ jsPsych.plugins["dotmotion"] = (function() {
       function timeoutDots(){
         stopDotMotion = true;
         display_element.innerHTML = '<div style="font-size:60px;">?</div>';
-        if(trial.responseAfterTimeout){
-          startKeyboardListener();
-        }
+        startKeyboardListener();
       }
 
       if ( (!dotTimerHasStarted) && (trial.dot_timeout > 0) ){
