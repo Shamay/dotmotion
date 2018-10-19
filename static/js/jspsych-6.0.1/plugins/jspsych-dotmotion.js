@@ -73,7 +73,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 		}
 
 		//Convert the parameter variables to those that the code below can use
-    var stage = trial.stage; // cue or task
+    var phase = trial.phase; 
 		var nDots = trial.number_of_dots; //Number of dots per set (equivalent to number of dots per frame)
 		var nSets = trial.number_of_sets; //Number of sets to cycle through per frame
 		var coherentDirection = trial.coherent_direction; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
@@ -293,7 +293,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 
 			//Place all the data to be saved from this trial in one data object
 			var trial_data = {
-        "stage": trial.stage, // cue or task
+        "phase": trial.phase,
         "task": trial.task, //motion or color
 				"rt": response.rt, //The response time
 				"key_press": response.key, //The key that the subject pressed
@@ -362,7 +362,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 		//Function that determines if the response is correct
 		function correctOrNot(){
 			//Check that the correct_choice has been defined
-			if(typeof trial.correct_choice !== 'undefined' && (stage == 'task' || stage == 'task_exp')){
+			if(typeof trial.correct_choice !== 'undefined'){
 				//Check if the correct_choice variable holds an array
 				if(trial.correct_choice.constructor === Array){ //If it is an array
 					trial.correct_choice = trial.correct_choice.map(function(x){return x.toUpperCase();}); //Convert all the values to upper case
