@@ -126,7 +126,7 @@ var fixation = {
 
     // prompt whether the previous trial was correct or not
     if(config.task_feedback){
-      if(fixation.phase == '1.1' || fixation.phase == '1.2'){
+      if(fixation.phase == '1.1' || fixation.phase == '1.2' || fixation.phase == '3'){
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
