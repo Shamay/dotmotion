@@ -130,23 +130,24 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          fixation.prompt = '<div class = centerbox><div style="color:green;font-size:60px"; class = center-text>Correct!</div></div>';
+          fixation.prompt = '<div style="color:green;font-size:30px"; class = center-text>Correct!'+
+          '</div><p style="color:grey;">Press A for mostly downward motion.</p>';
         }else if(!data.correct){
           if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
-              fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
-              "</div><p>Press A for mostly downward motion.</p></div>";
+              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
+              "</div><p>Press A for mostly downward motion.</p>";
             }else if(data.correct_choice == 'l'){
-              fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
-              "</div><p>Press L for mostly upward motion.</p></div>";
+              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
+              "</div><p>Press L for mostly upward motion.</p>";
             }
           }else if(data.task == 'color'){
             if(data.correct_choice == 'a'){
-              fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
-              "</div><p>Press A for mostly red dots.</p></div>";
+              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
+              "</div><p>Press A for mostly red dots.</p>";
             }else if(data.correct_choice == 'l'){
-              fixation.prompt = '<div class = centerbox><div style="color:red;font-size:60px"; class = center-text>Incorrect' +
-              "</div><p>Press L for mostly blue dots.</p></div>";
+              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
+              "</div><p>Press L for mostly blue dots.</p>";
             }
           }
           fixation.trial_duration = fixation.trial_duration + 3000;
@@ -337,8 +338,8 @@ var introduction = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-timeline.push(introduction);
-timeline.push(stimulus);
+//timeline.push(introduction);
+//timeline.push(stimulus);
 
 
 /* define instructions block */
@@ -403,7 +404,7 @@ var stimulus_example = {
     correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Dots moving down'
+    text: ''
   }],
 }
 timeline.push(stimulus_example);
@@ -918,26 +919,30 @@ jsPsych.init({
     timeline: timeline,
     // record data to psiTurk after each trial
     on_data_update: function(data) {
-        psiturk.recordTrialData(data);
+        //psiturk.recordTrialData(data);
     },
     on_finish: function() {
       jsPsych.data.displayData(); //Display the data onto the browser screen
-        // record proportion correct as unstructured data
-        psiturk.recordUnstructuredData("bonus", jsPsych.data.get()
-                                       .filter([{stimulus_type: 'incongruent'},
-                                                {stimulus_type: 'congruent'},
-                                                {stimulus_type: 'unrelated'}])
-                                       .select('correct')
-                                       .mean()
-                                       .toFixed(2));
-        // save data
-        psiturk.saveData({
-            success: function() {
-                // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
-                psiturk.computeBonus("compute_bonus", function(){
-                    psiturk.completeHIT();
-                });
-            }
-        });
+
+
+      // record proportion correct as unstructured data
+      psiturk.recordUnstructuredData("bonus", jsPsych.data.get()
+                                     .filter([{stimulus_type: 'incongruent'},
+                                              {stimulus_type: 'congruent'},
+                                              {stimulus_type: 'unrelated'}])
+                                     .select('correct')
+                                     .mean()
+                                     .toFixed(2));
+      // save data
+      psiturk.saveData({
+          success: function() {
+              // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
+              psiturk.computeBonus("compute_bonus", function(){
+                  psiturk.completeHIT();
+              });
+          }
+      });
+
+
     },
 });

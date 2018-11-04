@@ -38,15 +38,15 @@ jsPsych.plugins["dotmotion"] = (function() {
 		trial.dot_radius = trial.dot_radius || 2;
 		trial.dot_life = trial.dot_life || -1;
 		trial.move_distance = trial.move_distance || 1;
-		trial.aperture_width = trial.aperture_width || 600;
-		trial.aperture_height = trial.aperture_height || 400;
+		trial.aperture_width = trial.aperture_width || 300; // default: 600
+		trial.aperture_height = trial.aperture_height || 270; // default: 400
 		trial.dot_color = trial.dot_color || "white";
 		trial.background_color = trial.background_color || "grey";
 		trial.RDK_type = trial.RDK_type || 7;
 		trial.aperture_type = trial.aperture_type || 2;
 		trial.reinsert_type = trial.reinsert_type || 2;
-		trial.aperture_center_x = trial.aperture_center_x || window.innerWidth/2;
-		trial.aperture_center_y = trial.aperture_center_y || window.innerHeight/2;
+		trial.aperture_center_x = trial.aperture_center_x || (window.innerWidth * 0.95) / 2;
+		trial.aperture_center_y = trial.aperture_center_y || (window.innerHeight * 0.95) / 2;
     trial.text = trial.text || '';
 
 		//Coherence can be zero, but logical operators evaluate it to false. So we do it manually
@@ -73,7 +73,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 		}
 
 		//Convert the parameter variables to those that the code below can use
-    var phase = trial.phase; 
+    var phase = trial.phase;
 		var nDots = trial.number_of_dots; //Number of dots per set (equivalent to number of dots per frame)
 		var nSets = trial.number_of_sets; //Number of sets to cycle through per frame
 		var coherentDirection = trial.coherent_direction; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
@@ -168,8 +168,8 @@ jsPsych.plugins["dotmotion"] = (function() {
 		var ctx = canvas.getContext("2d");
 
 		//Declare variables for width and height, and also set the canvas width and height to the window width and height
-		var width = canvas.width = window.innerWidth;
-		var height = canvas.height = window.innerHeight;
+		var width = canvas.width = window.innerWidth * 0.95;
+		var height = canvas.height = window.innerHeight * 0.95;
 
 		//Set the canvas background color
 		canvas.style.backgroundColor = backgroundColor;

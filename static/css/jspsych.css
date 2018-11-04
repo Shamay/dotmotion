@@ -14,7 +14,8 @@
    align-items: center;*/
    /*height: 100%;
    width: 100%;*/
-   overflow-y: scroll;
+   overflow-x: auto;
+   overflow-y: auto;
  }
 
  .jspsych-display-element:focus {
