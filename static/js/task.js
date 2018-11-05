@@ -1,5 +1,5 @@
 /* load psiturk */
-var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+//var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
 
 //The main timeline to be fed into jsPsych.init
 var timeline = [];
@@ -130,24 +130,24 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          fixation.prompt = '<div style="color:green;font-size:30px"; class = center-text>Correct!'+
-          '</div><p style="color:grey;">Press A for mostly downward motion.</p>';
+          fixation.prompt = '<div style="color:#1FAC65;font-size:30px"; class = center-text><b>Correct!</b>'+
+          '</div><p style="color:grey;">Filler</p><p style="color:grey;font-size:12px">Filler</p>';
         }else if(!data.correct){
           if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
-              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
-              "</div><p>Press A for mostly downward motion.</p>";
+              fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press A for mostly downward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
             }else if(data.correct_choice == 'l'){
-              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
-              "</div><p>Press L for mostly upward motion.</p>";
+              fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press L for mostly upward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
             }
           }else if(data.task == 'color'){
             if(data.correct_choice == 'a'){
-              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
-              "</div><p>Press A for mostly red dots.</p>";
+              fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press A for mostly red dots.</p><p style="color:grey;font-size:12px">Filler</p>';
             }else if(data.correct_choice == 'l'){
-              fixation.prompt = '<div style="color:red;font-size:30px"; class = center-text>Incorrect' +
-              "</div><p>Press L for mostly blue dots.</p>";
+              fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press L for mostly blue dots.</p><p style="color:grey;font-size:12px">Filler</p>';
             }
           }
           fixation.trial_duration = fixation.trial_duration + 3000;
@@ -395,7 +395,7 @@ var instructions_color = {
   post_trial_gap: 1000
 };
 
-timeline.push(instructions_motion);
+//timeline.push(instructions_motion);
 
 var stimulus_example = {
   timeline: [stimulus],
@@ -407,7 +407,7 @@ var stimulus_example = {
     text: ''
   }],
 }
-timeline.push(stimulus_example);
+//timeline.push(stimulus_example);
 
 // staircasing trials
 var motion_stimulus_stc = motion_stimulus;
@@ -430,10 +430,10 @@ for(i = 0; i < numTrials; i++){
         size: 1
       }
     }
-  timeline.push(stim_sequence);
+  //timeline.push(stim_sequence);
 }
 
-timeline.push(instructions_color);
+//timeline.push(instructions_color);
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
@@ -446,7 +446,7 @@ for(i = 0; i < numTrials; i++){
         size: 1,
             }
     }
-  timeline.push(stim_sequence);
+  //timeline.push(stim_sequence);
 }
 
 // --------------------
@@ -551,7 +551,7 @@ var cue_response = {
       sum = response_array.reduce(function(pv, cv) { return pv + cv; }, 0);
     }
     console.log(data.cue, data.key_press, data.correct, trial_counter, sum);
-    cue_response.stimulus = generateCue(data.cue, data.key_press, data.correct);
+    cue_response.stimulus = generateCue(data.cue, data.key_press, data.correct, trial_counter);
   }
 }
 
@@ -562,79 +562,95 @@ var cue_fixation = {
   trial_duration: config.inter_trial_interval
 }
 
-function generateCue(cue, answer = '', correct = true){
+function generateCue(cue, answer = '', correct = true, trial_counter){
+  var response = null;
   if(answer == null){
-    return "<div class='row'>" +
-           "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
-              "<div class='column' style='border:3px solid grey'>" +
+    response = "<div class='column' style='border:3px solid grey'>" +
               "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
               "<div class='column' style='border:3px solid grey'>" +
               "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
            "</div>" +
-           "<div style='width: 700px; height: 258.667px'>" +
-              "<div style='justify-content: center; display: flex; font-size:60px;" +
-              "height: 258.667px; align-items: center;'>Respond Faster!</div>" +
+           "<div style='height: 158.667px'>" +
+              "<div style='justify-content: center; display: flex; font-size:30px;" +
+              "height: 158.667px; align-items: center;'>Respond Faster!</div>" +
+           "</div>"  +
+           "<div style='width: 700px; height: 100px;'>" +
+              "<div style='float: center; color: grey'>Filler</div>" +
            "</div>"
   }else if(answer == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('q')){
       if(correct){
-        return "<div class='row'>"+
-                "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
-                  "<div class='column' style='border:3px solid green'>" +
+        response = "<div class='column' style='border:3px solid green'>" +
                   "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                   "<div class='column' style='border:3px solid grey'>" +
                   "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
                "</div>" +
-               "<div style='width: 700px;'>" +
+               "<div>" +
                   "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
+               "</div>" +
+               "<div style='width: 700px; height: 100px;'>" +
+                  "<div style='float: center; color: grey'>Filler</div>" +
                "</div>"
       }else{
-        return "<div class='row'>"+
-               "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
-                  "<div class='column' style='border:3px solid red'>" +
+        response = "<div class='column' style='border:3px solid red'>" +
                   "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                   "<div class='column' style='border:3px solid grey'>" +
                   "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
                "</div>" +
-               "<div style='width: 700px;'>" +
+               "<div>" +
                   "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
+               "</div>" +
+               "<div style='width: 700px; height: 100px;'>" +
+                  "<div style='float: center; color: grey'>Filler</div>" +
                "</div>"
       }
   }else if(answer == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('p')){
     if(correct){
-      return "<div class='row'>"+
-             "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
-                "<div class='column' style='border:3px solid grey'>" +
+      response = "<div class='column' style='border:3px solid grey'>" +
                 "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                 "<div class='column' style='border:3px solid green'>" +
                 "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
              "</div>" +
-             "<div style='width: 700px;'>" +
+             "<div>" +
                 "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
+             "</div>"   +
+             "<div style='width: 700px; height: 100px;'>" +
+                "<div style='float: center; color: grey'>Filler</div>" +
              "</div>"
     }else{
-      return "<div class='row'>"+
-             "You need "+ (18-sum) +" more correct trials to move on!</div><div class='row'>" +
-                "<div class='column' style='border:3px solid grey'>" +
+      response = "<div class='column' style='border:3px solid grey'>" +
                 "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
                 "<div class='column' style='border:3px solid red'>" +
                 "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
              "</div>" +
-             "<div style='width: 700px;'>" +
+             "<div>" +
                 "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
+             "</div>"   +
+             "<div style='width: 700px; height: 100px;'>" +
+                "<div style='float: center; color: grey'>Filler</div>" +
              "</div>"
     }
   }else{
-    return "<div style='color:grey'; class='row'>"+
-           "-</div><div class='row'>" +
-              "<div class='column' style='border:3px solid grey'>" +
+    response = "<div class='column' style='border:3px solid grey'>" +
               "<p class='small'><strong>Motion Trial (Q)</strong></p></div>" +
               "<div class='column' style='border:3px solid grey'>" +
               "<p class='small'><strong>Color Trial (P)</strong></p></div>" +
            "</div>" +
-           "<div style='width: 700px;'>" +
+           "<div>" +
               "<div style='float: center;'><img src='/static/images/" + cue + ".png'></img></div>" +
+           "</div>"  +
+           "<div style='width: 700px; height: 100px;'>" +
+              "<div style='float: center; color: grey'>Filler</div>" +
            "</div>"
   }
+
+  if(answer != null && trial_counter % 5 == 0){
+    return "<div class='row'>" +
+           "You need "+ (18-sum) +" more correct trials to move on!</div>"+
+           "<div class='row'>" + response;
+  }else{
+    return "<div style='color:grey'; class='row'>-</div><div class='row'>" + response;
+  }
+
 }
 
 var cue_stimuli = [
@@ -924,6 +940,7 @@ jsPsych.init({
     on_finish: function() {
       jsPsych.data.displayData(); //Display the data onto the browser screen
 
+      /*
 
       // record proportion correct as unstructured data
       psiturk.recordUnstructuredData("bonus", jsPsych.data.get()
@@ -942,6 +959,8 @@ jsPsych.init({
               });
           }
       });
+
+      */
 
 
     },
