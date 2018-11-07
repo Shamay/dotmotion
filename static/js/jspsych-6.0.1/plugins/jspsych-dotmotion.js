@@ -331,7 +331,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 			display_element.innerHTML = '';
 
 			//Restore the margin to JsPsych defaults
-			body.style.margin = "50px auto 50px auto";
+			body.style.margin = "auto";
 
 			//End this trial and move on to the next trial
 			jsPsych.finishTrial(trial_data);
@@ -539,16 +539,12 @@ jsPsych.plugins["dotmotion"] = (function() {
 			ctx.clearRect(0, 0, width, height)
 
       //write something
-      ctx.font = "32px Open Sans, Arial, sans-serif";
-      ctx.textAlign= "center";
-      ctx.fillStyle = "white";
-      ctx.fillText(trial.text, width/2, height/4);
-
-      /*var img = new Image();
-      img.onload = function () {
-        ctx.drawImage(img, width/2, height/2);
+      if(trial.text != ''){
+        ctx.font = "32px Open Sans, Arial, sans-serif";
+        ctx.textAlign= "center";
+        ctx.fillStyle = "white";
+        ctx.fillText(trial.text, width/2, height/4);
       }
-      img.src = "/static/images/down.png";*/
 
 			//Loop through the dots one by one and draw them
 			for (var i = 0; i < nDots; i++) {

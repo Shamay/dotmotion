@@ -17,7 +17,7 @@ $.ajax({
 });
 
 $.ajax({
-    url: "/static/data.csv",
+    url: "/static/trial_data/practice_trials.csv",
     async: false,
     dataType: "text",
     success: function (response) {
@@ -94,19 +94,15 @@ var cue = {
 
   on_start: function(cue){
     if(typeof cue.cue_shape === "undefined"){
-      cue.stimulus = "<div style='width: 700px;'>" +
-         "<div style='float: center;'><img src='/static/images/circle.png'></img></div>" +
-      "</div>";
+      cue.stimulus = "<div style='float: center;'><img src='/static/images/circle.png'></img></div>";
     }else{
       if(cue.phase == '3'){
         cue.stimulus = "<div style='width: 700px;'>" +
            "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
         "(this cues a " + cue.task + " task)</div>";
-        cue.trial_duration = cue.trial_duration + 1500;
+        cue.trial_duration = cue.trial_duration + 2000;
       }else{
-        cue.stimulus = "<div style='width: 700px;'>" +
-           "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
-        "</div>";
+        cue.stimulus = "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>";
       }
     }
   }
@@ -567,8 +563,6 @@ var instructions_cue = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-timeline.push(instructions_cue);
-timeline.push(cue, stimulus);
 
 /* define instructions block */
 var instructions_cue2 = {
@@ -606,7 +600,10 @@ var instructions_cue2 = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-timeline.push(instructions_cue2);
+
+//timeline.push(instructions_cue);
+//timeline.push(cue, stimulus);
+//timeline.push(instructions_cue2);
 
 var cue_phase = {
   type: "html-keyboard-response",
@@ -781,7 +778,7 @@ var cue_sequence = {
     }
   }
 
-timeline.push(cue_sequence);
+//timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
@@ -789,107 +786,112 @@ timeline.push(cue_sequence);
 var instructions_prc = {
   type: 'instructions',
   pages: [
-      'Welcome to the THIRD PHASE. Click next to begin the experiment'
+    '<div style="font-size:32px">Welcome to the <strong>Phase 3</strong>. </div></br>'+
+    '<div style="font-size:24px">We will be switching between color and motion tasks.</div></br>' +
+    'The cues you learned earlier will tell you if you </br>'+
+    'are supposed to focus on color or motion.</br></br>' +
+    "<b>Remember:</b></br>" +
+    "We're coming back to 'A' or 'L' responses.</br>" +
+    'A is for majority downward motion.</br>' +
+    'L is for majority upward motion.</br></br>' +
+    "<b>Also:</b></br>"+
+    "You'll no longer be waiting for the '?'.</br>Respond as soon as you know the answer.</br></br>"+
+    'Click next for an example motion cue + trial.'
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-timeline.push(instructions_prc);
 
-//generate timeline variables
-function generateTrialPractice(vars){
-  var cue_select = vars[5];
-  var task = vars[4];
-
-  var cue_shape;
-  if(task == "motion"){
-    if(cue_select == 1){
-      cue_shape = mapping[1];
-    }else if(cue_select == 2){
-      cue_shape = mapping[2];
-    }
-  }else if(task == "color"){
-    if(cue_select == 1){
-      cue_shape = mapping[3];
-    }else if(cue_select == 2){
-      cue_shape = mapping[4];
-    }
-  }
-
-  var correct_choice;
-  if(task == 'motion' && vars[6] == 'up'){
-    correct_choice = 'l';
-  }else if(task == 'motion' && vars[6] == 'down'){
-    correct_choice = 'a';
-  }else if(task == 'color' && vars[8] == 'red'){
-    correct_choice = 'a';
-  }else if(task == 'color' && vars[8] == 'blue'){
-    correct_choice = 'l';
-  }
-
-  var coherent_direction;
-  if(vars[6] == 'up'){
-    coherent_direction = degrees - 180;
-  }else if(vars[6] == 'down'){
-    coherent_direction = degrees;
-  }
-
-  var coherent_color;
-  if(vars[8] == 'red'){
-    coherent_color = 'red';
-  }else if(vars[8] == 'blue'){
-    coherent_color = 'blue';
-  }
-
-  return [{
-      phase: '3',
-      //id: vars[0],
-      //block: vars[1],
-      //mblock: vars[2],
-      //trial: vars[3],
-      task: vars[4],
-      cue_shape: cue_shape,
-      correct_choice: correct_choice,
-      coherent_direction: coherent_direction,
-      motionCoherence: vars[7],
-      coherent_color: coherent_color,
-      colorCoherence: vars[9]
-    }];
+var practice_example = {
+  timeline: [cue,fixation,stimulus,fixation],
+  timeline_variables: [{
+    task: 'motion',
+    correct_choice: 'a',
+    coherent_direction: degrees,
+    coherent_color: 'blue',
+    text: 'Motion Task, Mostly Down (Press A)',
+    trial_duration: 4000,
+    cue_shape: mapping[1],
+    phase: 3
+  }],
 }
 
-for (line in prc_lines){
-  var trial_vars_prc = generateTrialPractice(prc_lines[line]); //generate timeline variables
-
-  if(prc_lines[line][3] == 1){
-    var cue_sequence = {
-      timeline: [cue, fixation, stimulus, fixation],
-      timeline_variables: trial_vars_prc
-      }
-    timeline.push(cue_sequence);
-  }else{
-    var stim_sequence = {
-      timeline: [stimulus, fixation],
-      timeline_variables: trial_vars_prc
-      }
-    timeline.push(stim_sequence);
-  }
-}
-
-// --------------------
-// FOURTH PHASE
-// --------------------
-var instructions_exp = {
+var instructions_prc2 = {
   type: 'instructions',
   pages: [
-      'Welcome to the FOURTH PHASE. Click next to begin the experiment'
+    '<div style="font-size:24px">Great!</div></br>' +
+    "Now let's try a color example.</br></br>" +
+    "<b>Remember:</b></br>" +
+    'A is for majority red dots.</br>' +
+    'L is for majority blue dots.</br></br>' +
+    "<b>Also:</b></br>"+
+    "You'll no longer be waiting for the '?'.</br>Respond as soon as you know the answer.</br></br>"+
+    'Click next for an color cue + trial.'
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-timeline.push(instructions_exp);
+
+var practice_example2 = {
+  timeline: [cue,fixation,stimulus,fixation],
+  timeline_variables: [{
+    task: 'color',
+    correct_choice: 'l',
+    coherent_direction: degrees,
+    coherent_color: 'blue',
+    text: 'Color Task, Mostly Blue (Press L)',
+    trial_duration: 4000,
+    cue_shape: mapping[3],
+    phase: 3
+  }],
+}
+
+var instructions_prc3 = {
+  type: 'instructions',
+  pages: [
+    "<div style='font-size:24px'>Fantastic! Now you'll begin Phase 3.</div></br>" +
+    "Just like in Phase 1, you will have a block of trials, but now we will add cues. </br>" +
+    "Before each set of trials you will see a cue that indicates " +
+    "the current task to be performed.</br>",
+    'Normally you will have a cue and then some trials before getting to another cue.</br></br>' +
+    'Do the same task for all the subsequent trials until you get a new cue: </br></br>'+
+    "Example: </br>" +
+    "<b>"+mapping[1]+" cue</b> -> motion task -> motion task -> motion task -> motion task -> motion task -> </br> " +
+    "<b>"+mapping[3]+" cue</b> -> color task -> color task -> color task -> color task -> </br>" +
+    "<b>"+mapping[4]+" cue</b> -> color task -> color task -> color task ...</br></br>" +
+    'Click next to review the cues again.',
+    "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
+        "<div class='row'>"+
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+        "</div>" +
+        "<div class='row'>"+
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
+        "</div>",
+      "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+        'A is for down (motion) and red (color)</br>' +
+        'L is for up (motion) and blue (color)</br></br>' +
+        "You'll no longer be waiting for the '?'. Respond as soon as you know the answer.</br>" +
+        "You'll have three seconds to repond.</br></br>" +
+      "</br>Please ready your fingers on the A and L keys and press next whenever you're ready!"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+//timeline.push(instructions_prc);
+//timeline.push(practice_example);
+//timeline.push(instructions_prc2);
+//timeline.push(practice_example2);
+//timeline.push(instructions_prc3);
 
 //generate timeline variables
-function generateTrialExp(vars){
+function generateTrials(vars, phase){
   var task;
   if(vars[0] == 1){
     task = 'motion';
@@ -913,7 +915,7 @@ function generateTrialExp(vars){
     }
   }
 
-  var correct_choice; // 1-l (left), 2-a (right)
+  var correct_choice; // 1-l (right), 2-a (left)
   if(vars[8] == 1){
     correct_choice = 'l';
   }else if(vars[8] == 2){
@@ -934,9 +936,8 @@ function generateTrialExp(vars){
     coherent_color = 'red';
   }
 
-
   return [{
-      phase: '4',
+      phase: phase,
       //id: vars[0],
       //block: vars[1],
       //mblock: vars[2],
@@ -951,8 +952,56 @@ function generateTrialExp(vars){
     }];
 }
 
+for (line in prc_lines){
+  var trial_vars_prc = generateTrials(prc_lines[line], '3'); //generate timeline variables
+
+  if(prc_lines[line][9] == 1){
+    var cue_sequence = {
+      timeline: [cue, fixation, stimulus, fixation],
+      timeline_variables: trial_vars_prc
+      }
+    //timeline.push(cue_sequence);
+  }else{
+    var stim_sequence = {
+      timeline: [stimulus, fixation],
+      timeline_variables: trial_vars_prc
+      }
+    //timeline.push(stim_sequence);
+  }
+}
+
+// --------------------
+// FOURTH PHASE
+// --------------------
+var instructions_exp = {
+  type: 'instructions',
+  pages: [
+      '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
+      "This is the same as Phase 3, but with no hints or feedback.</br></br>" +
+      "In other words, you have to remember which cues refer to motion and color</br>" +
+      "AND you won't be told whether you got the trial correct or not! </br></br>" +
+      'Click next to review the cues again.',
+      "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
+          "<div class='row'>"+
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+          "</div>" +
+          "<div class='row'>"+
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
+          "</div>",
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+timeline.push(instructions_exp);
+
 for (line in exp_lines){
-  var trial_vars_exp = generateTrialExp(exp_lines[line]); //generate timeline variables
+  var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
 
   if(exp_lines[line][9] == 1){
     var cue_sequence = {
