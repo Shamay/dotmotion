@@ -539,7 +539,7 @@ jsPsych.plugins["dotmotion"] = (function() {
 			ctx.clearRect(0, 0, width, height)
 
       //write something
-      ctx.font = "45px Open Sans, Arial, sans-serif";
+      ctx.font = "32px Open Sans, Arial, sans-serif";
       ctx.textAlign= "center";
       ctx.fillStyle = "white";
       ctx.fillText(trial.text, width/2, height/4);
