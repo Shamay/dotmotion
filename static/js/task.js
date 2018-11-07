@@ -1,5 +1,5 @@
 /* load psiturk */
-//var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
 
 //The main timeline to be fed into jsPsych.init
 var timeline = [];
@@ -570,30 +570,30 @@ var instructions_cue2 = {
   pages: [
     "<p>To cue the <strong>motion</strong> task, you will be shown one of the two cues below.</p>" +
       "<div class='row'>"+
-      "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-      "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
-      "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-      "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
+        "<div class='column' style='float: left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
+        "<div class='column' style='float: right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
       "</div>",
     "<p>To cue the <strong>color</strong> task, you will be shown one of the two cues below.</p>" +
       "<div class='row'>"+
-      "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-      "<p class='small'><strong>"+mapping[3]+" cues color</br>(Press P)</strong></p></div>" +
-      "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-      "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
-      "</div>",
-    "<div style='font-size:24px'>Let's practice associating cues and their tasks.</div>" +
-        "<div class='row'>"+
-        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
-        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
-        "</div>" +
-        "<div class='row'>"+
-        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+        "<div class='column' style='float:center; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
         "<p class='small'><strong>"+mapping[3]+" cues color</br>(Press P)</strong></p></div>" +
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
         "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
+      "</div>",
+    "<div style='font-size:24px'>Let's practice associating cues and their tasks.</div>" +
+        "<div class='row'>"+
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
+        "</div>" +
+        "<div class='row'>"+
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[3]+" cues color</br>(Press P)</strong></p></div>" +
+          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
         "</div>" +
       "</br>Please ready your fingers on the Q and P keys and press next whenever you're ready!"
   ],
@@ -610,7 +610,7 @@ var cue_phase = {
   stimulus: jsPsych.timelineVariable('stimulus'),
   choices: ['p', 'q'],
   data: jsPsych.timelineVariable('data'),
-  trial_duration: config.trial_duration,
+  trial_duration: config.trial_duration + 750,
   on_finish: function(data){
     if(data.key_press == null){
       data.correct == null;
@@ -862,17 +862,17 @@ var instructions_prc3 = {
     'Click next to review the cues again.',
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
-        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
-        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+          "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
         "</div>" +
         "<div class='row'>"+
-        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
-        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
-        "</div>",
+          "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[3]+" cues color</br>(Press P)</strong></p></div>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
+        "</div></br>",
       "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
         'A is for down (motion) and red (color)</br>' +
         'L is for up (motion) and blue (color)</br></br>' +
@@ -983,15 +983,15 @@ var instructions_exp = {
       'Click next to review the cues again.',
       "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
           "<div class='row'>"+
-          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+          "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
           "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
-          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
           "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
           "</div>" +
           "<div class='row'>"+
-          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+          "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
           "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
-          "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
           "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
           "</div>",
   ],
@@ -1040,40 +1040,7 @@ for (line in exp_lines){
 
     outputData(cue_data,rt_data,acc_data);
   }
-})
-
-function outputData(cue_shape, rt, acc){
-  headers.push('rt');
-  headers.push('correct');
-  headers.push('cue_shape');
-  for(line in lines){
-    lines[line].push(rt[line]);
-    lines[line].push(acc[line]);
-    lines[line].push(cue_shape[line]);
-  }
-
-  let csv;
-  for(let col = 0; col < headers.length; col++){
-    csv += headers[col] + ",";
-  }
-  csv += '\r\n';
-
-  // Loop the array of objects
-  for(let row = 0; row < lines.length; row++){
-    for(let col = 0; col < headers.length; col++){
-      csv += lines[row][col] + ",";
-    }
-    csv += '\r\n';
-  }
-
-  // Once we are done looping, download the .csv by creating a link
-  let link = document.createElement('a')
-  link.id = 'download-csv'
-  link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
-  link.setAttribute('download', 'output.csv');
-  document.body.appendChild(link)
-  document.querySelector('#download-csv').click()
-}*/
+})*/
 
 // record id, condition, counterbalance on every trial
 jsPsych.data.addProperties({
@@ -1092,7 +1059,7 @@ jsPsych.init({
     on_finish: function() {
       jsPsych.data.displayData(); //Display the data onto the browser screen
 
-      /*
+
 
       // record proportion correct as unstructured data
       psiturk.recordUnstructuredData("bonus", jsPsych.data.get()
@@ -1112,7 +1079,7 @@ jsPsych.init({
           }
       });
 
-      */
+
 
 
     },
