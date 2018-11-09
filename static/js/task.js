@@ -573,20 +573,8 @@ var instructions_cue = {
   post_trial_gap: 1000
 };
 
-var instructions_cue2 = {
-  type: 'instructions',
-  pages: [
-    "You will be doing a training task where it will show you a cue,</br>"+
-    "and you will have to respond whether it corresponds to a</br>" +
-    "</b>motion</b> task (press Q) or a </b>color</b> task (press P).</br></br>" +
-    "Click next for an example."
-  ],
-  show_clickable_nav: true,
-  post_trial_gap: 1000
-};
-
 /* define instructions block */
-var instructions_cue3 = {
+var instructions_cue2 = {
   type: 'instructions',
   pages: [
     "<p>To cue the <strong>motion</strong> task, you will be shown one of the two cues below.</p>" +
@@ -603,6 +591,11 @@ var instructions_cue3 = {
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
         "<p class='small'><strong>"+mapping[4]+" cues color task</br>(RED or BLUE)</strong></p></div>" +
       "</div></br>In other words, after you see one of these cues,</br>you will decide whether the majority of dots are RED or BLUE.",
+      "You will be doing a training task where it will show you a cue,</br>"+
+      "and you will have to respond whether it corresponds to a</br>" +
+      "</b>motion</b> task (press Q) or a </b>color</b> task (press P).</br></br>" +
+      "Remember:</br></br> Motion task cue -> Press Q</br>Color task cue -> Press P</br></br>"+
+      "Click next to review the cues.",
     "<div style='font-size:24px'>Let's practice associating cues and their tasks.</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
@@ -622,12 +615,43 @@ var instructions_cue3 = {
   post_trial_gap: 1000
 };
 
+var instructions_cue3 = {
+  type: 'instructions',
+  pages: [
+    "Now that you've gotten a chance to practice, you have to do the same task without any hints.</br></br>" +
+    "In order to proceed, you will need to get 18 out of the previous 20 trials correct.</br>" +
+    "To move on, you have to <b><u>memorize</u></b> whether a cue corresponds to motion or color!</br></br>"+
+    "Click next to review the cues again. Please memorize them!",
+  "<div style='font-size:24px'>Try your best to memorize these cues and their tasks.</div>" +
+      "<div class='row'>"+
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
+      "</div>" +
+      "<div class='row'>"+
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[3]+" cues color</br>(Press P)</strong></p></div>" +
+        "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+        "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
+      "</div>" +
+    "</br>Please ready your fingers on the Q and P keys and press next whenever you're ready!"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
 var cue_phase = {
   type: "html-keyboard-response",
   stimulus: jsPsych.timelineVariable('stimulus'),
   choices: ['p', 'q'],
   data: jsPsych.timelineVariable('data'),
-  trial_duration: config.trial_duration + 750,
+  trial_duration: config.trial_duration + 1000,
+  on_start: function(cue_phase){
+    if(cue_phase.data.practice != 0){
+      cue_phase.trial_duration = cue_phase.trial_duration + 3000;
+    }
+  },
   on_finish: function(data){
     if(data.key_press == null){
       data.correct == null;
@@ -642,33 +666,38 @@ var cue_response = {
   stimulus: jsPsych.timelineVariable('stimulus'),
   choices: jsPsych.NO_KEYS,
   trial_duration: config.feedback_duration + 300, //Duration of each cue in ms
+  trial_data: jsPsych.timelineVariable('data'),
   on_start: function(cue_response){
     // get data from previous trial
     var data = jsPsych.data.get().last(1).values()[0];
-    trial_counter += 1;
-    if(data.correct){
-      //cue_response.trial_duration = 0;
-      response_array.push(1);
-    }else{
-      response_array.push(0);
-    }
 
-    if(response_array.length >= 20){ // start checking at 20 trials
-      var temp = response_array.slice(trial_counter - 20);
-      sum = temp.reduce(function(pv, cv) { return pv + cv; }, 0);
-      if(sum >= 18 || trial_counter >= 100){
-        end_phase = true;
+    if(cue_response.trial_data.practice != 0){
+      cue_response.trial_duration = cue_response.trial_duration + 2000;
+    }else{
+      trial_counter += 1;
+      if(data.correct){
+        response_array.push(1);
+      }else{
+        response_array.push(0);
       }
-    }else{
-      sum = response_array.reduce(function(pv, cv) { return pv + cv; }, 0);
-    }
-    console.log(data.cue, data.key_press, data.correct, trial_counter, sum);
-    cue_response.stimulus = generateCue(data.cue, data.key_press, data.correct, trial_counter);
 
-    //every fifth trial, give them time to read number of trials left
-    if(cue_response.stimulus.charAt(5) == 'c'){
-      cue_response.trial_duration += 1500;
+      if(response_array.length >= 20){ // start checking at 20 trials
+        var temp = response_array.slice(trial_counter - 20);
+        sum = temp.reduce(function(pv, cv) { return pv + cv; }, 0);
+        if(sum >= 18 || trial_counter >= 100){
+          end_phase = true;
+        }
+      }else{
+        sum = response_array.reduce(function(pv, cv) { return pv + cv; }, 0);
+      }
+      console.log(data.cue, data.key_press, data.correct, trial_counter, sum);
+
+      //every fifth trial, give them time to read number of trials left
+      if(cue_response.stimulus.charAt(5) == 'c'){
+        cue_response.trial_duration = cue_response.trial_duration + 1500;
+      }
     }
+    cue_response.stimulus = generateCue(data.cue, data.practice, data.key_press, data.correct, trial_counter);
   }
 }
 
@@ -679,7 +708,7 @@ var cue_fixation = {
   trial_duration: config.inter_trial_interval
 }
 
-function generateCue(cue, answer = '', correct = true, practice = 2){
+function generateCue(cue, practice = 0, answer = '', correct = true, trial_counter){
   var response = null;
   if(answer == null){
     response = "<div class='column' style='border:3px solid grey'>" +
@@ -759,7 +788,7 @@ function generateCue(cue, answer = '', correct = true, practice = 2){
               "<div style='float: center; color: grey'>Filler</div>" +
            "</div>"
   }
-  console.log(practice)
+
   if(practice != 0){
     if(practice == 1){
       return "<div style='color:white'; class='row'>The "+ mapping[1] +" cues a motion task, so press Q.</div><div class='row'>" + response;
@@ -784,27 +813,27 @@ function generateCue(cue, answer = '', correct = true, practice = 2){
 }
 
 var cue_stimuli_practice = [
-  { stimulus: generateCue(mapping[1],practice=1), data: {task: 'motion', cue: mapping[1], correct_choice: 'q'}},
-  { stimulus: generateCue(mapping[2],practice=2), data: {task: 'motion', cue: mapping[2], correct_choice: 'q'}},
-  { stimulus: generateCue(mapping[3],practice=3), data: {task: 'color', cue: mapping[3], correct_choice: 'p'}},
-  { stimulus: generateCue(mapping[4],practice=4), data: {task: 'color', cue: mapping[4], correct_choice: 'p'}}
+  { stimulus: generateCue(mapping[1], practice = 1), data: {task: 'motion', cue: mapping[1], correct_choice: 'q', practice: 1}},
+  { stimulus: generateCue(mapping[2], practice = 2), data: {task: 'motion', cue: mapping[2], correct_choice: 'q', practice: 2}},
+  { stimulus: generateCue(mapping[3], practice = 3), data: {task: 'color', cue: mapping[3], correct_choice: 'p', practice: 3}},
+  { stimulus: generateCue(mapping[4], practice = 4), data: {task: 'color', cue: mapping[4], correct_choice: 'p', practice: 4}}
 ];
 
 var cue_stimuli = [
-  { stimulus: generateCue(mapping[1]), data: {task: 'motion', cue: mapping[1], correct_choice: 'q'}},
-  { stimulus: generateCue(mapping[2]), data: {task: 'motion', cue: mapping[2], correct_choice: 'q'}},
-  { stimulus: generateCue(mapping[3]), data: {task: 'color', cue: mapping[3], correct_choice: 'p'}},
-  { stimulus: generateCue(mapping[4]), data: {task: 'color', cue: mapping[4], correct_choice: 'p'}}
+  { stimulus: generateCue(mapping[1]), data: {task: 'motion', cue: mapping[1], correct_choice: 'q', practice: 0}},
+  { stimulus: generateCue(mapping[2]), data: {task: 'motion', cue: mapping[2], correct_choice: 'q', practice: 0}},
+  { stimulus: generateCue(mapping[3]), data: {task: 'color', cue: mapping[3], correct_choice: 'p', practice: 0}},
+  { stimulus: generateCue(mapping[4]), data: {task: 'color', cue: mapping[4], correct_choice: 'p', practice: 0}}
 ];
 
 var cue_practice = {
   timeline: [cue_phase, cue_response, cue_fixation],
   timeline_variables: cue_stimuli_practice,
   randomize_order: true,
-  repetitions: 4,
+  repetitions: 2,
   sample: {
       type: "without-replacement",
-      size: 1
+      size: 4
     }
   }
 
@@ -828,10 +857,10 @@ var cue_sequence = {
 
 //timeline.push(instructions_cue);
 //timeline.push(cue, stimulus);
-timeline.push(instructions_cue2);
-timeline.push(cue_practice);
-timeline.push(instructions_cue3);
-timeline.push(cue_sequence);
+//timeline.push(instructions_cue2);
+//timeline.push(cue_practice);
+//timeline.push(instructions_cue3);
+//timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
@@ -842,7 +871,10 @@ var instructions_prc = {
     '<div style="font-size:32px">Welcome to the <strong>Phase 3</strong>. </div></br>'+
     '<div style="font-size:24px">We will be switching between color and motion tasks.</div></br>' +
     'The cues you learned earlier will tell you if you </br>'+
-    'are supposed to focus on color or motion.</br></br>' +
+    'are supposed to focus on color or motion.</br></br>',
+    '<div style="font-size:24px">First, we will focus on the <u>motion</u> cues.</div></br>' +
+    'You will see a motion cue (' + mapping[1] + ' or ' + mapping[2] + ')'+
+    ' and then complete 4-6 motion tasks.</br></br>' +
     "<b>Remember:</b></br>" +
     "We're coming back to 'A' or 'L' responses.</br>" +
     'A is for majority downward motion.</br>' +
@@ -862,7 +894,7 @@ var practice_example1 = {
     correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Motion Task, Mostly DOWN (Press A)',
+    text: 'Motion Task - Down (Press A)',
     trial_duration: 4000,
     cue_shape: mapping[1],
     phase: 3
@@ -876,7 +908,7 @@ var practice_example2 = {
     correct_choice: 'l',
     coherent_direction: degrees + 180,
     coherent_color: 'blue',
-    text: 'Motion Task, Mostly UP (Press L)',
+    text: 'Motion Task - Up (Press L)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -889,7 +921,7 @@ var practice_example3 = {
     correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'red',
-    text: 'Motion Task, Mostly DOWN (Press A)',
+    text: 'Motion Task - Down (Press A)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -898,9 +930,11 @@ var practice_example3 = {
 var instructions_prc2 = {
   type: 'instructions',
   pages: [
-    '<div style="font-size:24px">Great!</div></br>' +
-    "Now let's try a color example.</br></br>" +
+    '<div style="font-size:24px">Great! Now we will focus on the <u>color</u> cues.</div></br>' +
+    'You will see a motion cue (' + mapping[3] + ' or ' + mapping[4] + ')'+
+    ' and then complete 4-6 motion tasks.</br></br>' +
     "<b>Remember:</b></br>" +
+    "We're coming back to 'A' or 'L' responses.</br>" +
     'A is for majority red dots.</br>' +
     'L is for majority blue dots.</br></br>' +
     "<b>Also:</b></br>"+
@@ -918,7 +952,7 @@ var practice_example4 = {
     correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Color Task, Mostly BLUE (Press L)',
+    text: 'Color Task - Blue (Press L)',
     trial_duration: 4000,
     cue_shape: mapping[3],
     phase: 3
@@ -932,7 +966,7 @@ var practice_example5 = {
     correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'red',
-    text: 'Color Task, Mostly RED (Press A)',
+    text: 'Color Task - Red (Press A)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -945,7 +979,7 @@ var practice_example6 = {
     correct_choice: 'l',
     coherent_direction: degrees + 180,
     coherent_color: 'blue',
-    text: 'Color Task, Mostly BLUE (Press L)',
+    text: 'Color Task - Blue (Press L)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -958,7 +992,7 @@ var instructions_prc3 = {
     "Just like in Phase 1, you will have a block of trials, but now we will add cues. </br>" +
     "Before each set of trials you will see a cue that indicates " +
     "the current task to be performed.</br>",
-    'Normally you will have a cue and then some trials before getting to another cue.</br></br>' +
+    'You will have a cue and then 4-6 trials before getting to another cue.</br></br>' +
     'Do the same task for all the subsequent trials until you get a new cue: </br></br>'+
     "Example: </br>" +
     "<b>"+mapping[1]+" cue</b> -> motion task -> motion task -> motion task -> motion task -> motion task -> </br> " +
@@ -981,9 +1015,9 @@ var instructions_prc3 = {
       "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
         'A is for down (motion) and red (color)</br>' +
         'L is for up (motion) and blue (color)</br></br>' +
-        "You'll no longer be waiting for the '?'. Respond as soon as you know the answer.</br>" +
-        "You'll have three seconds to repond.</br></br>" +
-      "</br>Please ready your fingers on the A and L keys and press next whenever you're ready!"
+        "You'll no longer be waiting for the '?'.</br>" +
+        "You'll have three seconds to respond.</br></br>" +
+      "Please ready your fingers on the A and L keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
