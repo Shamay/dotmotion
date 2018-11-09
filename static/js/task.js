@@ -92,6 +92,8 @@ var cue = {
 
   trial_duration: config.cue_duration, //Duration of each cue in ms
 
+  data: jsPsych.timelineVariable('data'),
+
   on_start: function(cue){
     if(typeof cue.cue_shape === "undefined"){
       cue.stimulus = "<div style='float: center;'><img src='/static/images/circle.png'></img></div>";
@@ -115,6 +117,7 @@ var fixation = {
   trial_duration: config.inter_trial_interval,
 
   phase: jsPsych.timelineVariable('phase'),
+  data: jsPsych.timelineVariable('data'),
 
   on_start: function(fixation){
     // get data from previous trial
@@ -185,6 +188,7 @@ var stimulus = {
   cue_shape: jsPsych.timelineVariable('cue_shape'),
   motionCoherence:  jsPsych.timelineVariable('motionCoherence'),
   colorCoherence: jsPsych.timelineVariable('colorCoherence'),
+  data: jsPsych.timelineVariable('data'),
 
   number_of_dots: config.number_of_dots, //Total number of dots in the aperture
   trial_duration: jsPsych.timelineVariable('trial_duration'), //Duration of each trial in ms
@@ -196,6 +200,7 @@ var stimulus = {
 
   on_start: function(stimulus){
     var data = jsPsych.data.get().last(2).values()[0];
+    console.log(data)
 
     if(stimulus.phase == '1.1'){
       // update coherence
@@ -486,7 +491,11 @@ var blue_example = {
 //timeline.push(instructions_motion);
 //timeline.push(down_example);
 //timeline.push(up_example);
+//timeline.push(down_example);
+//timeline.push(up_example);
 //timeline.push(instructions_color);
+//timeline.push(red_example);
+//timeline.push(blue_example);
 //timeline.push(red_example);
 //timeline.push(blue_example);
 //timeline.push(instructions_block);
@@ -564,24 +573,36 @@ var instructions_cue = {
   post_trial_gap: 1000
 };
 
-/* define instructions block */
 var instructions_cue2 = {
+  type: 'instructions',
+  pages: [
+    "You will be doing a training task where it will show you a cue,</br>"+
+    "and you will have to respond whether it corresponds to a</br>" +
+    "</b>motion</b> task (press Q) or a </b>color</b> task (press P).</br></br>" +
+    "Click next for an example."
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+/* define instructions block */
+var instructions_cue3 = {
   type: 'instructions',
   pages: [
     "<p>To cue the <strong>motion</strong> task, you will be shown one of the two cues below.</p>" +
       "<div class='row'>"+
         "<div class='column' style='float: left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
+        "<p class='small'><strong>"+mapping[1]+" cues motion task</br>(UP or DOWN)</strong></p></div>" +
         "<div class='column' style='float: right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
-      "</div>",
+        "<p class='small'><strong>"+mapping[2]+" cues motion task</br>(UP or DOWN)</strong></p></div>" +
+      "</div></br>In other words, after you see one of these cues,</br>you will decide whether the majority of dots are going UP or DOWN.",
     "<p>To cue the <strong>color</strong> task, you will be shown one of the two cues below.</p>" +
       "<div class='row'>"+
         "<div class='column' style='float:center; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[3]+" cues color</br>(Press P)</strong></p></div>" +
+        "<p class='small'><strong>"+mapping[3]+" cues color task</br>(RED or BLUE)</strong></p></div>" +
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
-      "</div>",
+        "<p class='small'><strong>"+mapping[4]+" cues color task</br>(RED or BLUE)</strong></p></div>" +
+      "</div></br>In other words, after you see one of these cues,</br>you will decide whether the majority of dots are RED or BLUE.",
     "<div style='font-size:24px'>Let's practice associating cues and their tasks.</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
@@ -600,10 +621,6 @@ var instructions_cue2 = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-
-//timeline.push(instructions_cue);
-//timeline.push(cue, stimulus);
-//timeline.push(instructions_cue2);
 
 var cue_phase = {
   type: "html-keyboard-response",
@@ -662,7 +679,7 @@ var cue_fixation = {
   trial_duration: config.inter_trial_interval
 }
 
-function generateCue(cue, answer = '', correct = true, trial_counter){
+function generateCue(cue, answer = '', correct = true, practice = 2){
   var response = null;
   if(answer == null){
     response = "<div class='column' style='border:3px solid grey'>" +
@@ -742,16 +759,36 @@ function generateCue(cue, answer = '', correct = true, trial_counter){
               "<div style='float: center; color: grey'>Filler</div>" +
            "</div>"
   }
-
-  if(answer != null && trial_counter % 5 == 0){
-    return "<div class='row'>" +
-           "You need "+ (18-sum) + " more correct trials to move on!</div>"+
-           "<div class='row'>" + response;
+  console.log(practice)
+  if(practice != 0){
+    if(practice == 1){
+      return "<div style='color:white'; class='row'>The "+ mapping[1] +" cues a motion task, so press Q.</div><div class='row'>" + response;
+    }else if(practice == 2){
+      return "<div style='color:white'; class='row'>The "+ mapping[2] +" cues a motion task, so press Q.</div><div class='row'>" + response;
+    }else if(practice == 3){
+      return "<div style='color:white'; class='row'>The "+ mapping[3] +" cues a color task, so press P.</div><div class='row'>" + response;
+    }else if(practice == 4){
+      return "<div style='color:white'; class='row'>The "+ mapping[4] +" cues a color task, so press P.</div><div class='row'>" + response;
+    }
   }else{
-    return "<div style='color:grey'; class='row'>-</div><div class='row'>" + response;
+    if(answer != null && trial_counter % 5 == 0){
+      return "<div class='row'>" +
+             "You need "+ (18-sum) + " more correct trials to move on!</div>"+
+             "<div class='row'>" + response;
+    }else{
+      return "<div style='color:grey'; class='row'>-</div><div class='row'>" + response;
+    }
   }
 
+
 }
+
+var cue_stimuli_practice = [
+  { stimulus: generateCue(mapping[1],practice=1), data: {task: 'motion', cue: mapping[1], correct_choice: 'q'}},
+  { stimulus: generateCue(mapping[2],practice=2), data: {task: 'motion', cue: mapping[2], correct_choice: 'q'}},
+  { stimulus: generateCue(mapping[3],practice=3), data: {task: 'color', cue: mapping[3], correct_choice: 'p'}},
+  { stimulus: generateCue(mapping[4],practice=4), data: {task: 'color', cue: mapping[4], correct_choice: 'p'}}
+];
 
 var cue_stimuli = [
   { stimulus: generateCue(mapping[1]), data: {task: 'motion', cue: mapping[1], correct_choice: 'q'}},
@@ -759,6 +796,17 @@ var cue_stimuli = [
   { stimulus: generateCue(mapping[3]), data: {task: 'color', cue: mapping[3], correct_choice: 'p'}},
   { stimulus: generateCue(mapping[4]), data: {task: 'color', cue: mapping[4], correct_choice: 'p'}}
 ];
+
+var cue_practice = {
+  timeline: [cue_phase, cue_response, cue_fixation],
+  timeline_variables: cue_stimuli_practice,
+  randomize_order: true,
+  repetitions: 4,
+  sample: {
+      type: "without-replacement",
+      size: 1
+    }
+  }
 
 var cue_sequence = {
   timeline: [cue_phase, cue_response, cue_fixation],
@@ -778,7 +826,12 @@ var cue_sequence = {
     }
   }
 
-//timeline.push(cue_sequence);
+//timeline.push(instructions_cue);
+//timeline.push(cue, stimulus);
+timeline.push(instructions_cue2);
+timeline.push(cue_practice);
+timeline.push(instructions_cue3);
+timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
@@ -802,16 +855,42 @@ var instructions_prc = {
   post_trial_gap: 1000
 };
 
-var practice_example = {
+var practice_example1 = {
   timeline: [cue,fixation,stimulus,fixation],
   timeline_variables: [{
     task: 'motion',
     correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Motion Task, Mostly Down (Press A)',
+    text: 'Motion Task, Mostly DOWN (Press A)',
     trial_duration: 4000,
     cue_shape: mapping[1],
+    phase: 3
+  }],
+}
+
+var practice_example2 = {
+  timeline: [stimulus,fixation],
+  timeline_variables: [{
+    task: 'motion',
+    correct_choice: 'l',
+    coherent_direction: degrees + 180,
+    coherent_color: 'blue',
+    text: 'Motion Task, Mostly UP (Press L)',
+    trial_duration: 4000,
+    phase: 3
+  }],
+}
+
+var practice_example3 = {
+  timeline: [stimulus,fixation],
+  timeline_variables: [{
+    task: 'motion',
+    correct_choice: 'a',
+    coherent_direction: degrees,
+    coherent_color: 'red',
+    text: 'Motion Task, Mostly DOWN (Press A)',
+    trial_duration: 4000,
     phase: 3
   }],
 }
@@ -832,16 +911,42 @@ var instructions_prc2 = {
   post_trial_gap: 1000
 };
 
-var practice_example2 = {
+var practice_example4 = {
   timeline: [cue,fixation,stimulus,fixation],
   timeline_variables: [{
     task: 'color',
     correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Color Task, Mostly Blue (Press L)',
+    text: 'Color Task, Mostly BLUE (Press L)',
     trial_duration: 4000,
     cue_shape: mapping[3],
+    phase: 3
+  }],
+}
+
+var practice_example5 = {
+  timeline: [stimulus,fixation],
+  timeline_variables: [{
+    task: 'color',
+    correct_choice: 'a',
+    coherent_direction: degrees,
+    coherent_color: 'red',
+    text: 'Color Task, Mostly RED (Press A)',
+    trial_duration: 4000,
+    phase: 3
+  }],
+}
+
+var practice_example6 = {
+  timeline: [stimulus,fixation],
+  timeline_variables: [{
+    task: 'color',
+    correct_choice: 'l',
+    coherent_direction: degrees + 180,
+    coherent_color: 'blue',
+    text: 'Color Task, Mostly BLUE (Press L)',
+    trial_duration: 4000,
     phase: 3
   }],
 }
@@ -863,15 +968,15 @@ var instructions_prc3 = {
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[1]+" cues motion</br>(Press Q)</strong></p></div>" +
+          "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[2]+" cues motion</br>(Press Q)</strong></p></div>" +
+          "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
         "</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[3]+" cues color</br>(Press P)</strong></p></div>" +
+          "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
+          "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
         "</div></br>",
       "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
         'A is for down (motion) and red (color)</br>' +
@@ -884,11 +989,21 @@ var instructions_prc3 = {
   post_trial_gap: 1000
 };
 
-//timeline.push(instructions_prc);
-//timeline.push(practice_example);
-//timeline.push(instructions_prc2);
-//timeline.push(practice_example2);
-//timeline.push(instructions_prc3);
+timeline.push(instructions_prc);
+timeline.push(practice_example1);
+timeline.push(practice_example2);
+timeline.push(practice_example3);
+timeline.push(practice_example3);
+timeline.push(practice_example2);
+
+timeline.push(instructions_prc2);
+timeline.push(practice_example4);
+timeline.push(practice_example5);
+timeline.push(practice_example6);
+timeline.push(practice_example6);
+timeline.push(practice_example5);
+
+timeline.push(instructions_prc3);
 
 //generate timeline variables
 function generateTrials(vars, phase){
@@ -915,13 +1030,6 @@ function generateTrials(vars, phase){
     }
   }
 
-  var correct_choice; // 1-l (right), 2-a (left)
-  if(vars[8] == 1){
-    correct_choice = 'l';
-  }else if(vars[8] == 2){
-    correct_choice = 'a';
-  }
-
   var coherent_direction; // 1-up 2-down
   if(vars[2] == 1){
     coherent_direction = degrees - 180;
@@ -936,19 +1044,38 @@ function generateTrials(vars, phase){
     coherent_color = 'red';
   }
 
+  var correct_choice; // 1-l (right), 2-a (left)
+  if(vars[8] == 1){
+    correct_choice = 'l';
+  }else if(vars[8] == 2){
+    correct_choice = 'a';
+  }
+
+  var task_transition = vars[4]
+  var cue_transition = vars[5]
+  var response_transition = vars[6]
+  var miniblock_size = vars[7]
+  var miniblock_trial = vars[9]
+  var miniblock = vars[10]
+  var block = vars[11]
+
   return [{
       phase: phase,
-      //id: vars[0],
-      //block: vars[1],
-      //mblock: vars[2],
-      //trial: vars[3],
       task: task,
       cue_shape: cue_shape,
       correct_choice: correct_choice,
       coherent_direction: coherent_direction,
       motionCoherence: currentMotionCoherence,
       coherent_color: coherent_color,
-      colorCoherence: currentColorCoherence
+      colorCoherence: currentColorCoherence,
+
+      data: {task_transition: task_transition,
+            cue_transition: cue_transition,
+            response_transition: response_transition,
+            miniblock_size: miniblock_size,
+            miniblock_trial: miniblock_trial,
+            miniblock: miniblock,
+            block: block}
     }];
 }
 
@@ -960,13 +1087,13 @@ for (line in prc_lines){
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(cue_sequence);
+    timeline.push(cue_sequence);
   }else{
     var stim_sequence = {
       timeline: [stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 
