@@ -347,7 +347,7 @@ var introduction = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(introduction);
+timeline.push(introduction);
 
 var stim_example = {
   timeline: [stimulus],
@@ -359,7 +359,7 @@ var stim_example = {
     trial_duration: 3000
   }],
 }
-//timeline.push(stim_example);
+timeline.push(stim_example);
 
 
 /* define instructions block */
@@ -488,18 +488,18 @@ var blue_example = {
   }],
 }
 
-//timeline.push(instructions_motion);
-//timeline.push(down_example);
-//timeline.push(up_example);
-//timeline.push(down_example);
-//timeline.push(up_example);
-//timeline.push(instructions_color);
-//timeline.push(red_example);
-//timeline.push(blue_example);
-//timeline.push(red_example);
-//timeline.push(blue_example);
-//timeline.push(instructions_block);
-//timeline.push(instructions_motion_block);
+timeline.push(instructions_motion);
+timeline.push(down_example);
+timeline.push(up_example);
+timeline.push(down_example);
+timeline.push(up_example);
+timeline.push(instructions_color);
+timeline.push(red_example);
+timeline.push(blue_example);
+timeline.push(red_example);
+timeline.push(blue_example);
+timeline.push(instructions_block);
+timeline.push(instructions_motion_block);
 
 // staircasing trials
 var motion_stimulus_stc = motion_stimulus;
@@ -522,10 +522,10 @@ for(i = 0; i < numTrials; i++){
         size: 1
       }
     }
-  //timeline.push(stim_sequence);
+  timeline.push(stim_sequence);
 }
 
-//timeline.push(instructions_color_block);
+timeline.push(instructions_color_block);
 
 for(i = 0; i < numTrials; i++){
   var stim_sequence = {
@@ -538,7 +538,7 @@ for(i = 0; i < numTrials; i++){
         size: 1,
             }
     }
-  //timeline.push(stim_sequence);
+  timeline.push(stim_sequence);
 }
 
 // --------------------
@@ -855,12 +855,12 @@ var cue_sequence = {
     }
   }
 
-//timeline.push(instructions_cue);
-//timeline.push(cue, stimulus);
-//timeline.push(instructions_cue2);
-//timeline.push(cue_practice);
-//timeline.push(instructions_cue3);
-//timeline.push(cue_sequence);
+timeline.push(instructions_cue);
+timeline.push(cue, stimulus);
+timeline.push(instructions_cue2);
+timeline.push(cue_practice);
+timeline.push(instructions_cue3);
+timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
