@@ -135,18 +135,18 @@ var fixation = {
           if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
               fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
-              '</div><p>Press A for mostly downward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
+              '</div><p>Press A for mostly upward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
             }else if(data.correct_choice == 'l'){
               fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
-              '</div><p>Press L for mostly upward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
+              '</div><p>Press L for mostly downward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
             }
           }else if(data.task == 'color'){
             if(data.correct_choice == 'a'){
               fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
-              '</div><p>Press A for mostly red dots.</p><p style="color:grey;font-size:12px">Filler</p>';
+              '</div><p>Press A for mostly blue dots.</p><p style="color:grey;font-size:12px">Filler</p>';
             }else if(data.correct_choice == 'l'){
               fixation.prompt = '<div style="color:#DA1802;font-size:30px"; class = center-text><b>Incorrect</b>' +
-              '</div><p>Press L for mostly blue dots.</p><p style="color:grey;font-size:12px">Filler</p>';
+              '</div><p>Press L for mostly red dots.</p><p style="color:grey;font-size:12px">Filler</p>';
             }
           }
           fixation.trial_duration = fixation.trial_duration + 3000;
@@ -260,27 +260,27 @@ var motion_stimulus = [
   {// Motion trial 1
     phase: '1.1',
     task: 'motion',
-    correct_choice: 'a', //The correct answer for Condition 2
+    correct_choice: 'l', //The correct answer for Condition 2
     coherent_direction: degrees, //The coherent direction for Condition 1 (dots move down/left)
     coherent_color: 'blue'
   },
   {// Motion trial 2
     phase: '1.1',
     task: 'motion',
-    correct_choice: 'l', //The correct answer for Condition 2
+    correct_choice: 'a', //The correct answer for Condition 2
     coherent_direction: degrees - 180, //The coherent direction for Condition 2 (dots move up/right)
     coherent_color: 'red'
   },{// Motion trial 3
     phase: '1.1',
     task: 'motion',
-    correct_choice: 'a', //The correct answer for Condition 2
+    correct_choice: 'l', //The correct answer for Condition 2
     coherent_direction: degrees, //The coherent direction for Condition 1 (dots move down/left)
     coherent_color: 'red'
   },
   {// Motion trial 4
     phase: '1.1',
     task: 'motion',
-    correct_choice: 'l', //The correct answer for Condition 2
+    correct_choice: 'a', //The correct answer for Condition 2
     coherent_direction: degrees - 180, //The coherent direction for Condition 2 (dots move up/right)
     coherent_color: 'blue'
   }
@@ -290,27 +290,27 @@ var color_stimulus = [
   {// Color trial 1
     phase: '1.2',
     task: 'color',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'red'
   },
   {// Color trial 2
     phase: '1.2',
     task: 'color',
-    correct_choice: 'l',
+    correct_choice: 'a',
     coherent_direction: degrees - 180,
     coherent_color: 'blue'
   },{// Color trial 3
     phase: '1.2',
     task: 'color',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees - 180,
     coherent_color: 'red'
   },
   {// Color trial 4
     phase: '1.2',
     task: 'color',
-    correct_choice: 'l',
+    correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'blue'
   }
@@ -353,7 +353,7 @@ var stim_example = {
   timeline: [stimulus],
   timeline_variables: [{
     task: 'motion',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'blue',
     trial_duration: 3000
@@ -371,12 +371,12 @@ var instructions_motion = {
       "<div style='font-size:32px'>Motion Instructions</div>" +
       "<p>In the <strong>motion</strong> task, you must figure out which direction the majority of the dots are going.</p>" +
       "<div class='row'>" +
-        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>downward</strong>,</br>" +
-        "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/down.png'></img>" +
-        "</br></br><strong>Press A for majority down</strong></div>" +
-        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>upward</strong>,</br>"+
-        "press the <u>L key</u> as fast as you can.</br></br><img src='/static/images/up.png'></img>" +
-        "</br></br><strong>Press L for majority up</strong></div>" +
+        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>upward</strong>,</br>" +
+        "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/up.png'></img>" +
+        "</br></br><strong>Press A for majority up</strong></div>" +
+        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>downward</strong>,</br>"+
+        "press the <u>L key</u> as fast as you can.</br></br><img src='/static/images/down.png'></img>" +
+        "</br></br><strong>Press L for majority down</strong></div>" +
       "</div></br>Press next for an example of each."],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -387,12 +387,12 @@ var instructions_color = {
   pages: ["<div style='font-size:32px'>Color Instructions</div>" +
   "<p>In the <strong>color</strong> task, you must figure out the color of the majority of the dots.</p>" +
       "<div class='row'>" +
-        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>red</strong>,</br>" +
-        "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/red.png'></img>" +
-        "</br></br><strong>Press A for majority red</strong></div>" +
-        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>blue</strong>,</br>"+
-        "press the <u>L key</u> as fast as you can.</br></br><img src='/static/images/blue.png'></img>" +
-        "</br></br><strong>Press L for majority blue</strong></div>" +
+        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>blue</strong>,</br>" +
+        "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/blue.png'></img>" +
+        "</br></br><strong>Press A for majority blue</strong></div>" +
+        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>red</strong>,</br>"+
+        "press the <u>L key</u> as fast as you can.</br></br><img src='/static/images/red.png'></img>" +
+        "</br></br><strong>Press L for majority red</strong></div>" +
       "</div></br>Press next for an example of each."],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -419,8 +419,8 @@ var instructions_motion_block = {
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
       "You can only respond when you see the '?'.</br></br>" +
-      "A key = majority DOWN </br>" +
-      "L key = majority UP </br></br>" +
+      "A key = majority UP </br>" +
+      "L key = majority DOWN </br></br>" +
       "Press next to begin the motion block!"
   ],
   show_clickable_nav: true,
@@ -435,8 +435,8 @@ var instructions_color_block = {
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
       "You can only respond when you see the '?'.</br></br>" +
-      "A key = majority RED </br>" +
-      "L key = majority BLUE </br></br>" +
+      "A key = majority BLUE </br>" +
+      "L key = majority RED </br></br>" +
       "Press next to begin the COLOR block!"
   ],
   show_clickable_nav: true,
@@ -447,10 +447,10 @@ var down_example = {
   timeline: [stimulus],
   timeline_variables: [{
     task: 'motion',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Majority Down (Press A)',
+    text: 'Majority Down (Press L)',
     trial_duration: 3000
   }],
 }
@@ -458,10 +458,10 @@ var up_example = {
   timeline: [stimulus],
   timeline_variables: [{
     task: 'motion',
-    correct_choice: 'l',
+    correct_choice: 'a',
     coherent_direction: degrees+180,
     coherent_color: 'blue',
-    text: 'Majority Up (Press L)',
+    text: 'Majority Up (Press A)',
     trial_duration: 3000
   }],
 }
@@ -469,10 +469,10 @@ var red_example = {
   timeline: [stimulus],
   timeline_variables: [{
     task: 'color',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'red',
-    text: 'Majority Red (Press A)',
+    text: 'Majority Red (Press L)',
     trial_duration: 3000
   }],
 }
@@ -480,10 +480,10 @@ var blue_example = {
   timeline: [stimulus],
   timeline_variables: [{
     task: 'color',
-    correct_choice: 'l',
+    correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Majority Blue (Press L)',
+    text: 'Majority Blue (Press A)',
     trial_duration: 3000
   }],
 }
@@ -609,7 +609,7 @@ var instructions_cue2 = {
           "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
           "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
         "</div>" +
-      "</br>Please ready your fingers on the Q and P keys and press next whenever you're ready!"
+      "Please ready your fingers on the Q and P keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -635,7 +635,7 @@ var instructions_cue3 = {
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
         "<p class='small'><strong>"+mapping[4]+" cues color</br>(Press P)</strong></p></div>" +
       "</div>" +
-    "</br>Please ready your fingers on the Q and P keys and press next whenever you're ready!"
+    "Please ready your fingers on the Q and P keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -694,7 +694,7 @@ var cue_response = {
 
       //every fifth trial, give them time to read number of trials left
       if(cue_response.stimulus.charAt(5) == 'c'){
-        cue_response.trial_duration = cue_response.trial_duration + 1500;
+        cue_response.trial_duration = cue_response.trial_duration + 2250;
       }
     }
     cue_response.stimulus = generateCue(data.cue, data.practice, data.key_press, data.correct, trial_counter);
@@ -877,8 +877,8 @@ var instructions_prc = {
     ' and then complete 4-6 motion tasks.</br></br>' +
     "<b>Remember:</b></br>" +
     "We're coming back to 'A' or 'L' responses.</br>" +
-    'A is for majority downward motion.</br>' +
-    'L is for majority upward motion.</br></br>' +
+    'A is for majority upward motion.</br>' +
+    'L is for majority downward motion.</br></br>' +
     "<b>Also:</b></br>"+
     "You'll no longer be waiting for the '?'.</br>Respond as soon as you know the answer.</br></br>"+
     'Click next for an example motion cue + trial.'
@@ -891,10 +891,10 @@ var practice_example1 = {
   timeline: [cue,fixation,stimulus,fixation],
   timeline_variables: [{
     task: 'motion',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Motion Task - Down (Press A)',
+    text: 'Motion Task - Down (Press L)',
     trial_duration: 4000,
     cue_shape: mapping[1],
     phase: 3
@@ -905,10 +905,10 @@ var practice_example2 = {
   timeline: [stimulus,fixation],
   timeline_variables: [{
     task: 'motion',
-    correct_choice: 'l',
+    correct_choice: 'a',
     coherent_direction: degrees + 180,
     coherent_color: 'blue',
-    text: 'Motion Task - Up (Press L)',
+    text: 'Motion Task - Up (Press A)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -918,10 +918,10 @@ var practice_example3 = {
   timeline: [stimulus,fixation],
   timeline_variables: [{
     task: 'motion',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'red',
-    text: 'Motion Task - Down (Press A)',
+    text: 'Motion Task - Down (Press L)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -931,12 +931,12 @@ var instructions_prc2 = {
   type: 'instructions',
   pages: [
     '<div style="font-size:24px">Great! Now we will focus on the <u>color</u> cues.</div></br>' +
-    'You will see a motion cue (' + mapping[3] + ' or ' + mapping[4] + ')'+
-    ' and then complete 4-6 motion tasks.</br></br>' +
+    'You will see a color cue (' + mapping[3] + ' or ' + mapping[4] + ')'+
+    ' and then complete 4-6 color tasks.</br></br>' +
     "<b>Remember:</b></br>" +
     "We're coming back to 'A' or 'L' responses.</br>" +
-    'A is for majority red dots.</br>' +
-    'L is for majority blue dots.</br></br>' +
+    'A is for majority blue dots.</br>' +
+    'L is for majority red dots.</br></br>' +
     "<b>Also:</b></br>"+
     "You'll no longer be waiting for the '?'.</br>Respond as soon as you know the answer.</br></br>"+
     'Click next for an color cue + trial.'
@@ -949,10 +949,10 @@ var practice_example4 = {
   timeline: [cue,fixation,stimulus,fixation],
   timeline_variables: [{
     task: 'color',
-    correct_choice: 'l',
+    correct_choice: 'a',
     coherent_direction: degrees,
     coherent_color: 'blue',
-    text: 'Color Task - Blue (Press L)',
+    text: 'Color Task - Blue (Press A)',
     trial_duration: 4000,
     cue_shape: mapping[3],
     phase: 3
@@ -963,10 +963,10 @@ var practice_example5 = {
   timeline: [stimulus,fixation],
   timeline_variables: [{
     task: 'color',
-    correct_choice: 'a',
+    correct_choice: 'l',
     coherent_direction: degrees,
     coherent_color: 'red',
-    text: 'Color Task - Red (Press A)',
+    text: 'Color Task - Red (Press L)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -976,10 +976,10 @@ var practice_example6 = {
   timeline: [stimulus,fixation],
   timeline_variables: [{
     task: 'color',
-    correct_choice: 'l',
+    correct_choice: 'a',
     coherent_direction: degrees + 180,
     coherent_color: 'blue',
-    text: 'Color Task - Blue (Press L)',
+    text: 'Color Task - Blue (Press A)',
     trial_duration: 4000,
     phase: 3
   }],
@@ -1013,8 +1013,8 @@ var instructions_prc3 = {
           "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
         "</div></br>",
       "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
-        'A is for down (motion) and red (color)</br>' +
-        'L is for up (motion) and blue (color)</br></br>' +
+        'A is for up (motion) and blue (color)</br>' +
+        'L is for down (motion) and red (color)</br></br>' +
         "You'll no longer be waiting for the '?'.</br>" +
         "You'll have three seconds to respond.</br></br>" +
       "Please ready your fingers on the A and L keys and press next whenever you're ready!"
@@ -1078,11 +1078,11 @@ function generateTrials(vars, phase){
     coherent_color = 'red';
   }
 
-  var correct_choice; // 1-l (right), 2-a (left)
+  var correct_choice; // 1-a (left), 2-a (right)
   if(vars[8] == 1){
-    correct_choice = 'l';
-  }else if(vars[8] == 2){
     correct_choice = 'a';
+  }else if(vars[8] == 2){
+    correct_choice = 'l';
   }
 
   var task_transition = vars[4]
@@ -1116,7 +1116,8 @@ function generateTrials(vars, phase){
 for (line in prc_lines){
   var trial_vars_prc = generateTrials(prc_lines[line], '3'); //generate timeline variables
 
-  if(prc_lines[line][9] == 1){
+    // if new miniblock then, else
+  if(trial_vars_prc[0].data.miniblock_trial == 1){
     var cue_sequence = {
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_prc
@@ -1138,7 +1139,8 @@ var instructions_exp = {
   type: 'instructions',
   pages: [
       '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
-      "This is the same as Phase 3, but with no hints or feedback.</br></br>" +
+      "This phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
+      "The format is the same as Phase 3, but with no hints or feedback.</br></br>" +
       "In other words, you have to remember which cues refer to motion and color</br>" +
       "AND you won't be told whether you got the trial correct or not! </br></br>" +
       'Click next to review the cues again.',
@@ -1155,16 +1157,42 @@ var instructions_exp = {
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
           "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
           "</div>",
+        "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+          'A is for up (motion) and blue (color)</br>' +
+          'L is for down (motion) and red (color)</br></br>' +
+          "You'll no longer be waiting for the '?'.</br>" +
+          "You'll have three seconds to respond.</br></br>" +
+          "Remember, this phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
+        "Please ready your fingers on the A and L keys and press next whenever you're ready!"
+
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
 timeline.push(instructions_exp);
 
+var pause_text = {
+  type: 'instructions',
+  pages: [
+        "<div style='font-size:32px'>Great job! You're halfway there.</div></br></br>" +
+        "<div style='font-size:24px'>Some reminders before you resume:</div></br>" +
+          'A is for up (motion) and blue (color)</br>' +
+          'L is for down (motion) and red (color)</br></br>' +
+        "Please ready your fingers on the A and L keys and press next whenever you're ready!"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+
 for (line in exp_lines){
   var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
-
-  if(exp_lines[line][9] == 1){
+  // pause before block two
+  if(trial_vars_exp[0].data.block == 2){
+    timeline.push(pause_text);
+  }
+  // if new miniblock then, else
+  if(trial_vars_exp[0].data.miniblock_trial == 1){
     var cue_sequence = {
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_exp
