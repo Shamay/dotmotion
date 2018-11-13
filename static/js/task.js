@@ -334,7 +334,7 @@ var introduction = {
   pages: [
       '<div style="font-size:36px">Welcome to the dot-motion experiment!</div>' +
       '<div align="left"><p>There will be four phases:</p>' +
-      '<ul><li><b>Phase 1:</b> you will get to know the cue + color and motion tasks.</li>' +
+      '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks.</li>' +
       '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion.</li>' +
       '<li><b>Phase 3:</b> you will practice switching between color or motion tasks.</li>' +
       '<li><b>Phase 4:</b> you will be cued to switch between color or motion tasks.</p></li></ul></div>' +
