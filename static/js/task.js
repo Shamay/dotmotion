@@ -16,8 +16,16 @@ $.ajax({
   }
 });
 
+var trial_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(counterbalance) + 1) + ".csv";
+var practice_url; // for the practice sequence, switch conditions and select the next sequence
+if(parseInt(counterbalance) == 31){
+  practice_url = "/static/trial_data/effortGroup_" + ((parseInt(condition) - 2) * -1) + "_sequence1.csv";
+}else{
+  practice_url = "/static/trial_data/effortGroup_" + ((parseInt(condition) - 2) * -1) + "_sequence" + (parseInt(counterbalance) + 2) + ".csv";
+}
+
 $.ajax({
-    url: "/static/trial_data/practice_trials.csv",
+    url: practice_url, //"/static/trial_data/practice_trials.csv";
     async: false,
     dataType: "text",
     success: function (response) {
@@ -26,7 +34,7 @@ $.ajax({
  });
 
  $.ajax({
-     url: "/static/trial_data/effortGroup_1_sequence1.csv",
+     url: trial_url, //"/static/trial_data/effortGroup_1_sequence1.csv";
      async: false,
      dataType: "text",
      success: function (response) {
@@ -40,7 +48,9 @@ function processData(allText, option) {
 
     if(option == 1){
       prc_headers = allTextLines[0].split(',');
-      prc_lines = [];
+      number_miniblocks = 12;
+      prc_lines_1 = [];
+      prc_lines_2 = [];
     }else if(option == 2){
       exp_headers = allTextLines[0].split(',');
       exp_lines = [];
@@ -49,13 +59,20 @@ function processData(allText, option) {
     for (var i=1; i<allTextLines.length; i++) {
         var data = allTextLines[i].split(',');
         if(option == 1){
-
-          if (data.length == prc_headers.length) {
+          if (data.length == prc_headers.length){
+            if(parseInt(data[10]) <= number_miniblocks / 2){
               var tarr = [];
               for (var j=0; j<prc_headers.length; j++) {
                   tarr.push(data[j]);
               }
-              prc_lines.push(tarr);
+              prc_lines_1.push(tarr);
+            }else if(parseInt(data[10]) <= number_miniblocks){
+              var tarr = [];
+              for (var j=0; j<prc_headers.length; j++) {
+                  tarr.push(data[j]);
+              }
+              prc_lines_2.push(tarr);
+            }
           }
         }else if(option == 2){
           if (data.length == exp_headers.length) {
@@ -371,7 +388,7 @@ var instructions_motion = {
       "<div style='font-size:32px'>Motion Instructions</div>" +
       "<p>In the <strong>motion</strong> task, you must figure out which direction the majority of the dots are going.</p>" +
       "<div class='row'>" +
-        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>upward</strong>,</br>" +
+        "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are going <strong>upward</strong>,</br>" +
         "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/up.png'></img>" +
         "</br></br><strong>Press A for majority up</strong></div>" +
         "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>downward</strong>,</br>"+
@@ -387,7 +404,7 @@ var instructions_color = {
   pages: ["<div style='font-size:32px'>Color Instructions</div>" +
   "<p>In the <strong>color</strong> task, you must figure out the color of the majority of the dots.</p>" +
       "<div class='row'>" +
-        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>blue</strong>,</br>" +
+        "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are <strong>blue</strong>,</br>" +
         "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/blue.png'></img>" +
         "</br></br><strong>Press A for majority blue</strong></div>" +
         "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>red</strong>,</br>"+
@@ -405,7 +422,7 @@ var instructions_block = {
       "The dots are going to show up for 1.5 seconds and then disappear</br>" +
       "and be replaced by a '?'. You can only respond when you see the '?'.</br></br>" +
       "You only have 3 seconds to respond on each trial.</br></br>"+
-      "Press next to see the instructions for the motion block!"
+      "Press next to see the instructions for the motion or color block!"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -488,20 +505,7 @@ var blue_example = {
   }],
 }
 
-timeline.push(instructions_motion);
-timeline.push(down_example);
-timeline.push(up_example);
-timeline.push(down_example);
-timeline.push(up_example);
-timeline.push(instructions_color);
-timeline.push(red_example);
-timeline.push(blue_example);
-timeline.push(red_example);
-timeline.push(blue_example);
-timeline.push(instructions_block);
-timeline.push(instructions_motion_block);
-
-// staircasing trials
+// change the timing of these practice trials
 var motion_stimulus_stc = motion_stimulus;
 var color_stimulus_stc = color_stimulus;
 for(i = 0; i < motion_stimulus.length; i++){
@@ -511,34 +515,99 @@ for(i = 0; i < motion_stimulus.length; i++){
   color_stimulus_stc[i]['dot_timeout'] = 1500;
 }
 
-for(i = 0; i < numTrials; i++){
-  var stim_sequence = {
-    timeline: [stimulus, fixation],
-    timeline_variables: motion_stimulus_stc,
-    randomize_order: true,
-    repetitions: 1,
-    sample: {
-        type: "without-replacement",
-        size: 1
+// counterbalance showing motion or color first
+if(parseInt(counterbalance) % 2 == 0){
+  timeline.push(instructions_motion);
+  timeline.push(down_example);
+  timeline.push(up_example);
+  timeline.push(down_example);
+  timeline.push(up_example);
+
+  timeline.push(instructions_color);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+
+  timeline.push(instructions_block);
+
+  timeline.push(instructions_motion_block);
+
+  for(i = 0; i < numTrials; i++){
+    var stim_sequence = {
+      timeline: [stimulus, fixation],
+      timeline_variables: motion_stimulus_stc,
+      randomize_order: true,
+      repetitions: 1,
+      sample: {
+          type: "without-replacement",
+          size: 1
+        }
       }
-    }
-  timeline.push(stim_sequence);
-}
+    timeline.push(stim_sequence);
+  }
 
-timeline.push(instructions_color_block);
+  timeline.push(instructions_color_block);
 
-for(i = 0; i < numTrials; i++){
-  var stim_sequence = {
-    timeline: [stimulus, fixation],
-    timeline_variables: color_stimulus_stc,
-    randomize_order: true,
-    repetitions: 1,
-    sample: {
-        type: "without-replacement",
-        size: 1,
-            }
-    }
-  timeline.push(stim_sequence);
+  for(i = 0; i < numTrials; i++){
+    var stim_sequence = {
+      timeline: [stimulus, fixation],
+      timeline_variables: color_stimulus_stc,
+      randomize_order: true,
+      repetitions: 1,
+      sample: {
+          type: "without-replacement",
+          size: 1,
+              }
+      }
+    timeline.push(stim_sequence);
+  }
+}else{
+  timeline.push(instructions_color);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+
+  timeline.push(instructions_motion);
+  timeline.push(down_example);
+  timeline.push(up_example);
+  timeline.push(down_example);
+  timeline.push(up_example);
+
+  timeline.push(instructions_block);
+
+  timeline.push(instructions_color_block);
+
+  for(i = 0; i < numTrials; i++){
+    var stim_sequence = {
+      timeline: [stimulus, fixation],
+      timeline_variables: color_stimulus_stc,
+      randomize_order: true,
+      repetitions: 1,
+      sample: {
+          type: "without-replacement",
+          size: 1,
+              }
+      }
+    timeline.push(stim_sequence);
+  }
+
+  timeline.push(instructions_motion_block);
+
+  for(i = 0; i < numTrials; i++){
+    var stim_sequence = {
+      timeline: [stimulus, fixation],
+      timeline_variables: motion_stimulus_stc,
+      randomize_order: true,
+      repetitions: 1,
+      sample: {
+          type: "without-replacement",
+          size: 1
+        }
+      }
+    timeline.push(stim_sequence);
+  }
 }
 
 // --------------------
@@ -992,7 +1061,7 @@ var instructions_prc3 = {
     "Just like in Phase 1, you will have a block of trials, but now we will add cues. </br>" +
     "Before each set of trials you will see a cue that indicates " +
     "the current task to be performed.</br>",
-    'You will have a cue and then 4-6 trials before getting to another cue.</br></br>' +
+    'You will get a cue followed by a few trials before getting to another cue.</br></br>' +
     'Do the same task for all the subsequent trials until you get a new cue: </br></br>'+
     "Example: </br>" +
     "<b>"+mapping[1]+" cue</b> -> motion task -> motion task -> motion task -> motion task -> motion task -> </br> " +
@@ -1113,8 +1182,67 @@ function generateTrials(vars, phase){
     }];
 }
 
-for (line in prc_lines){
-  var trial_vars_prc = generateTrials(prc_lines[line], '3'); //generate timeline variables
+for (line in prc_lines_1){
+  var trial_vars_prc = generateTrials(prc_lines_1[line], '3'); //generate timeline variables
+
+    // if new miniblock then, else
+  if(trial_vars_prc[0].data.miniblock_trial == 1){
+    var cue_sequence = {
+      timeline: [cue, fixation, stimulus, fixation],
+      timeline_variables: trial_vars_prc
+      }
+    timeline.push(cue_sequence);
+  }else{
+    var stim_sequence = {
+      timeline: [stimulus, fixation],
+      timeline_variables: trial_vars_prc
+      }
+    timeline.push(stim_sequence);
+  }
+}
+
+var instructions_prc4 = {
+  type: 'instructions',
+  pages: [
+    "<div style='font-size:24px'>Fantastic! Now you'll begin Phase 3.</div></br>" +
+    "Just like in Phase 1, you will have a block of trials, but now we will add cues. </br>" +
+    "Before each set of trials you will see a cue that indicates " +
+    "the current task to be performed.</br>",
+    'You will get a cue followed by a few trials before getting to another cue.</br></br>' +
+    'Do the same task for all the subsequent trials until you get a new cue: </br></br>'+
+    "Example: </br>" +
+    "<b>"+mapping[1]+" cue</b> -> motion task -> motion task -> motion task -> motion task -> motion task -> </br> " +
+    "<b>"+mapping[3]+" cue</b> -> color task -> color task -> color task -> color task -> </br>" +
+    "<b>"+mapping[4]+" cue</b> -> color task -> color task -> color task ...</br></br>" +
+    'Click next to review the cues again.',
+    "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
+        "<div class='row'>"+
+          "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+        "</div>" +
+        "<div class='row'>"+
+          "<div class='column' style='float:left; border-style: solid; border-right: 0;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+          "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
+        "</div></br>",
+      "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+        'A is for up (motion) and blue (color)</br>' +
+        'L is for down (motion) and red (color)</br></br>' +
+        "You'll no longer be waiting for the '?'.</br>" +
+        "You'll have three seconds to respond.</br></br>" +
+      "Please ready your fingers on the A and L keys and press next whenever you're ready!"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+timeline.push(instructions_prc4)
+
+for (line in prc_lines_2){
+  var trial_vars_prc = generateTrials(prc_lines_2[line], '3'); //generate timeline variables
 
     // if new miniblock then, else
   if(trial_vars_prc[0].data.miniblock_trial == 1){
