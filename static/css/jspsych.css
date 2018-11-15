@@ -136,8 +136,8 @@ input[type="text"] {
 
 /*ADDED*/
 .column {
-    float: left;
-    width: 49%;
+  float: left;
+  width: 48.5%;
 }
 
 /* Clear floats after the columns */

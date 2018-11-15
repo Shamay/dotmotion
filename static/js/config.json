@@ -5,7 +5,7 @@
     "coherentAxis": "verticalAxis",
 
     "response_ends_trial": true,
-    "fill_ITT": false,
+    "fill_ITT": true,
 
     "cue_duration": 600,
     "trial_duration": 1500,
@@ -14,6 +14,7 @@
     "dot_timeout": 0,
 
     "fixation_cross": true,
+    "training_feedback": true,
     "task_feedback": true
   }
 ]
