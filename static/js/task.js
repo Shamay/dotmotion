@@ -1039,19 +1039,19 @@ var cue_sequence = {
     }
   }
 
-//timeline.push(instructions_cue);
-//timeline.push(cue, stimulus);
+timeline.push(instructions_cue);
+timeline.push(cue, stimulus);
 if(parseInt(counterbalance) % 2 == 0){
-  //timeline.push(instructions_cue_motion);
-  //timeline.push(instructions_cue_color);
+  timeline.push(instructions_cue_motion);
+  timeline.push(instructions_cue_color);
 }else{
-  //timeline.push(instructions_cue_color);
-  //timeline.push(instructions_cue_motion);
+  timeline.push(instructions_cue_color);
+  timeline.push(instructions_cue_motion);
 }
-//timeline.push(instructions_cue2);
-//timeline.push(cue_practice);
-//timeline.push(instructions_cue3);
-//timeline.push(cue_sequence);
+timeline.push(instructions_cue2);
+timeline.push(cue_practice);
+timeline.push(instructions_cue3);
+timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
@@ -1255,37 +1255,37 @@ var instructions_prc3 = {
   post_trial_gap: 1000
 };
 
-//timeline.push(instructions_prc);
+timeline.push(instructions_prc);
 
 // counterbalance showing motion or color first
 if(parseInt(counterbalance) % 2 == 0){
-  //timeline.push(instructions_prc_m);
-  //timeline.push(practice_example1);
-  //timeline.push(practice_example2);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example2);
+  timeline.push(instructions_prc_m);
+  timeline.push(practice_example1);
+  timeline.push(practice_example2);
+  timeline.push(practice_example3);
+  timeline.push(practice_example3);
+  timeline.push(practice_example2);
 
-  //timeline.push(instructions_prc_c);
-  //timeline.push(practice_example4);
-  //timeline.push(practice_example5);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example5);
+  timeline.push(instructions_prc_c);
+  timeline.push(practice_example4);
+  timeline.push(practice_example5);
+  timeline.push(practice_example6);
+  timeline.push(practice_example6);
+  timeline.push(practice_example5);
 }else{
-  //timeline.push(instructions_prc_c);
-  //timeline.push(practice_example4);
-  //timeline.push(practice_example5);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example5);
+  timeline.push(instructions_prc_c);
+  timeline.push(practice_example4);
+  timeline.push(practice_example5);
+  timeline.push(practice_example6);
+  timeline.push(practice_example6);
+  timeline.push(practice_example5);
 
-  //timeline.push(instructions_prc_m);
-  //timeline.push(practice_example1);
-  //timeline.push(practice_example2);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example2);
+  timeline.push(instructions_prc_m);
+  timeline.push(practice_example1);
+  timeline.push(practice_example2);
+  timeline.push(practice_example3);
+  timeline.push(practice_example3);
+  timeline.push(practice_example2);
 }
 
 //generate timeline variables
@@ -1362,7 +1362,7 @@ function generateTrials(vars, phase){
     }];
 }
 
-//timeline.push(instructions_prc2);
+timeline.push(instructions_prc2);
 
 for (line in prc_lines_1){
   var trial_vars_prc = generateTrials(prc_lines_1[line], '3.1'); //generate timeline variables
@@ -1373,17 +1373,17 @@ for (line in prc_lines_1){
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(cue_sequence);
+    timeline.push(cue_sequence);
   }else{
     var stim_sequence = {
       timeline: [stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 
-//timeline.push(instructions_prc3)
+timeline.push(instructions_prc3)
 
 for (line in prc_lines_2){
   var trial_vars_prc = generateTrials(prc_lines_2[line], '3.2'); //generate timeline variables
@@ -1394,13 +1394,13 @@ for (line in prc_lines_2){
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(cue_sequence);
+    timeline.push(cue_sequence);
   }else{
     var stim_sequence = {
       timeline: [stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 
