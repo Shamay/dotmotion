@@ -1,8 +1,26 @@
 /* load psiturk */
 var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
 
-// for testing in Windows
+// counterbalancing conditions
 //condition = counterbalance = 1;
+
+var num_sequences = 8;
+var sequence = (counterbalance % num_sequences) + 1;
+
+var p1_cb, p2_cb;
+if(counterbalance < 8){
+  p1_cb = 0;
+  p2_cb = 0;
+}else if(counterbalance < 16){
+  p1_cb = 1;
+  p2_cb = 0;
+}else if(counterbalance < 24){
+  p1_cb = 0;
+  p2_cb = 1;
+}else if(counterbalance < 32){
+  p1_cb = 1;
+  p2_cb = 1;
+}
 
 //The main timeline to be fed into jsPsych.init
 var timeline = [];
@@ -19,13 +37,13 @@ $.ajax({
   }
 });
 
-var trial_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(counterbalance) + 1) + ".csv";
+var trial_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
 
 var practice_url; // for the practice sequence, swap conditions and select the next sequence
-if(parseInt(counterbalance) == 31){
+if(parseInt(sequence) == num_sequences){
   practice_url = "/static/trial_data/effortGroup_" + ((parseInt(condition) - 2) * -1) + "_sequence1.csv";
 }else{
-  practice_url = "/static/trial_data/effortGroup_" + ((parseInt(condition) - 2) * -1) + "_sequence" + (parseInt(counterbalance) + 2) + ".csv";
+  practice_url = "/static/trial_data/effortGroup_" + ((parseInt(condition) - 2) * -1) + "_sequence" + (parseInt(sequence) + 2) + ".csv";
 }
 
 $.ajax({
@@ -91,14 +109,14 @@ function processData(allText, option) {
 }
 
 // fullscreen mode
-/*
+
 timeline.push({
   type: 'fullscreen',
   fullscreen_mode: true,
   message: '<p>The experiment will swap to full screen mode when you press the button below</p>',
   button_label: 'Start Experiment'
 });
-*/
+
 
 
 //---------Create trials---------
@@ -150,27 +168,32 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          fixation.prompt = '<div style="color:#3CB371;font-size:30px"; class = center-text><b>Correct!</b>'+
-          '</div><p style="color:grey;">Filler</p><p style="color:grey;font-size:12px">Filler</p>';
+          fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+          '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
+          '</div><p style="color:grey;">Filler</p>';
         }else if(!data.correct){
           if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
-              fixation.prompt = '<div style="color:#B22222;font-size:30px"; class = center-text><b>Incorrect.</b>' +
-              '</div><p>Press A for mostly upward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press A for mostly upward motion.</p>';
             }else if(data.correct_choice == 'l'){
-              fixation.prompt = '<div style="color:#B22222;font-size:30px"; class = center-text><b>Incorrect.</b>' +
-              '</div><p>Press L for mostly downward motion.</p><p style="color:grey;font-size:12px">Filler</p>';
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press L for mostly downward motion.</p>';
             }
           }else if(data.task == 'color'){
             if(data.correct_choice == 'a'){
-              fixation.prompt = '<div style="color:#B22222;font-size:30px"; class = center-text><b>Incorrect.</b>' +
-              '</div><p>Press A for mostly blue dots.</p><p style="color:grey;font-size:12px">Filler</p>';
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press A for mostly blue dots.</p>';
             }else if(data.correct_choice == 'l'){
-              fixation.prompt = '<div style="color:#B22222;font-size:30px"; class = center-text><b>Incorrect.</b>' +
-              '</div><p>Press L for mostly red dots.</p><p style="color:grey;font-size:12px">Filler</p>';
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
+              '</div><p>Press L for mostly red dots.</p>';
             }
           }
-          fixation.trial_duration = fixation.trial_duration + 3000;
+          fixation.trial_duration = fixation.trial_duration + 2250;
         }else if(config.fixation_cross){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }
@@ -178,15 +201,18 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          fixation.prompt = '<div style="color:#3CB371;font-size:30px"; class = center-text><b>Correct!</b>'+
-          '</div><p style="color:grey;">Filler</p><p style="color:grey;font-size:12px">Filler</p>';
+          fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+          '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
+          '</div><p style="color:grey;">Filler</p>';
         }else if(!data.correct){
           if(data.task == 'motion'){
-            fixation.prompt = '<div style="color:#B22222;font-size:30px"; class = center-text><b>Incorrect.</b>' +
-            '</div><p>This was a motion task.</p><p style="color:grey;font-size:12px">Filler</p>';
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
+            '</div><p>This was a motion task.</p>';
           }else if(data.task == 'color'){
-            fixation.prompt = '<div style="color:#B22222;font-size:30px"; class = center-text><b>Incorrect.</b>' +
-            '</div><p>This was a color task.</p><p style="color:grey;font-size:12px">Filler</p>';
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
+            '</div><p>This was a color task.</p>';
           }
           fixation.trial_duration = fixation.trial_duration + 1500;
         }else if(config.fixation_cross){
@@ -197,9 +223,9 @@ var fixation = {
           if(typeof data.correct === "undefined"){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
           }else if(data.correct){
-            fixation.prompt = '<div style="color:#3CB371;font-size:30px"; class = center-text><b>Correct!</b></div>';
+            fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b></div>';
           }else if(!data.correct){
-            fixation.prompt = '<div style="color:#B22222;font-size:30px"; class = center-text><b>Incorrect.</b></div>';
+            fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b></div>';
           }else if(config.fixation_cross){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
           }
@@ -257,7 +283,6 @@ var stimulus = {
 
   on_start: function(stimulus){
     var data = jsPsych.data.get().last(2).values()[0];
-    console.log(data)
 
     if(stimulus.phase == '1.1'){
       // update coherence
@@ -398,13 +423,17 @@ var introduction = {
       '<p>Click next to continue.</p>',
       "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
       "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
-      "<p>A swarm of red and blue moving dots will be moving on the screen.</p>" +
-      "<p>Click next for an example.</p>"
+      "<p>A swarm of red and blue moving dots will be moving on the screen.</p>" //+
+      //"<p>Click next for an example.</p>" +
+      //"<form action='?' method='POST'>" +
+      //"<div class='g-recaptcha' data-sitekey='your_site_key'></div><br/>" +
+      //"<input type='submit' value='Submit'>" +
+    //"</form>"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(introduction);
+timeline.push(introduction);
 
 var stim_example = {
   timeline: [stimulus],
@@ -416,24 +445,30 @@ var stim_example = {
     trial_duration: 3000
   }],
 }
-//timeline.push(stim_example);
+timeline.push(stim_example);
+
+/* define instructions block */
+var instructions_mc = {
+  type: 'instructions',
+  pages: ["<p>Now that you've seen the stimulus, there are two sets of tasks:</p>"+
+          "<div style='font-size:24px'><strong><u>Motion</u></strong> tasks and <strong><u>Color</u></strong> tasks </div>"],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
 
 
 /* define instructions block */
 var instructions_motion = {
   type: 'instructions',
-  pages: ["<p>Now that you've seen the stimulus, there are two sets of tasks:</p>"+
-          "<div style='font-size:24px'><strong><u>Motion</u></strong> tasks and <strong><u>Color</u></strong> tasks </div>",
-
-      "<div style='font-size:32px'>Motion Instructions</div>" +
+  pages: ["<div style='font-size:32px'>Motion Instructions</div>" +
       "<p>In the <strong>motion</strong> task, you must figure out which direction the majority of the dots are going.</p>" +
       "<div class='row'>" +
         "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are going <strong>upward</strong>,</br>" +
-        "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/up.png'></img>" +
-        "</br></br><strong>Press A for majority up</strong></div>" +
+        "press the <u>A key</u>.</br></br><img src='/static/images/up.gif'></img>" +
+        "</br><strong>Press A for majority up</strong></div>" +
         "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>downward</strong>,</br>"+
-        "press the <u>L key</u> as fast as you can.</br></br><img src='/static/images/down.png'></img>" +
-        "</br></br><strong>Press L for majority down</strong></div>" +
+        "press the <u>L key</u>.</br></br><img src='/static/images/down.gif'></img>" +
+        "</br><strong>Press L for majority down</strong></div>" +
       "</div></br>Press next for an example of each."],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -445,11 +480,11 @@ var instructions_color = {
   "<p>In the <strong>color</strong> task, you must figure out the color of the majority of the dots.</p>" +
       "<div class='row'>" +
         "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are <strong>blue</strong>,</br>" +
-        "press the <u>A key</u> as fast as you can.</br></br><img src='/static/images/blue.png'></img>" +
-        "</br></br><strong>Press A for majority blue</strong></div>" +
+        "press the <u>A key</u>.</br></br><img src='/static/images/blue.gif'></img>" +
+        "</br><strong>Press A for majority blue</strong></div>" +
         "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>red</strong>,</br>"+
-        "press the <u>L key</u> as fast as you can.</br></br><img src='/static/images/red.png'></img>" +
-        "</br></br><strong>Press L for majority red</strong></div>" +
+        "press the <u>L key</u>.</br></br><img src='/static/images/red.gif'></img>" +
+        "</br><strong>Press L for majority red</strong></div>" +
       "</div></br>Press next for an example of each."],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -471,7 +506,7 @@ var instructions_block = {
 var instructions_motion_block = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Motion Block</div></br>" +
-      "In this block, you will focus on MOTION.</br></br>" +
+      "In this block, you will focus on MOTION. There will be around 100 motion tasks.</br></br>" +
       "As you get more trials correct, they will get harder. Try to reach</br>" +
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
@@ -487,7 +522,7 @@ var instructions_motion_block = {
 var instructions_color_block = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Color Block</div></br>" +
-      "In this block, you will focus on COLOR.</br></br>" +
+      "In this block, you will focus on COLOR. There will be around 100 color tasks.</br></br>" +
       "As you get more trials correct, they will get harder. Try to reach</br>" +
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
@@ -556,22 +591,23 @@ for(i = 0; i < motion_stimulus.length; i++){
 }
 
 // counterbalance showing motion or color first
-if(parseInt(counterbalance) % 2 == 0){
-  //timeline.push(instructions_motion);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
+if(p1_cb % 2 == 0){
+  timeline.push(instructions_mc);
+  timeline.push(instructions_motion);
+  timeline.push(down_example);
+  timeline.push(up_example);
+  timeline.push(down_example);
+  timeline.push(up_example);
 
-  //timeline.push(instructions_color);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
+  timeline.push(instructions_color);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+  timeline.push(red_example);
+  timeline.push(blue_example);
 
-  //timeline.push(instructions_block);
+  timeline.push(instructions_block);
 
-  //timeline.push(instructions_motion_block);
+  timeline.push(instructions_motion_block);
 
   for(i = 0; i < numTrials; i++){
     var stim_sequence = {
@@ -584,10 +620,10 @@ if(parseInt(counterbalance) % 2 == 0){
           size: 1
         }
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 
-  //timeline.push(instructions_color_block);
+  timeline.push(instructions_color_block);
 
   for(i = 0; i < numTrials; i++){
     var stim_sequence = {
@@ -600,24 +636,25 @@ if(parseInt(counterbalance) % 2 == 0){
           size: 1,
               }
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }else{
-  //timeline.push(instructions_color);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
+  timeline.push(instructions_mc);
+  timeline.push(instructions_color);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+  timeline.push(red_example);
+  timeline.push(blue_example);
 
-  //timeline.push(instructions_motion);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
+  timeline.push(instructions_motion);
+  timeline.push(down_example);
+  timeline.push(up_example);
+  timeline.push(down_example);
+  timeline.push(up_example);
 
-  //timeline.push(instructions_block);
+  timeline.push(instructions_block);
 
-  //timeline.push(instructions_color_block);
+  timeline.push(instructions_color_block);
 
   for(i = 0; i < numTrials; i++){
     var stim_sequence = {
@@ -630,10 +667,10 @@ if(parseInt(counterbalance) % 2 == 0){
           size: 1,
               }
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 
-  //timeline.push(instructions_motion_block);
+  timeline.push(instructions_motion_block);
 
   for(i = 0; i < numTrials; i++){
     var stim_sequence = {
@@ -646,7 +683,7 @@ if(parseInt(counterbalance) % 2 == 0){
           size: 1
         }
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 
@@ -657,15 +694,18 @@ var trial_counter = 0;
 if (trial_counter == 0) {var sum = 0;}
 var response_array = [];
 var end_phase = false;
-var maxTrials = 100;
+var maxTrials = 50;
 
 var shapes = [["circle","triangle"],["diamond","square"]];
-var shuffleShapes = jsPsych.randomization.repeat([0,1], 1);
+
+if(p2_cb % 2 == 0){
+  shapes = shapes.reverse();
+}
 var mapping = {
-  1: shapes[shuffleShapes[0]][0],
-  2: shapes[shuffleShapes[0]][1],
-  3: shapes[shuffleShapes[1]][0],
-  4: shapes[shuffleShapes[1]][1]
+  1: shapes[0][0],
+  2: shapes[0][1],
+  3: shapes[1][0],
+  4: shapes[1][1]
 };
 
 var instructions_cue = {
@@ -758,17 +798,17 @@ var instructions_cue2 = {
     "<div style='font-size:24px'>Let's practice associating cues and their tasks.</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[1]+" cues motion</strong></p></div>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[2]+" cues motion</strong></p></div>" +
-        "</div>" +
-        "<div class='row'>" +
-          "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[3]+" cues color</strong></p></div>" +
-          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[4]+" cues color</strong></p></div>" +
-        "</div>" +
-      "Please ready your fingers on the left and right arrow keys and press next whenever you're ready!"
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
+      "</div>" +
+      "<div class='row'>"+
+        "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+        "<p class='small'><strong>COLOR task</br></strong></p></div>" +
+        "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+        "<p class='small'><strong>COLOR task</br></strong></p></div>" +
+      "</div></br>" +
+      "Whenever you're ready, place your fingers on the left and right arrow keys and press next!"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -784,15 +824,15 @@ var instructions_cue3 = {
   "<div style='font-size:24px'>Try your best to memorize these cues and their tasks.</div>" +
       "<div class='row'>"+
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
+        "<p class='small'><strong>MOTION task</br></strong></p></div>" +
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+        "<p class='small'><strong>MOTION task</br></strong></p></div>" +
       "</div>" +
       "<div class='row'>"+
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
+        "<p class='small'><strong>COLOR task</br></strong></p></div>" +
         "<div class='column' style='float:center; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-        "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
+        "<p class='small'><strong>COLOR task</br></strong></p></div>" +
       "</div>" +
     "Please ready your fingers on the left and right arrow keys and press next whenever you're ready!"
   ],
@@ -966,7 +1006,13 @@ function generateCue(cue, swap, practice = false, answer = '', correct = true, t
            "</div>";
 
   if(practice){
-    if(cue == mapping[1]){
+    if(answer == null){
+        if(cue == mapping[1] || cue == mapping[2]){
+                  return "<div style='color:white'; class='row'>The "+ mapping[1] +" cues a motion trial.</div><div class='row'>" + response + filler;
+        }else if(cue == mapping[3] || cue == mapping[4]){
+                  return "<div style='color:white'; class='row'>The "+ mapping[1] +" cues a color trial.</div><div class='row'>" + response + filler;
+        }
+    }else if(cue == mapping[1]){
       return "<div style='color:white'; class='row'>The "+ mapping[1] +" cues a motion trial (press the "+key+").</div><div class='row'>" + response + filler;
     }else if(cue == mapping[2]){
       return "<div style='color:white'; class='row'>The "+ mapping[2] +" cues a motion trial (press the "+key+").</div><div class='row'>" + response + filler;
@@ -1095,7 +1141,7 @@ var practice_example1 = {
     text: 'Motion Task - Down (Press L)',
     trial_duration: 4000,
     cue_shape: mapping[1],
-    phase: 3
+    phase: '3.1'
   }],
 }
 
@@ -1108,7 +1154,7 @@ var practice_example2 = {
     coherent_color: 'blue',
     text: 'Motion Task - Up (Press A)',
     trial_duration: 4000,
-    phase: 3
+    phase: '3.1'
   }],
 }
 
@@ -1121,7 +1167,7 @@ var practice_example3 = {
     coherent_color: 'red',
     text: 'Motion Task - Down (Press L)',
     trial_duration: 4000,
-    phase: 3
+    phase: '3.1'
   }],
 }
 
@@ -1153,7 +1199,7 @@ var practice_example4 = {
     text: 'Color Task - Blue (Press A)',
     trial_duration: 4000,
     cue_shape: mapping[3],
-    phase: 3
+    phase: '3.1'
   }],
 }
 
@@ -1166,7 +1212,7 @@ var practice_example5 = {
     coherent_color: 'red',
     text: 'Color Task - Red (Press L)',
     trial_duration: 4000,
-    phase: 3
+    phase: '3.1'
   }],
 }
 
@@ -1179,7 +1225,7 @@ var practice_example6 = {
     coherent_color: 'blue',
     text: 'Color Task - Blue (Press A)',
     trial_duration: 4000,
-    phase: 3
+    phase: '3.1'
   }],
 }
 
@@ -1200,15 +1246,15 @@ var instructions_prc2 = {
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
         "</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
         "</div></br>",
       "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
         'A is for up (motion) and blue (color)</br>' +
@@ -1232,15 +1278,15 @@ var instructions_prc3 = {
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
         "</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
         "</div></br>",
       "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
       "There will be no cue hints. </br>"+
@@ -1258,7 +1304,7 @@ var instructions_prc3 = {
 timeline.push(instructions_prc);
 
 // counterbalance showing motion or color first
-if(parseInt(counterbalance) % 2 == 0){
+if(parseInt(p1_cb) % 2 == 0){
   timeline.push(instructions_prc_m);
   timeline.push(practice_example1);
   timeline.push(practice_example2);
@@ -1418,15 +1464,15 @@ var instructions_exp = {
       "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
           "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[1]+" cues motion</br></strong></p></div>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[2]+" cues motion</br></strong></p></div>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
           "</div>" +
           "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[3]+" cues color</br></strong></p></div>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
-          "<p class='small'><strong>"+mapping[4]+" cues color</br></strong></p></div>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
           "</div>",
         "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
         "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
@@ -1479,48 +1525,41 @@ for (line in exp_lines){
   }
 }
 
-
-
-//---------Run the experiment---------
-
-//Initiate the experiment
-/*jsPsych.init({
-  timeline: timeline,
-  //show_progress_bar: true,
-  on_finish: function(){ //Execute this when the experiment finishes
-    //jsPsych.data.localSave('testSave.csv', 'csv'); //Save the data locally in a .csv file
-    jsPsych.data.displayData(); //Display the data onto the browser screen
-
-    //jsPsych.data.getInteractionData(); LOOK INTO THIS
-
-    // select task trials
-    var task_trials = jsPsych.data.get().filter({stage: 'task_exp'});
-    var cue_data = task_trials.select('cue_shape').values;
-    var rt_data = task_trials.select('rt').values;
-    var acc_data = task_trials.select('correct').values;
-
-    outputData(cue_data,rt_data,acc_data);
-  }
-})*/
-
 // record id, condition, counterbalance on every trial
 jsPsych.data.addProperties({
     uniqueId: uniqueId,
-    condition: condition,
-    counterbalance: counterbalance
+    condition: condition, // 0 or 1 for the two effort groups
+    //counterbalance: counterbalance // counterbalance number (total: 32)
+    sequence: sequence, // sequence number (total: 8)
+    phase1_counterbalance: p1_cb, // 0: motion color, 1: color motion
+    phase2_counterbalance: p2_cb // 0: circle triangle first, 1: diamond square first
 });
 
+//---------Run the experiment---------
 jsPsych.init({
-    //display_element: 'jspsych-target',
     timeline: timeline,
+
+    //display_element: 'jspsych-target',
+    //show_progress_bar: true,
+
     // record data to psiTurk after each trial
     on_data_update: function(data) {
-        //psiturk.recordTrialData(data);
+        psiturk.recordTrialData(data);
     },
     on_finish: function() {
       jsPsych.data.displayData(); //Display the data onto the browser screen
 
       /*
+
+      //jsPsych.data.getInteractionData(); LOOK INTO THIS
+
+      //jsPsych.data.localSave('testSave.csv', 'csv'); //Save the data locally in a .csv file
+
+      // select task trials
+      var task_trials = jsPsych.data.get().filter({stage: 'task_exp'});
+      var cue_data = task_trials.select('cue_shape').values;
+      var rt_data = task_trials.select('rt').values;
+      var acc_data = task_trials.select('correct').values;
 
       // record proportion correct as unstructured data
       psiturk.recordUnstructuredData("bonus", jsPsych.data.get()
@@ -1530,19 +1569,23 @@ jsPsych.init({
                                      .select('correct')
                                      .mean()
                                      .toFixed(2));
-      // save data
-      psiturk.saveData({
-          success: function() {
-              // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
-              psiturk.computeBonus("compute_bonus", function(){
-                  psiturk.completeHIT();
-              });
-          }
-      });
 
       */
 
 
+
+      // save data
+      psiturk.saveData({
+          success: function() {
+            psiturk.completeHIT();
+            /*
+              // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
+              psiturk.computeBonus("compute_bonus", function(){
+                  psiturk.completeHIT();
+              });
+              */
+          }
+      });
 
 
     },
