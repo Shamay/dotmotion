@@ -41,9 +41,9 @@ var trial_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + 
 
 var practice_url; // for the practice sequence, swap conditions and select the next sequence
 if(parseInt(sequence) == num_sequences){
-  practice_url = "/static/trial_data/effortGroup_" + ((parseInt(condition) - 2) * -1) + "_sequence1.csv";
+  practice_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence1.csv";
 }else{
-  practice_url = "/static/trial_data/effortGroup_" + ((parseInt(condition) - 2) * -1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
+  practice_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
 }
 
 $.ajax({
