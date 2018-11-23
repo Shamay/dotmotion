@@ -1242,7 +1242,7 @@ var instructions_prc2 = {
     "<b>"+mapping[1]+" cue</b> -> motion task -> motion task -> motion task -> motion task -> motion task -> </br> " +
     "<b>"+mapping[3]+" cue</b> -> color task -> color task -> color task -> color task -> </br>" +
     "<b>"+mapping[4]+" cue</b> -> color task -> color task -> color task ...</br></br>" +
-    "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>"
+    "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
     'Click next to review the cues again.',
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
