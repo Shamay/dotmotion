@@ -1,7 +1,7 @@
 /* load psiturk */
 var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
 
-// counterbalancing conditions
+// debug mode
 //condition = counterbalance = 1;
 
 var num_sequences = 8;
@@ -193,7 +193,7 @@ var fixation = {
               '</div><p>Press L for mostly red dots.</p>';
             }
           }
-          fixation.trial_duration = fixation.trial_duration + 2250;
+          fixation.trial_duration = fixation.trial_duration + 1750;
         }else if(config.fixation_cross){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }
@@ -214,7 +214,7 @@ var fixation = {
             '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
             '</div><p>This was a color task.</p>';
           }
-          fixation.trial_duration = fixation.trial_duration + 1500;
+          fixation.trial_duration = fixation.trial_duration + 1000;
         }else if(config.fixation_cross){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }
@@ -251,9 +251,11 @@ var fixation = {
       }
     }
 
-    // dynamically change inter_trial_interval
-    if(data.response_ends_trial && data.fill_ITT && data.rt != -1){
-      fixation.trial_duration += Math.floor(data.trial_duration - data.rt);
+    if(fixation.phase == '3.1' || fixation.phase == '3.2' || fixation.phase == '4'){
+      // dynamically change inter_trial_interval
+      if(data.response_ends_trial && data.fill_ITT && data.rt != -1){
+        fixation.trial_duration += Math.floor(data.trial_duration - data.rt);
+      }
     }
   }
 }
@@ -402,7 +404,7 @@ var color_stimulus = [
 // FIRST PHASE
 // --------------------
 //staircasing phase
-var numTrials = 10;
+var numTrials = 50;
 var currentMotionCoherence = 0.73;
 var currentColorCoherence = 0.73;
 var learningRate = 0.011;
@@ -496,7 +498,7 @@ var instructions_block = {
       "You will now get a series of trials called 'blocks', for both motion and color tasks.</br></br>" +
       "The dots are going to show up for 1.5 seconds and then disappear</br>" +
       "and be replaced by a '?'. You can only respond when you see the '?'.</br></br>" +
-      "You only have 3 seconds to respond on each trial.</br></br>"+
+      "You only have about 1 second to respond on each trial.</br></br>"+
       "Press next to see the instructions for the motion or color block!"
   ],
   show_clickable_nav: true,
@@ -506,7 +508,7 @@ var instructions_block = {
 var instructions_motion_block = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Motion Block</div></br>" +
-      "In this block, you will focus on MOTION. There will be around 100 motion tasks.</br></br>" +
+      "In this block, you will focus on MOTION. There will be around "+numTrials+" motion tasks.</br></br>" +
       "As you get more trials correct, they will get harder. Try to reach</br>" +
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
@@ -522,7 +524,7 @@ var instructions_motion_block = {
 var instructions_color_block = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Color Block</div></br>" +
-      "In this block, you will focus on COLOR. There will be around 100 color tasks.</br></br>" +
+      "In this block, you will focus on COLOR. There will be around "+numTrials+" color tasks.</br></br>" +
       "As you get more trials correct, they will get harder. Try to reach</br>" +
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
@@ -1581,14 +1583,20 @@ jsPsych.init({
       psiturk.saveData({
           success: function() {
             psiturk.completeHIT();
-            /*
+
+             /*
+
               // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
               psiturk.computeBonus("compute_bonus", function(){
                   psiturk.completeHIT();
               });
+
               */
+
           }
       });
+
+
 
 
     },
