@@ -423,7 +423,7 @@ var introduction = {
       '<p>Click next to continue.</p>',
       "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
       "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
-      "<p>A swarm of red and blue moving dots will be moving on the screen.</p>" //+
+      "<p>A swarm of red and blue dots will be moving on the screen.</p>" //+
       //"<p>Click next for an example.</p>" +
       //"<form action='?' method='POST'>" +
       //"<div class='g-recaptcha' data-sitekey='your_site_key'></div><br/>" +
@@ -818,7 +818,7 @@ var instructions_cue3 = {
   type: 'instructions',
   pages: [
     "Now that you've gotten a chance to practice, you have to do the same task without any hints.</br></br>" +
-    "In order to proceed, you will need to get 18 out of the last 20 trials correct.</br>" +
+    "In order to move on, you will need to get 18 out of the last 20 trials correct.</br>" +
     "To move on, you have to <b><u>memorize</u></b> whether a cue corresponds to motion or color!</br></br>"+
     "Click next to review the cues again. Please memorize them!",
   "<div style='font-size:24px'>Try your best to memorize these cues and their tasks.</div>" +
@@ -1238,10 +1238,11 @@ var instructions_prc2 = {
     "the current task to be performed.</br>",
     'You will get a cue followed by a few trials before getting to another cue.</br></br>' +
     'Do the same task for all the subsequent trials until you get a new cue. </br></br>'+
-    "Example: </br>" +
+    "For example, the sequence may be something like this: </br>" +
     "<b>"+mapping[1]+" cue</b> -> motion task -> motion task -> motion task -> motion task -> motion task -> </br> " +
     "<b>"+mapping[3]+" cue</b> -> color task -> color task -> color task -> color task -> </br>" +
     "<b>"+mapping[4]+" cue</b> -> color task -> color task -> color task ...</br></br>" +
+    "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>"
     'Click next to review the cues again.',
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
@@ -1506,7 +1507,9 @@ var pause_text = {
 for (line in exp_lines){
   var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
   // pause before block two
-  if(trial_vars_exp[0].data.block == 2){
+  var pause = true;
+  if(pause && trial_vars_exp[0].data.block == 2){
+    pause = false;
     timeline.push(pause_text);
   }
   // if new miniblock then, else

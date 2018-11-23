@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- 
+<!--
 	The ad.html has a very specific format.
 
 	Really there are two "ads" contained within this file.
 
 	The first ad displays to participants who are browsing
 	the Amazon Mechanical Turk site but have not yet accepted
-	your hit.  
+	your hit.
 
 	The second part of the ad display after the person selected
 	"Accept HIT" on the Amazon website.  This will reload the
@@ -29,7 +29,7 @@
 			    margin: 0px;
 			    background-color: white;
 			    color: black;
-			    font-weight: 300; 
+			    font-weight: 300;
 			    font-size: 13pt;
 			}
 
@@ -54,14 +54,13 @@
 	<body>
 		<div id="container-not-an-ad" class="media">
 			<div class="media-left pull-left" href="#">
-						<!-- REPLACE THE LOGO HERE WITH YOUR  UNIVERSITY, LAB, or COMPANY -->
-						<img id="adlogo" src="{{ server_location }}/static/images/university.png" alt="Lab Logo" />
+						<img id="adlogo" src="{{ server_location }}/static/images/princeton.jpeg" alt="Lab Logo" />
 			</div>
 			<div class="media-body">
 
-							<!-- 
+							<!--
 								If assignmentid is "ASSIGNMENT_ID_NOT_AVAILABLE"
-								it means the participant has NOT accepted your hit. 
+								it means the participant has NOT accepted your hit.
 								This should display the typical advertisement about
 								your experiment: who can participate, what the
 								payment is, the time, etc...
@@ -71,30 +70,30 @@
 
 							    <h1>Call for participants</h1>
 							    <p>
-									The XXX Lab at XXXXX University is looking for online participants 
-									for a brief psychology experiment. The only requirements 
-									are that you are at least 18 years old and are a fluent English 
-									speaker.  The task will take XXXXX minutes and will pay XXXXX.
+									The Cognitive Control Lab at Princeton University is looking for online participants
+									for a brief psychology experiment. The only requirements
+									are that you are at least 18 years old and are a fluent English
+									speaker.  The task will take about 60 minutes and will pay 6 dollars.
 							    </p>
 							    <div class="alert alert-danger">
-									<strong>This task can only be completed once.</strong> 
-									If you have already completed this task before the system will not 
-									allow you to run again. If this looks familiar please return the 
+									<strong>This task can only be completed once.</strong>
+									If you have already completed this task before the system will not
+									allow you to run again. If this looks familiar please return the
 									HIT so someone else can participate.
 							    </div>
 							    <p>
-								    Otherwise, please click the "Accept HIT" button on the Amazon site 
+								    Otherwise, please click the "Accept HIT" button on the Amazon site
 								    above to begin the task.
 								</p>
-							    
+
 
 							{% else %}
 
-								<!-- 
+								<!--
 									OTHERWISE
 									If assignmentid is NOT "ASSIGNMENT_ID_NOT_AVAILABLE"
-									it means the participant has accepted your hit. 
-									You should thus show them instructions to begin the 
+									it means the participant has accepted your hit.
+									You should thus show them instructions to begin the
 									experiment ... usually a button to launch a new browser
 									window pointed at your server.
 
@@ -115,14 +114,14 @@
 							    <div class="alert alert-warning">
 							    	<b>Warning</b>: Please disable pop-up blockers before continuing.
 							    </div>
-							    
+
 						    	<button type="button" class="btn btn-primary btn-lg" onClick="openwindow();">
 								  Begin Experiment
 								</button>
 
 
 							{% endif %}
-							<!-- 
+							<!--
 								endif
 							-->
 			</div>
