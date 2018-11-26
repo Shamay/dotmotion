@@ -1552,7 +1552,7 @@ jsPsych.init({
         psiturk.recordTrialData(data);
     },
     on_finish: function() {
-      jsPsych.data.displayData(); //Display the data onto the browser screen
+      //jsPsych.data.displayData(); //Display the data onto the browser screen
 
       /*
 
