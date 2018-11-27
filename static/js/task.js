@@ -424,9 +424,9 @@ var color_stimulus = [
 // FIRST PHASE
 // --------------------
 //staircasing phase
-var numTrials = 50;
-var currentMotionCoherence = 0.73; // starting coherence
-var currentColorCoherence = 0.73; // starting coherence
+var numTrials = 70;
+var currentMotionCoherence = 0.45; // starting coherence
+var currentColorCoherence = 0.70; // starting coherence
 var learningRate = 0.011;
 var minCoherence = 0.52;
 var maxCoherence = 0.80;

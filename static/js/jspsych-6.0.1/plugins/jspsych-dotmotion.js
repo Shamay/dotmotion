@@ -309,19 +309,20 @@ jsPsych.plugins["dotmotion"] = (function() {
 				"rt": response.rt, //The response time
 				"key_press": response.key, //The key that the subject pressed
 				"correct": correctOrNot(), //If the subject response was correct
-				"choices": trial.choices, //The set of valid keys
+				//"choices": trial.choices, //The set of valid keys
 				"correct_choice": trial.correct_choice, //The correct choice
 				"trial_duration": trial.trial_duration, //The trial duration
-        "dot_duration": trial.dot_duration, //The dot duration
-				"response_ends_trial": trial.response_ends_trial, //If the response ends the trial
-        "fill_ITT": trial.fill_ITT //Whether to extend ITT or not, response_ends_trial must be true
-				/*
-        "number_of_dots": trial.number_of_dots,
-				"number_of_sets": trial.number_of_sets,
+        //"dot_duration": trial.dot_duration, //The dot duration
+				//"response_ends_trial": trial.response_ends_trial, //If the response ends the trial
+        //"fill_ITT": trial.fill_ITT, //Whether to extend ITT or not, response_ends_trial must be true
+
+        //"number_of_dots": trial.number_of_dots,
+				//"number_of_sets": trial.number_of_sets,
 				"coherent_direction": trial.coherent_direction,
 				"coherent_color": trial.coherent_color,
 				"motionCoherence": trial.motionCoherence,
-				"colorCoherence": trial.colorCoherence,
+				"colorCoherence": trial.colorCoherence
+        /*
 				"dot_radius": trial.dot_radius,
 				"dot_life": trial.dot_life,
 				"move_distance": trial.move_distance,
