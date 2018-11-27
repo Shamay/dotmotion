@@ -2,8 +2,6 @@
   {
     "number_of_dots": 200,
 
-    "coherentAxis": "verticalAxis",
-
     "response_ends_trial": true,
     "fill_ITT": true,
 

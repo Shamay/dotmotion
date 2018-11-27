@@ -76,7 +76,7 @@ jsPsych.plugins["dotmotion"] = (function() {
     var phase = trial.phase;
 		var nDots = trial.number_of_dots; //Number of dots per set (equivalent to number of dots per frame)
 		var nSets = trial.number_of_sets; //Number of sets to cycle through per frame
-		var coherentDirection = trial.coherent_direction; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
+    var coherentDirection = trial.coherent_direction; //The direction of the coherentDots (up, down, right left)
 		var motionCoherence = trial.motionCoherence; //Proportion of dots to move together, range from 0 to 1
 		var colorCoherence = trial.colorCoherence; //Proportion of dots to of the same color, range from 0 to 1
 		var dotRadius = trial.dot_radius; //Radius of each dot in pixels
@@ -97,6 +97,17 @@ jsPsych.plugins["dotmotion"] = (function() {
 			var correctColor = 'red';
 			var incorrectColor = 'blue';
 		}
+
+    //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
+    if (coherentDirection == 'up'){
+      coherentDirection = 90;
+    }else if(coherentDirection == 'down'){
+      coherentDirection = 270;
+    }else if(coherentDirection == 'right'){
+      coherentDirection = 0;
+    }else if(coherentDirection == 'left'){
+      coherentDirection = 180;
+    }
 
 		/* RDK type parameter
 		** See Fig. 1 in Scase, Braddick, and Raymond (1996) for a visual depiction of these different signal selection rules and noise types
