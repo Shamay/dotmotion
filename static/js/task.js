@@ -424,7 +424,7 @@ var color_stimulus = [
 // FIRST PHASE
 // --------------------
 //staircasing phase
-var numTrials = 25;
+var numTrials = 50;
 var currentMotionCoherence = 0.73; // starting coherence
 var currentColorCoherence = 0.73; // starting coherence
 var learningRate = 0.011;
@@ -441,7 +441,8 @@ var introduction = {
       '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks.</li>' +
       '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion.</li>' +
       '<li><b>Phase 3:</b> you will practice swaping between color or motion tasks.</li>' +
-      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></div>' +
+      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></br></br>'
+      'The experiment will take approximately one hour to complete.</div>' +
       '<p>Click next to continue.</p>',
       "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
       "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
@@ -1560,7 +1561,7 @@ jsPsych.init({
     timeline: timeline,
 
     //display_element: 'jspsych-target',
-    //show_progress_bar: true,
+    show_progress_bar: true,
 
     // record data to psiTurk after each trial
     on_data_update: function(data) {
