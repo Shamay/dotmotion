@@ -45,8 +45,8 @@ jsPsych.plugins["dotmotion"] = (function() {
 		trial.RDK_type = trial.RDK_type || 7;
 		trial.aperture_type = trial.aperture_type || 2;
 		trial.reinsert_type = trial.reinsert_type || 2;
-		trial.aperture_center_x = trial.aperture_center_x || (window.innerWidth * 0.95) / 2;
-		trial.aperture_center_y = trial.aperture_center_y || (window.innerHeight * 0.95) / 2;
+		trial.aperture_center_x = trial.aperture_center_x || (window.innerWidth * 0.90) / 2;
+		trial.aperture_center_y = trial.aperture_center_y || (window.innerHeight * 0.90) / 2;
     trial.text = trial.text || '';
 
 		//Coherence can be zero, but logical operators evaluate it to false. So we do it manually
@@ -179,8 +179,8 @@ jsPsych.plugins["dotmotion"] = (function() {
 		var ctx = canvas.getContext("2d");
 
 		//Declare variables for width and height, and also set the canvas width and height to the window width and height
-		var width = canvas.width = window.innerWidth * 0.95;
-		var height = canvas.height = window.innerHeight * 0.95;
+		var width = canvas.width = window.innerWidth * 0.90;
+		var height = canvas.height = window.innerHeight * 0.90;
 
 		//Set the canvas background color
 		canvas.style.backgroundColor = backgroundColor;

@@ -441,8 +441,8 @@ var introduction = {
       '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks.</li>' +
       '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion.</li>' +
       '<li><b>Phase 3:</b> you will practice swaping between color or motion tasks.</li>' +
-      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></br></br>' +
-      'The experiment will take approximately one hour to complete.</div>' +
+      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></br>' +
+      '</div>The experiment will take approximately one hour to complete.' +
       '<p>Click next to continue.</p>',
       "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
       "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
@@ -456,7 +456,7 @@ var introduction = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(introduction);
+timeline.push(introduction);
 
 var stim_example = {
   timeline: [stimulus],
@@ -1559,9 +1559,10 @@ jsPsych.data.addProperties({
 //---------Run the experiment---------
 jsPsych.init({
     timeline: timeline,
+    show_progress_bar: true,
 
     //display_element: 'jspsych-target',
-    show_progress_bar: true,
+
 
     // record data to psiTurk after each trial
     on_data_update: function(data) {
