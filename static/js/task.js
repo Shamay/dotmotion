@@ -318,7 +318,7 @@ var stimulus = {
       if(typeof data.correct === "undefined"){
         currentMotionCoherence = currentMotionCoherence + (2*learningRate - 0.002);
       }else if(data.correct){
-        if(currentMotionCoherence > minCoherence){
+        if(currentMotionCoherence > minMotionCoherence){
           currentMotionCoherence = currentMotionCoherence - learningRate;
         }
       }else{
@@ -338,7 +338,7 @@ var stimulus = {
       if(typeof data.correct === "undefined"){
         currentColorCoherence = currentColorCoherence + (2*learningRate - 0.002);
       }else if(data.correct){
-        if(currentColorCoherence > minCoherence){
+        if(currentColorCoherence > minColorCoherence){
           currentColorCoherence = currentColorCoherence - learningRate;
         }
       }else{
@@ -428,7 +428,8 @@ var numTrials = 70;
 var currentMotionCoherence = 0.45; // starting coherence
 var currentColorCoherence = 0.70; // starting coherence
 var learningRate = 0.011;
-var minCoherence = 0.52;
+var minMotionCoherence = 0.05;
+var minColorCoherence = 0.52;
 var maxCoherence = 0.80;
 var percentageCorrect = 0;
 
