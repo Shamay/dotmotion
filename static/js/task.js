@@ -126,6 +126,7 @@ timeline.push({
   button_label: 'Start Experiment'
 });
 
+
 //---------Create trials---------
 
 // Generates template for cue stimulus
@@ -189,7 +190,12 @@ var fixation = {
           '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
           '</div><p style="color:grey;">Filler</p>';
         }else if(!data.correct){
-          if(data.task == 'motion'){
+          if(data.rt == -1 && fixation.phase == '3.1'){
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Respond Faster</b>' +
+            "</div><p>Do not wait for the '?', respond as soon as you can.</p>";
+            fixation.trial_duration = fixation.trial_duration + 500;
+          }else if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
@@ -222,7 +228,12 @@ var fixation = {
           '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
           '</div><p style="color:grey;">Filler</p>';
         }else if(!data.correct){
-          if(data.task == 'motion'){
+          if(data.rt == -1){
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Respond Faster</b>' +
+            "</div><p>Do not wait for the '?', respond as soon as you can.</p>";
+            fixation.trial_duration = fixation.trial_duration + 500;
+          }else if(data.task == 'motion'){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
             '</div><p>This was a motion task.</p>';
@@ -242,7 +253,11 @@ var fixation = {
           }else if(data.correct){
             fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b></div>';
           }else if(!data.correct){
-            fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b></div>';
+            if(data.rt == -1){
+              fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Respond Faster</b></div>';
+            }else{
+              fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b></div>';
+            }
           }else if(config.fixation_cross){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
           }
@@ -426,10 +441,10 @@ var color_stimulus = [
 //staircasing phase
 var numTrials = 70;
 var currentMotionCoherence = 0.45; // starting coherence
-var currentColorCoherence = 0.70; // starting coherence
+var currentColorCoherence = 0.45; // starting coherence
 var learningRate = 0.011;
-var minMotionCoherence = 0.05;
-var minColorCoherence = 0.52;
+var minMotionCoherence = 0.08;
+var minColorCoherence = 0.05;
 var maxCoherence = 0.80;
 var percentageCorrect = 0;
 
@@ -1116,10 +1131,10 @@ if(parseInt(counterbalance) % 2 == 0){
   timeline.push(instructions_cue_color);
   timeline.push(instructions_cue_motion);
 }
-//timeline.push(instructions_cue2);
-//timeline.push(cue_practice);
-//timeline.push(instructions_cue3);
-//timeline.push(cue_sequence);
+timeline.push(instructions_cue2);
+timeline.push(cue_practice);
+timeline.push(instructions_cue3);
+timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
@@ -1450,7 +1465,7 @@ for (line in prc_lines_1){
   }
 }
 
-//timeline.push(instructions_prc3)
+timeline.push(instructions_prc3)
 
 for (line in prc_lines_2){
   var trial_vars_prc = generateTrials(prc_lines_2[line], '3.2'); //generate timeline variables
@@ -1461,13 +1476,13 @@ for (line in prc_lines_2){
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(cue_sequence);
+    timeline.push(cue_sequence);
   }else{
     var stim_sequence = {
       timeline: [stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 
@@ -1508,7 +1523,7 @@ var instructions_exp = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(instructions_exp);
+timeline.push(instructions_exp);
 
 var pause_text = {
   type: 'instructions',
@@ -1529,7 +1544,7 @@ for (line in exp_lines){
   // pause before block two
   if(pause && trial_vars_exp[0].data.block == 2){
     pause = false;
-    //timeline.push(pause_text);
+    timeline.push(pause_text);
   }
   // if new miniblock then, else
   if(trial_vars_exp[0].data.miniblock_trial == 1){
@@ -1537,13 +1552,13 @@ for (line in exp_lines){
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_exp
       }
-    //timeline.push(cue_sequence);
+    timeline.push(cue_sequence);
   }else{
     var stim_sequence = {
       timeline: [stimulus, fixation],
       timeline_variables: trial_vars_exp
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 

@@ -51,13 +51,15 @@ jsPsych.plugins["dotmotion"] = (function() {
 
 		//Coherence can be zero, but logical operators evaluate it to false. So we do it manually
 		if(typeof trial.motionCoherence === 'undefined'){
-			trial.motionCoherence = 0.75;
+			trial.motionCoherence = 0.5;
 		}
 
 		//Color coherence can be zero, but logical operators evaluate it to false. So we do it manually
 		if(typeof trial.colorCoherence === 'undefined'){
 			trial.colorCoherence = 0.75;
-		}
+		}else{
+      trial.colorCoherence = 0.5 + (trial.colorCoherence / 2.0) // scale it so that it matches motion coherence
+    }
 
 		//Logical operators won't work for boolean parameters like they do for non-boolean parameters above, so we do it manually
   	if (typeof trial.response_ends_trial === 'undefined') {
