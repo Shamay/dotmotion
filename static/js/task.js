@@ -190,10 +190,16 @@ var fixation = {
           '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
           '</div><p style="color:grey;">Filler</p>';
         }else if(!data.correct){
-          if(data.rt == -1 && fixation.phase == '3.1'){
-            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-            '<div style="color:white;font-size:30px"; class = center-text><b>Respond Faster</b>' +
-            "</div><p>Do not wait for the '?', respond as soon as you can.</p>";
+          if(data.rt == -1){
+            if(fixation.phase == '3.1'){
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Respond Faster</b>' +
+              "</div><p>Do not wait for the '?', respond as soon as you can.</p>";
+            }else{
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Respond Faster</b>' +
+              "</div><p>Respond as fast as you can when you see the '?'.</p>";
+            }
             fixation.trial_duration = fixation.trial_duration + 500;
           }else if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
