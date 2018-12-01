@@ -118,7 +118,6 @@ function processData(allText, option) {
 }
 
 // fullscreen mode
-
 timeline.push({
   type: 'fullscreen',
   fullscreen_mode: true,
@@ -450,9 +449,8 @@ var currentMotionCoherence = 0.45; // starting coherence
 var currentColorCoherence = 0.45; // starting coherence
 var learningRate = 0.011;
 var minMotionCoherence = 0.08;
-var minColorCoherence = 0.05;
+var minColorCoherence = 0.04;
 var maxCoherence = 0.80;
-var percentageCorrect = 0;
 
 /* define introduction block */
 var introduction = {
@@ -1067,7 +1065,7 @@ function generateCue(cue, swap, practice = false, answer = '', correct = true, t
   }else{
     if(trial_counter % 5 == 0){ //answer != null &&
       return "<div class='row'>" +
-             "You need "+ (18-sum) + " more correct trials to move on!</div>"+
+             "You need at least "+ (18-sum) + " more correct trials to move on!</div>"+
              "<div class='row'>" + response + filler;
     }else{
       return "<div style='color:grey'; class='row'>-</div><div class='row'>" + response + filler;
@@ -1151,7 +1149,8 @@ var instructions_prc = {
     '<div style="font-size:32px">Welcome to the <strong>Phase 3</strong>. </div></br>'+
     '<div style="font-size:24px">We will be swaping between color and motion tasks.</div></br>' +
     'The cues you learned earlier will tell you if you </br>'+
-    'are supposed to focus on color or motion.</br></br>',
+    'are supposed to focus on color or motion.</br></br>' +
+    'Note: there are approximately 40 minutes left in the experiment from this point.</br></br>',
   ],
   show_clickable_nav: true
 };
