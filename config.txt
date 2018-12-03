@@ -18,7 +18,7 @@ table_name = turkdemo
 
 [Server Parameters]
 host = psiturk-sagaron.princeton.edu
-port = 9004
+port = 9009
 cutoff_time = 30
 logfile = server.log
 loglevel = 2
