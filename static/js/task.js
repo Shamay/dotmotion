@@ -118,26 +118,26 @@ function processData(allText, option) {
 }
 
 // fullscreen mode
-/*
+
 timeline.push({
   type: 'fullscreen',
   fullscreen_mode: true,
   message: '<p>The experiment will swap to full screen mode when you press the button below</p>',
   button_label: 'Start Experiment'
 });
-*/
+
 
 // --------------------
 // FIRST PHASE
 // --------------------
 //staircasing phase
-var numTrials = 5;
-var currentMotionCoherence = 0.45; // starting coherence
-var currentColorCoherence = 0.45; // starting coherence
+var numTrials = 70;
+var currentMotionCoherence = 0.34; // starting coherence
+var currentColorCoherence = 0.34; // starting coherence
 var learningRate = 0.011;
 var minMotionCoherence = 0.08;
 var minColorCoherence = 0.05;
-var maxCoherence = 0.80;
+var maxCoherence = 0.6;
 
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
@@ -365,7 +365,6 @@ var stimulus = {
       }
 
       stimulus.motionCoherence = currentMotionCoherence;
-      console.log(currentMotionCoherence, currentColorCoherence)
 
     }else if(stimulus.phase == '1.2'){
       // update coherence for staircasing
@@ -388,13 +387,10 @@ var stimulus = {
       }
 
       stimulus.colorCoherence = currentColorCoherence;
-      console.log(currentMotionCoherence, currentColorCoherence)
-
     }else{
       // increase the coherence by 0.05 for all phases other than the staircasing procedure
       stimulus.motionCoherence = currentMotionCoherence + 0.05;
       stimulus.colorCoherence = currentColorCoherence + 0.05;
-      console.log(currentMotionCoherence, currentColorCoherence)
     }
   }
 }
@@ -495,7 +491,7 @@ var stim_example = {
     trial_duration: 3000
   }],
 }
-//timeline.push(stim_example);
+timeline.push(stim_example);
 
 /* define instructions block */
 var instructions_mc = {
@@ -511,12 +507,15 @@ var instructions_mc = {
 var instructions_motion = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Motion Instructions</div>" +
-      "<p>In the <strong>motion</strong> task, you must figure out which direction the majority of the dots are going.</p>" +
+      "<p>In the <strong>motion</strong> task, there will be colored dots moving in all directions," +
+      "</br><font color='grey'>filler</font>" +
+      "<font color='#FA8072'><b>and you must figure out whether more dots are going <u>UP or DOWN</u>.</b></font>"+
+      "<font color='grey'>filler</font></p>" +
       "<div class='row'>" +
-        "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are going <strong>upward</strong>,</br>" +
+        "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If more dots are going <strong>upward</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/up.gif'></img>" +
         "</br><strong>Press A for majority up</strong></div>" +
-        "<div class='column' style='float:center; border-style: solid;'>If most of the dots are going <strong>downward</strong>,</br>"+
+        "<div class='column' style='float:center; border-style: solid;'>If more dots are going <strong>downward</strong>,</br>"+
         "press the <u>L key</u>.</br></br><img src='/static/images/down.gif'></img>" +
         "</br><strong>Press L for majority down</strong></div>" +
       "</div></br>Press next for an example of each."],
@@ -527,7 +526,8 @@ var instructions_motion = {
 var instructions_color = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Color Instructions</div>" +
-  "<p>In the <strong>color</strong> task, you must figure out the color of the majority of the dots.</p>" +
+  "<p>In the <strong>color</strong> task, there will be colored dots moving in all directions," +
+  "</br><font color='#FA8072'><b>and you must figure out whether more dots are <u>BLUE or RED</u>.</b></font></p>" +
       "<div class='row'>" +
         "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are <strong>blue</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/blue.gif'></img>" +
@@ -561,8 +561,8 @@ var instructions_motion_block = {
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
       "You can only respond when you see the '?'.</br></br>" +
-      "A key = majority UP </br>" +
-      "L key = majority DOWN </br></br>" +
+      "A key = mostly UP </br>" +
+      "L key = mostly DOWN </br></br>" +
       "Press next to begin the motion block!"
   ],
   show_clickable_nav: true,
@@ -577,8 +577,8 @@ var instructions_color_block = {
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
       "You can only respond when you see the '?'.</br></br>" +
-      "A key = majority BLUE </br>" +
-      "L key = majority RED </br></br>" +
+      "A key = mostly BLUE </br>" +
+      "L key = mostly RED </br></br>" +
       "Press next to begin the COLOR block!"
   ],
   show_clickable_nav: true,
@@ -592,7 +592,7 @@ var down_example = {
     correct_choice: 'l',
     coherent_direction: 'down',
     coherent_color: 'blue',
-    text: 'Majority Down (Press L)',
+    text: 'More Down (than Up) (Press L)',
     trial_duration: 3000
   }],
 }
@@ -603,7 +603,7 @@ var up_example = {
     correct_choice: 'a',
     coherent_direction: 'up',
     coherent_color: 'blue',
-    text: 'Majority Up (Press A)',
+    text: 'More Up (than Down) (Press A)',
     trial_duration: 3000
   }],
 }
@@ -642,20 +642,20 @@ for(i = 0; i < motion_stimulus.length; i++){
 
 // counterbalance showing motion or color first
 if(p1_cb % 2 == 0){
-  //timeline.push(instructions_mc);
-  //timeline.push(instructions_motion);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
+  timeline.push(instructions_mc);
+  timeline.push(instructions_motion);
+  timeline.push(down_example);
+  timeline.push(up_example);
+  timeline.push(down_example);
+  timeline.push(up_example);
 
-  //timeline.push(instructions_color);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
+  timeline.push(instructions_color);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+  timeline.push(red_example);
+  timeline.push(blue_example);
 
-  //timeline.push(instructions_block);
+  timeline.push(instructions_block);
 
   timeline.push(instructions_motion_block);
 
@@ -689,20 +689,20 @@ if(p1_cb % 2 == 0){
     timeline.push(stim_sequence);
   }
 }else{
-  //timeline.push(instructions_mc);
-  //timeline.push(instructions_color);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
-  //timeline.push(red_example);
-  //timeline.push(blue_example);
+  timeline.push(instructions_mc);
+  timeline.push(instructions_color);
+  timeline.push(red_example);
+  timeline.push(blue_example);
+  timeline.push(red_example);
+  timeline.push(blue_example);
 
-  //timeline.push(instructions_motion);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
-  //timeline.push(down_example);
-  //timeline.push(up_example);
+  timeline.push(instructions_motion);
+  timeline.push(down_example);
+  timeline.push(up_example);
+  timeline.push(down_example);
+  timeline.push(up_example);
 
-  //timeline.push(instructions_block);
+  timeline.push(instructions_block);
 
   timeline.push(instructions_color_block);
 
@@ -1133,19 +1133,19 @@ var cue_sequence = {
     }
   }
 
-//timeline.push(instructions_cue);
-//timeline.push(cue, stimulus);
+timeline.push(instructions_cue);
+timeline.push(cue, stimulus);
 if(parseInt(counterbalance) % 2 == 0){
-  //timeline.push(instructions_cue_motion);
-  //timeline.push(instructions_cue_color);
+  timeline.push(instructions_cue_motion);
+  timeline.push(instructions_cue_color);
 }else{
-  //timeline.push(instructions_cue_color);
-  //timeline.push(instructions_cue_motion);
+  timeline.push(instructions_cue_color);
+  timeline.push(instructions_cue_motion);
 }
-//timeline.push(instructions_cue2);
-//timeline.push(cue_practice);
-//timeline.push(instructions_cue3);
-//timeline.push(cue_sequence);
+timeline.push(instructions_cue2);
+timeline.push(cue_practice);
+timeline.push(instructions_cue3);
+timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
@@ -1351,37 +1351,37 @@ var instructions_prc3 = {
   post_trial_gap: 1000
 };
 
-//timeline.push(instructions_prc);
+timeline.push(instructions_prc);
 
 // counterbalance showing motion or color first
 if(parseInt(p1_cb) % 2 == 0){
-  //timeline.push(instructions_prc_m);
-  //timeline.push(practice_example1);
-  //timeline.push(practice_example2);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example2);
+  timeline.push(instructions_prc_m);
+  timeline.push(practice_example1);
+  timeline.push(practice_example2);
+  timeline.push(practice_example3);
+  timeline.push(practice_example3);
+  timeline.push(practice_example2);
 
-  //timeline.push(instructions_prc_c);
-  //timeline.push(practice_example4);
-  //timeline.push(practice_example5);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example5);
+  timeline.push(instructions_prc_c);
+  timeline.push(practice_example4);
+  timeline.push(practice_example5);
+  timeline.push(practice_example6);
+  timeline.push(practice_example6);
+  timeline.push(practice_example5);
 }else{
-  //timeline.push(instructions_prc_c);
-  //timeline.push(practice_example4);
-  //timeline.push(practice_example5);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example6);
-  //timeline.push(practice_example5);
+  timeline.push(instructions_prc_c);
+  timeline.push(practice_example4);
+  timeline.push(practice_example5);
+  timeline.push(practice_example6);
+  timeline.push(practice_example6);
+  timeline.push(practice_example5);
 
-  //timeline.push(instructions_prc_m);
-  //timeline.push(practice_example1);
-  //timeline.push(practice_example2);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example3);
-  //timeline.push(practice_example2);
+  timeline.push(instructions_prc_m);
+  timeline.push(practice_example1);
+  timeline.push(practice_example2);
+  timeline.push(practice_example3);
+  timeline.push(practice_example3);
+  timeline.push(practice_example2);
 }
 
 //generate timeline variables
@@ -1456,7 +1456,7 @@ function generateTrials(vars, phase){
     }];
 }
 
-//timeline.push(instructions_prc2);
+timeline.push(instructions_prc2);
 
 for (line in prc_lines_1){
   var trial_vars_prc = generateTrials(prc_lines_1[line], '3.1'); //generate timeline variables
@@ -1467,13 +1467,13 @@ for (line in prc_lines_1){
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(cue_sequence);
+    timeline.push(cue_sequence);
   }else{
     var stim_sequence = {
       timeline: [stimulus, fixation],
       timeline_variables: trial_vars_prc
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 
@@ -1535,7 +1535,7 @@ var instructions_exp = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-//timeline.push(instructions_exp);
+timeline.push(instructions_exp);
 
 var pause_text = {
   type: 'instructions',
@@ -1556,7 +1556,7 @@ for (line in exp_lines){
   // pause before block two
   if(pause && trial_vars_exp[0].data.block == 2){
     pause = false;
-    //timeline.push(pause_text);
+    timeline.push(pause_text);
   }
   // if new miniblock then, else
   if(trial_vars_exp[0].data.miniblock_trial == 1){
@@ -1564,13 +1564,13 @@ for (line in exp_lines){
       timeline: [cue, fixation, stimulus, fixation],
       timeline_variables: trial_vars_exp
       }
-    //timeline.push(cue_sequence);
+    timeline.push(cue_sequence);
   }else{
     var stim_sequence = {
       timeline: [stimulus, fixation],
       timeline_variables: trial_vars_exp
       }
-    //timeline.push(stim_sequence);
+    timeline.push(stim_sequence);
   }
 }
 
@@ -1589,7 +1589,7 @@ jsPsych.init({
     timeline: timeline,
     show_progress_bar: true,
 
-    display_element: 'jspsych-target',
+    //display_element: 'jspsych-target',
 
 
     // record data to psiTurk after each trial
@@ -1600,38 +1600,14 @@ jsPsych.init({
 
     on_finish: function() {
       //jsPsych.data.displayData(); //Display the data onto the browser screen
-
-      /*
-
-      //jsPsych.data.getInteractionData(); LOOK INTO THIS
-
-      //jsPsych.data.localSave('testSave.csv', 'csv'); //Save the data locally in a .csv file
-
-      // select task trials
-      var task_trials = jsPsych.data.get().filter({stage: 'task_exp'});
-      var cue_data = task_trials.select('cue_shape').values;
-      var rt_data = task_trials.select('rt').values;
-      var acc_data = task_trials.select('correct').values;
-
-      // record proportion correct as unstructured data
-      psiturk.recordUnstructuredData("bonus", jsPsych.data.get()
-                                     .filter([{stimulus_type: 'incongruent'},
-                                              {stimulus_type: 'congruent'},
-                                              {stimulus_type: 'unrelated'}])
-                                     .select('correct')
-                                     .mean()
-                                     .toFixed(2));
-
-      */
-
-
+      //jsPsych.data.getInteractionData();
 
       // save data
       psiturk.saveData({
           success: function() {
             psiturk.completeHIT();
 
-             /*
+              /*
 
               // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
               psiturk.computeBonus("compute_bonus", function(){
@@ -1643,7 +1619,6 @@ jsPsych.init({
 
           }
       });
-
 
 
 
