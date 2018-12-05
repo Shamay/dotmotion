@@ -514,10 +514,10 @@ var instructions_motion = {
       "<div class='row'>" +
         "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If more dots are going <strong>upward</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/up.gif'></img>" +
-        "</br><strong>Press A for majority up</strong></div>" +
+        "</br><strong>Press A for mostly up</strong></div>" +
         "<div class='column' style='float:center; border-style: solid;'>If more dots are going <strong>downward</strong>,</br>"+
         "press the <u>L key</u>.</br></br><img src='/static/images/down.gif'></img>" +
-        "</br><strong>Press L for majority down</strong></div>" +
+        "</br><strong>Press L for mostly down</strong></div>" +
       "</div></br>Press next for an example of each."],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -527,14 +527,14 @@ var instructions_color = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Color Instructions</div>" +
   "<p>In the <strong>color</strong> task, there will be colored dots moving in all directions," +
-  "</br><font color='#FA8072'><b>and you must figure out whether more dots are <u>BLUE or RED</u>.</b></font></p>" +
+  "</br><font color='#FA8072'><b>and you must figure out whether the dots are mostly <u>BLUE or RED</u>.</b></font></p>" +
       "<div class='row'>" +
         "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are <strong>blue</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/blue.gif'></img>" +
-        "</br><strong>Press A for majority blue</strong></div>" +
+        "</br><strong>Press A for mostly blue</strong></div>" +
         "<div class='column' style='float:center; border-style: solid;'>If most of the dots are <strong>red</strong>,</br>"+
         "press the <u>L key</u>.</br></br><img src='/static/images/red.gif'></img>" +
-        "</br><strong>Press L for majority red</strong></div>" +
+        "</br><strong>Press L for mostly red</strong></div>" +
       "</div></br>Press next for an example of each."],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -592,7 +592,7 @@ var down_example = {
     correct_choice: 'l',
     coherent_direction: 'down',
     coherent_color: 'blue',
-    text: 'More Down (than Up) (Press L)',
+    text: 'Mostly Down (Press L)',
     trial_duration: 3000
   }],
 }
@@ -603,7 +603,7 @@ var up_example = {
     correct_choice: 'a',
     coherent_direction: 'up',
     coherent_color: 'blue',
-    text: 'More Up (than Down) (Press A)',
+    text: 'Mostly Up (Press A)',
     trial_duration: 3000
   }],
 }
@@ -614,7 +614,7 @@ var red_example = {
     correct_choice: 'l',
     coherent_direction: 'down',
     coherent_color: 'red',
-    text: 'Majority Red (Press L)',
+    text: 'Mostly Red (Press L)',
     trial_duration: 3000
   }],
 }
@@ -625,7 +625,7 @@ var blue_example = {
     correct_choice: 'a',
     coherent_direction: 'down',
     coherent_color: 'blue',
-    text: 'Majority Blue (Press A)',
+    text: 'Mostly Blue (Press A)',
     trial_duration: 3000
   }],
 }
