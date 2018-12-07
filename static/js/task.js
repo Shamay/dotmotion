@@ -118,14 +118,14 @@ function processData(allText, option) {
 }
 
 // fullscreen mode
-/*
+
 timeline.push({
   type: 'fullscreen',
   fullscreen_mode: true,
   message: '<p>The experiment will swap to full screen mode when you press the button below</p>',
   button_label: 'Start Experiment'
 });
-*/
+
 
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
