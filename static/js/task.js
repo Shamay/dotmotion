@@ -118,26 +118,14 @@ function processData(allText, option) {
 }
 
 // fullscreen mode
-
+/*
 timeline.push({
   type: 'fullscreen',
   fullscreen_mode: true,
   message: '<p>The experiment will swap to full screen mode when you press the button below</p>',
   button_label: 'Start Experiment'
 });
-
-
-// --------------------
-// FIRST PHASE
-// --------------------
-//staircasing phase
-var numTrials = 70;
-var currentMotionCoherence = 0.34; // starting coherence
-var currentColorCoherence = 0.34; // starting coherence
-var learningRate = 0.011;
-var minMotionCoherence = 0.08;
-var minColorCoherence = 0.05;
-var maxCoherence = 0.6;
+*/
 
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
@@ -342,7 +330,18 @@ var stimulus = {
   text: jsPsych.timelineVariable('text'),
 
   on_start: function(stimulus){
-    var data = jsPsych.data.get().last(2).values()[0];
+    if(stimulus.phase == '1.1' || stimulus.phase == '1.2'){
+      stimulus.motionCoherence = currentMotionCoherence;
+      stimulus.colorCoherence = currentColorCoherence;
+    }else{
+      // increase the coherence by the minimum coherence for all phases other than the staircasing procedure
+      stimulus.motionCoherence = currentMotionCoherence + minMotionCoherence;
+      stimulus.colorCoherence = currentColorCoherence + minColorCoherence;
+    }
+  },
+
+  on_finish: function(stimulus){
+    var data = jsPsych.data.get().last().values()[0];
 
     if(stimulus.phase == '1.1'){
       // update coherence for staircasing
@@ -363,9 +362,6 @@ var stimulus = {
           }
         }
       }
-
-      stimulus.motionCoherence = currentMotionCoherence;
-
     }else if(stimulus.phase == '1.2'){
       // update coherence for staircasing
       if(typeof data.correct === "undefined"){
@@ -385,12 +381,6 @@ var stimulus = {
           }
         }
       }
-
-      stimulus.colorCoherence = currentColorCoherence;
-    }else{
-      // increase the coherence by 0.05 for all phases other than the staircasing procedure
-      stimulus.motionCoherence = currentMotionCoherence + 0.05;
-      stimulus.colorCoherence = currentColorCoherence + 0.05;
     }
   }
 }
@@ -455,6 +445,18 @@ var color_stimulus = [
   }
 ]
 
+// --------------------
+// FIRST PHASE
+// --------------------
+//staircasing phase
+var numTrials = 75;
+var currentMotionCoherence = 0.4; // starting coherence
+var currentColorCoherence = 0.4; // starting coherence
+var learningRate = 0.011;
+var minMotionCoherence = 0.05;
+var minColorCoherence = 0.05;
+var maxCoherence = 0.7;
+
 /* define introduction block */
 var introduction = {
   type: 'instructions',
@@ -465,7 +467,7 @@ var introduction = {
       '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion.</li>' +
       '<li><b>Phase 3:</b> you will practice swaping between color or motion tasks.</li>' +
       '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></br>' +
-      '</div>The experiment will take approximately one hour to complete.' +
+      '</div>The experiment will take approximately 60 minutes to complete.' +
       '<p>Click next to continue.</p>',
       "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
       "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
@@ -509,6 +511,17 @@ var instructions_motion = {
   pages: ["<div style='font-size:32px'>Motion Instructions</div>" +
       "<p>In the <strong>motion</strong> task, there will be colored dots moving in all directions," +
       "</br><font color='grey'>filler</font>" +
+      "<font color='#FA8072'><b>and you must figure out whether there are more dots going <u>UP or DOWN</u>.</b></font>"+
+      "<font color='grey'>filler</font></p>",
+      "If more dots are going <strong>upward</strong>,</br>" +
+        "press the <u>A key</u>.</br></br><img src='/static/images/up.gif'></img>" +
+        "</br><strong>Press A for mostly up</strong>",
+      "If more dots are going <strong>downward</strong>,</br>"+
+        "press the <u>L key</u>.</br></br><img src='/static/images/down.gif'></img>" +
+        "</br><strong>Press L for mostly down</strong>",
+      "<div style='font-size:32px'>Motion Instructions Summary</div>" +
+      "<p>In the <strong>motion</strong> task, there will be colored dots moving in all directions," +
+      "</br><font color='grey'>filler</font>" +
       "<font color='#FA8072'><b>and you must figure out whether more dots are going <u>UP or DOWN</u>.</b></font>"+
       "<font color='grey'>filler</font></p>" +
       "<div class='row'>" +
@@ -526,6 +539,15 @@ var instructions_motion = {
 var instructions_color = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Color Instructions</div>" +
+  "<p>In the <strong>color</strong> task, there will be colored dots moving in all directions," +
+  "</br><font color='#FA8072'><b>and you must figure out whether the dots are mostly <u>BLUE or RED</u>.</b></font></p>",
+      "If most of the dots are <strong>blue</strong>,</br>" +
+        "press the <u>A key</u>.</br></br><img src='/static/images/blue.gif'></img>" +
+        "</br><strong>Press A for mostly blue</strong>",
+      "If most of the dots are <strong>red</strong>,</br>"+
+        "press the <u>L key</u>.</br></br><img src='/static/images/red.gif'></img>" +
+        "</br><strong>Press L for mostly red</strong>",
+    "<div style='font-size:32px'>Color Instructions Summary</div>" +
   "<p>In the <strong>color</strong> task, there will be colored dots moving in all directions," +
   "</br><font color='#FA8072'><b>and you must figure out whether the dots are mostly <u>BLUE or RED</u>.</b></font></p>" +
       "<div class='row'>" +
@@ -642,6 +664,7 @@ for(i = 0; i < motion_stimulus.length; i++){
 
 // counterbalance showing motion or color first
 if(p1_cb % 2 == 0){
+  /*
   timeline.push(instructions_mc);
   timeline.push(instructions_motion);
   timeline.push(down_example);
@@ -656,6 +679,7 @@ if(p1_cb % 2 == 0){
   timeline.push(blue_example);
 
   timeline.push(instructions_block);
+  */
 
   timeline.push(instructions_motion_block);
 
@@ -689,6 +713,7 @@ if(p1_cb % 2 == 0){
     timeline.push(stim_sequence);
   }
 }else{
+  /*
   timeline.push(instructions_mc);
   timeline.push(instructions_color);
   timeline.push(red_example);
@@ -703,6 +728,7 @@ if(p1_cb % 2 == 0){
   timeline.push(up_example);
 
   timeline.push(instructions_block);
+  */
 
   timeline.push(instructions_color_block);
 
@@ -868,7 +894,7 @@ var instructions_cue3 = {
   type: 'instructions',
   pages: [
     "Now that you've gotten a chance to practice, you have to do the same task without any hints.</br></br>" +
-    "In order to move on, you will need to get 18 out of the last 20 trials correct.</br>" +
+    "In order to move on, you will need to get 17 out of the last 20 trials correct.</br>" +
     "To move on, you have to <b><u>memorize</u></b> whether a cue corresponds to motion or color!</br></br>"+
     "Click next to review the cues again. Please memorize them!",
   "<div style='font-size:24px'>Try your best to memorize these cues and their tasks.</div>" +
@@ -939,7 +965,7 @@ var cue_response = {
       if(response_array.length >= 20){ // start checking at 20 trials
         var temp = response_array.slice(trial_counter - 20);
         sum = temp.reduce(function(pv, cv) { return pv + cv; }, 0);
-        if(sum >= 18 || trial_counter >= 100){
+        if(sum >= 17 || trial_counter >= 100){
           end_phase = true;
         }
       }else{
@@ -1072,7 +1098,7 @@ function generateCue(cue, swap, practice = false, answer = '', correct = true, t
   }else{
     if(trial_counter % 5 == 0){ //answer != null &&
       return "<div class='row'>" +
-             "You need at least "+ (18-sum) + " more correct trials to move on!</div>"+
+             "You need at least "+ (17-sum) + " more correct trials to move on!</div>"+
              "<div class='row'>" + response + filler;
     }else{
       return "<div style='color:grey'; class='row'>-</div><div class='row'>" + response + filler;
@@ -1591,7 +1617,6 @@ jsPsych.init({
 
     //display_element: 'jspsych-target',
 
-
     // record data to psiTurk after each trial
     on_data_update: function(data) {
         psiturk.recordTrialData(data);
@@ -1623,4 +1648,5 @@ jsPsych.init({
 
 
     },
+
 });
