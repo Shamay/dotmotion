@@ -1,10 +1,23 @@
+//  CONTROL PANEl
+var debug = true; // debug mode
+var phase1 = true;
+var phase2 = true;
+var phase31 = true;
+var phase32 = true;
+var phase33 = true;
+var phase4 = true;
+
 /* load psiturk */
-var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+if(!debug){
+  var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+}
 
 //The main timeline to be fed into jsPsych.init
 var timeline = [];
 
-//condition = counterbalance = 1; // debug mode
+if(debug){
+  condition = counterbalance = 1;
+}
 
 // Setting up counterbalancing conditions
 var num_sequences = 8; // number of sequences we want to use
@@ -118,14 +131,14 @@ function processData(allText, option) {
 }
 
 // fullscreen mode
-
+if(!debug){
 timeline.push({
   type: 'fullscreen',
   fullscreen_mode: true,
   message: '<p>The experiment will swap to full screen mode when you press the button below</p>',
   button_label: 'Start Experiment'
 });
-
+}
 
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
@@ -481,7 +494,6 @@ var introduction = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-timeline.push(introduction);
 
 var stim_example = {
   timeline: [stimulus],
@@ -493,7 +505,6 @@ var stim_example = {
     trial_duration: 3000
   }],
 }
-timeline.push(stim_example);
 
 /* define instructions block */
 var instructions_mc = {
@@ -663,8 +674,9 @@ for(i = 0; i < motion_stimulus.length; i++){
 }
 
 // counterbalance showing motion or color first
-if(p1_cb % 2 == 0){
-  /*
+if(p1_cb % 2 == 0 && phase1){
+  timeline.push(introduction);
+  timeline.push(stim_example);
   timeline.push(instructions_mc);
   timeline.push(instructions_motion);
   timeline.push(down_example);
@@ -679,7 +691,7 @@ if(p1_cb % 2 == 0){
   timeline.push(blue_example);
 
   timeline.push(instructions_block);
-  */
+
 
   timeline.push(instructions_motion_block);
 
@@ -712,8 +724,9 @@ if(p1_cb % 2 == 0){
       }
     timeline.push(stim_sequence);
   }
-}else{
-  /*
+}else if(p1_cb % 2 == 1 && phase1){
+  timeline.push(introduction);
+  timeline.push(stim_example);
   timeline.push(instructions_mc);
   timeline.push(instructions_color);
   timeline.push(red_example);
@@ -728,7 +741,7 @@ if(p1_cb % 2 == 0){
   timeline.push(up_example);
 
   timeline.push(instructions_block);
-  */
+
 
   timeline.push(instructions_color_block);
 
@@ -1159,19 +1172,21 @@ var cue_sequence = {
     }
   }
 
-timeline.push(instructions_cue);
-timeline.push(cue, stimulus);
-if(parseInt(counterbalance) % 2 == 0){
-  timeline.push(instructions_cue_motion);
-  timeline.push(instructions_cue_color);
-}else{
-  timeline.push(instructions_cue_color);
-  timeline.push(instructions_cue_motion);
+if(phase2){
+  timeline.push(instructions_cue);
+  timeline.push(cue, stimulus);
+  if(parseInt(counterbalance) % 2 == 0){
+    timeline.push(instructions_cue_motion);
+    timeline.push(instructions_cue_color);
+  }else{
+    timeline.push(instructions_cue_color);
+    timeline.push(instructions_cue_motion);
+  }
+  timeline.push(instructions_cue2);
+  timeline.push(cue_practice);
+  timeline.push(instructions_cue3);
+  timeline.push(cue_sequence);
 }
-timeline.push(instructions_cue2);
-timeline.push(cue_practice);
-timeline.push(instructions_cue3);
-timeline.push(cue_sequence);
 
 // --------------------
 // THIRD PHASE
@@ -1377,10 +1392,11 @@ var instructions_prc3 = {
   post_trial_gap: 1000
 };
 
-timeline.push(instructions_prc);
+
 
 // counterbalance showing motion or color first
-if(parseInt(p1_cb) % 2 == 0){
+if(parseInt(p1_cb) % 2 == 0 && phase31){
+  timeline.push(instructions_prc);
   timeline.push(instructions_prc_m);
   timeline.push(practice_example1);
   timeline.push(practice_example2);
@@ -1394,7 +1410,8 @@ if(parseInt(p1_cb) % 2 == 0){
   timeline.push(practice_example6);
   timeline.push(practice_example6);
   timeline.push(practice_example5);
-}else{
+}else if(parseInt(p1_cb) % 2 == 1 && phase31){
+  timeline.push(instructions_prc);
   timeline.push(instructions_prc_c);
   timeline.push(practice_example4);
   timeline.push(practice_example5);
@@ -1482,45 +1499,49 @@ function generateTrials(vars, phase){
     }];
 }
 
-timeline.push(instructions_prc2);
+if(phase32){
+  timeline.push(instructions_prc2);
 
-for (line in prc_lines_1){
-  var trial_vars_prc = generateTrials(prc_lines_1[line], '3.1'); //generate timeline variables
+  for (line in prc_lines_1){
+    var trial_vars_prc = generateTrials(prc_lines_1[line], '3.1'); //generate timeline variables
 
-    // if new miniblock then, else
-  if(trial_vars_prc[0].data.miniblock_trial == 1){
-    var cue_sequence = {
-      timeline: [cue, fixation, stimulus, fixation],
-      timeline_variables: trial_vars_prc
-      }
-    timeline.push(cue_sequence);
-  }else{
-    var stim_sequence = {
-      timeline: [stimulus, fixation],
-      timeline_variables: trial_vars_prc
-      }
-    timeline.push(stim_sequence);
+      // if new miniblock then, else
+    if(trial_vars_prc[0].data.miniblock_trial == 1){
+      var cue_sequence = {
+        timeline: [cue, fixation, stimulus, fixation],
+        timeline_variables: trial_vars_prc
+        }
+      timeline.push(cue_sequence);
+    }else{
+      var stim_sequence = {
+        timeline: [stimulus, fixation],
+        timeline_variables: trial_vars_prc
+        }
+      timeline.push(stim_sequence);
+    }
   }
 }
 
-timeline.push(instructions_prc3)
+if(phase33){
+  timeline.push(instructions_prc3)
 
-for (line in prc_lines_2){
-  var trial_vars_prc = generateTrials(prc_lines_2[line], '3.2'); //generate timeline variables
+  for (line in prc_lines_2){
+    var trial_vars_prc = generateTrials(prc_lines_2[line], '3.2'); //generate timeline variables
 
-    // if new miniblock then, else
-  if(trial_vars_prc[0].data.miniblock_trial == 1){
-    var cue_sequence = {
-      timeline: [cue, fixation, stimulus, fixation],
-      timeline_variables: trial_vars_prc
-      }
-    timeline.push(cue_sequence);
-  }else{
-    var stim_sequence = {
-      timeline: [stimulus, fixation],
-      timeline_variables: trial_vars_prc
-      }
-    timeline.push(stim_sequence);
+      // if new miniblock then, else
+    if(trial_vars_prc[0].data.miniblock_trial == 1){
+      var cue_sequence = {
+        timeline: [cue, fixation, stimulus, fixation],
+        timeline_variables: trial_vars_prc
+        }
+      timeline.push(cue_sequence);
+    }else{
+      var stim_sequence = {
+        timeline: [stimulus, fixation],
+        timeline_variables: trial_vars_prc
+        }
+      timeline.push(stim_sequence);
+    }
   }
 }
 
@@ -1576,27 +1597,29 @@ var pause_text = {
   post_trial_gap: 1000
 };
 
-var pause = true;
-for (line in exp_lines){
-  var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
-  // pause before block two
-  if(pause && trial_vars_exp[0].data.block == 2){
-    pause = false;
-    timeline.push(pause_text);
-  }
-  // if new miniblock then, else
-  if(trial_vars_exp[0].data.miniblock_trial == 1){
-    var cue_sequence = {
-      timeline: [cue, fixation, stimulus, fixation],
-      timeline_variables: trial_vars_exp
-      }
-    timeline.push(cue_sequence);
-  }else{
-    var stim_sequence = {
-      timeline: [stimulus, fixation],
-      timeline_variables: trial_vars_exp
-      }
-    timeline.push(stim_sequence);
+if(phase4){
+  var pause = true;
+  for (line in exp_lines){
+    var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
+    // pause before block two
+    if(pause && trial_vars_exp[0].data.block == 2){
+      pause = false;
+      timeline.push(pause_text);
+    }
+    // if new miniblock then, else
+    if(trial_vars_exp[0].data.miniblock_trial == 1){
+      var cue_sequence = {
+        timeline: [cue, fixation, stimulus, fixation],
+        timeline_variables: trial_vars_exp
+        }
+      timeline.push(cue_sequence);
+    }else{
+      var stim_sequence = {
+        timeline: [stimulus, fixation],
+        timeline_variables: trial_vars_exp
+        }
+      timeline.push(stim_sequence);
+    }
   }
 }
 
@@ -1619,7 +1642,9 @@ jsPsych.init({
 
     // record data to psiTurk after each trial
     on_data_update: function(data) {
+      if(!debug){
         psiturk.recordTrialData(data);
+      }
     },
 
 
@@ -1627,23 +1652,25 @@ jsPsych.init({
       //jsPsych.data.displayData(); //Display the data onto the browser screen
       //jsPsych.data.getInteractionData();
 
-      // save data
-      psiturk.saveData({
-          success: function() {
-            psiturk.completeHIT();
+      if(!debug){
+        // save data
+        psiturk.saveData({
+            success: function() {
+              psiturk.completeHIT();
 
-              /*
+                /*
 
-              // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
-              psiturk.computeBonus("compute_bonus", function(){
-                  psiturk.completeHIT();
-              });
+                // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
+                psiturk.computeBonus("compute_bonus", function(){
+                    psiturk.completeHIT();
+                });
 
-              */
+                */
 
 
-          }
-      });
+            }
+        });
+      }
 
 
 
