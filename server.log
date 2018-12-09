@@ -4097,3 +4097,34 @@ OperationalError: (OperationalError) no such table: turkdemo u'SELECT count(*) A
 [2018-11-26 21:39:17,951] ERROR in experiment: already_did_exp_hit (1010) {'assignmentId': [u'31T4R4OBOUCEKYOAB9BGMW5OML5C73'], 'workerId': [u'AOP3M93Z8HP0'], 'hitId': [u'3T5ZXGO9DFKYCP669KZS81ROSSMZQE'], 'mode': [u'sandbox']}
 [2018-11-26 21:45:22,260] ERROR in experiment: already_did_exp_hit (1010) {'assignmentId': [u'3PS7W85Z81YZKYEECS4QP2WY5XT9TV'], 'workerId': [u'AMPXP86TY4TOE'], 'hitId': [u'33W1NHWFYIHB45YYQOTND62BCZLZTS'], 'mode': [u'sandbox']}
 [2018-12-07 12:24:56,426] ERROR in experiment: already_did_exp_hit (1010) {'assignmentId': [u'3VA45EW49PJ1I16BCY3X2QA1FS01OH'], 'workerId': [u'A9HQ3E0F2AGVO'], 'hitId': [u'36818Z1KV4954GSWZH7W04968ENA32'], 'mode': [u'live']}
+[2018-12-08 16:22:13 +0000] [85671] [CRITICAL] WORKER TIMEOUT (pid:85676)
+[2018-12-08 19:04:36,182] ERROR in app: Exception on /robots.txt [GET]
+Traceback (most recent call last):
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/app.py", line 1982, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/app.py", line 1614, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/app.py", line 1517, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/app.py", line 1612, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/app.py", line 1598, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/psiturk/experiment.py", line 724, in regularpage
+    return render_template(pagename)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/templating.py", line 133, in render_template
+    return _render(ctx.app.jinja_env.get_or_select_template(template_name_or_list),
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/jinja2/environment.py", line 869, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/jinja2/environment.py", line 830, in get_template
+    return self._load_template(name, self.make_globals(globals))
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/jinja2/environment.py", line 804, in _load_template
+    template = self.loader.load(self, name, globals)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/jinja2/loaders.py", line 113, in load
+    source, filename, uptodate = self.get_source(environment, name)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/templating.py", line 57, in get_source
+    return self._get_source_fast(environment, template)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/flask/templating.py", line 85, in _get_source_fast
+    raise TemplateNotFound(template)
+TemplateNotFound: robots.txt
+[2018-12-08 19:18:15 +0000] [85671] [CRITICAL] WORKER TIMEOUT (pid:85681)

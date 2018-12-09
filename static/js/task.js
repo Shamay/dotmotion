@@ -1,5 +1,5 @@
 //  CONTROL PANEl
-var debug = true; // debug mode
+var debug = false; // debug mode
 var phase1 = true;
 var phase2 = true;
 var phase31 = true;
