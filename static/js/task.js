@@ -907,7 +907,7 @@ var instructions_cue3 = {
   type: 'instructions',
   pages: [
     "Now that you've gotten a chance to practice, you have to do the same task without any hints.</br></br>" +
-    "In order to move on, you will need to get 17 out of the last 20 trials correct.</br>" +
+    "In order to move on, you will need to get 18 out of the last 20 trials correct.</br>" +
     "To move on, you have to <b><u>memorize</u></b> whether a cue corresponds to motion or color!</br></br>"+
     "Click next to review the cues again. Please memorize them!",
   "<div style='font-size:24px'>Try your best to memorize these cues and their tasks.</div>" +
@@ -978,7 +978,7 @@ var cue_response = {
       if(response_array.length >= 20){ // start checking at 20 trials
         var temp = response_array.slice(trial_counter - 20);
         sum = temp.reduce(function(pv, cv) { return pv + cv; }, 0);
-        if(sum >= 17 || trial_counter >= 100){
+        if(sum >= 18 || trial_counter >= 100){
           end_phase = true;
         }
       }else{
@@ -1111,7 +1111,7 @@ function generateCue(cue, swap, practice = false, answer = '', correct = true, t
   }else{
     if(trial_counter % 5 == 0){ //answer != null &&
       return "<div class='row'>" +
-             "You need at least "+ (17-sum) + " more correct trials to move on!</div>"+
+             "You need at least "+ (18-sum) + " more correct trials to move on!</div>"+
              "<div class='row'>" + response + filler;
     }else{
       return "<div style='color:grey'; class='row'>-</div><div class='row'>" + response + filler;
