@@ -21,7 +21,8 @@ if(debug){
 
 // Setting up counterbalancing conditions
 var num_sequences = 4; // number of sequences we want to use
-var sequence = (counterbalance % num_sequences) + 9; // compute the sequence number from counterbalance assignment
+var starting_sequence = 9;
+var sequence = (counterbalance % num_sequences) + starting_sequence; // compute the sequence number from counterbalance assignment
 
 // compute the counterbalance conditions based on counterbalance assignment
 var p1_cb, p2_cb;
@@ -39,8 +40,6 @@ if(counterbalance < 4){
   p2_cb = 1;
 }
 
-console.log(condition, sequence, p1_cb, p2_cb)
-
 // Loading config and trial data files synchronously
 var config, headers, lines;
 
@@ -57,8 +56,8 @@ $.ajax({
 var trial_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(sequence) + ".csv";
 
 var practice_url; // for the practice sequence, select the next sequence number
-if(parseInt(sequence) == num_sequences){ // (wraps around)
-  practice_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence1.csv";
+if(parseInt(sequence) == (num_sequences + starting_sequence - 1)){ // (wraps around)
+  practice_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(starting_sequence) + ".csv";
 }else{
   practice_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
 }
