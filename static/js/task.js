@@ -20,24 +20,26 @@ if(debug){
 }
 
 // Setting up counterbalancing conditions
-var num_sequences = 8; // number of sequences we want to use
-var sequence = (counterbalance % num_sequences) + 1; // compute the sequence number from counterbalance assignment
+var num_sequences = 4; // number of sequences we want to use
+var sequence = (counterbalance % num_sequences) + 9; // compute the sequence number from counterbalance assignment
 
 // compute the counterbalance conditions based on counterbalance assignment
 var p1_cb, p2_cb;
-if(counterbalance < 8){
+if(counterbalance < 4){
   p1_cb = 0;
   p2_cb = 0;
-}else if(counterbalance < 16){
+}else if(counterbalance < 8){
   p1_cb = 1;
   p2_cb = 0;
-}else if(counterbalance < 24){
+}else if(counterbalance < 12){
   p1_cb = 0;
   p2_cb = 1;
-}else if(counterbalance < 32){
+}else if(counterbalance < 16){
   p1_cb = 1;
   p2_cb = 1;
 }
+
+console.log(condition, sequence, p1_cb, p2_cb)
 
 // Loading config and trial data files synchronously
 var config, headers, lines;
