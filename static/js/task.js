@@ -1,10 +1,11 @@
 //  CONTROL PANEl
-var debug = false; // debug mode
-var phase1 = true;
-var phase2 = true;
-var phase31 = true;
+var debug = true; // debug mode
+var reward = true; // reward mode
+var phase1 = false;
+var phase2 = false;
+var phase31 = false;
 var phase32 = true;
-var phase33 = true;
+var phase33 = false;
 var phase4 = true;
 
 /* load psiturk */
@@ -21,7 +22,7 @@ if(debug){
 
 // Setting up counterbalancing conditions
 var num_sequences = 4; // number of sequences we want to use
-var starting_sequence = 9;
+var starting_sequence = 1;
 var sequence = (counterbalance % num_sequences) + starting_sequence; // compute the sequence number from counterbalance assignment
 
 // compute the counterbalance conditions based on counterbalance assignment
@@ -40,6 +41,13 @@ if(counterbalance < 4){
   p2_cb = 1;
 }
 
+if(reward){
+  var reward_input = {
+    0: 'repetition',
+    1: 'switch'
+  };
+}
+
 // Loading config and trial data files synchronously
 var config, headers, lines;
 
@@ -53,14 +61,31 @@ $.ajax({
 });
 
 // generate the proper file names for the practice (phase 3) and test (phase 4) data
-var trial_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(sequence) + ".csv";
+var trial_url;
+if(reward){
+   trial_url = "/static/trial_data/reward/sequence" + parseInt(sequence) + ".csv";
+}else{
+   trial_url = "/static/trial_data/switch/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(sequence) + ".csv";
+}
+
 
 var practice_url; // for the practice sequence, select the next sequence number
 if(parseInt(sequence) == (num_sequences + starting_sequence - 1)){ // (wraps around)
-  practice_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(starting_sequence) + ".csv";
+  if(reward){
+    practice_url = "/static/trial_data/reward/sequence" + parseInt(starting_sequence) + ".csv";
+  }else{
+    practice_url = "/static/trial_data/switch/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(starting_sequence) + ".csv";
+  }
 }else{
-  practice_url = "/static/trial_data/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
+  if(reward){
+    practice_url = "/static/trial_data/reward/sequence" + (parseInt(sequence) + 1) + ".csv";
+  }else{
+    practice_url = "/static/trial_data/switch/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
+  }
 }
+
+console.log(practice_url)
+console.log(trial_url)
 
 $.ajax({
     url: practice_url, // load the practice file (phase 3)
@@ -472,6 +497,12 @@ var minColorCoherence = 0.05;
 var maxCoherence = 0.7;
 
 /* define introduction block */
+var intro_reward = '';
+if(reward){
+  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of up to <u><b>$2.56</b></u> </br> " +
+        "if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
+}
+
 var introduction = {
   type: 'instructions',
   pages: [
@@ -480,8 +511,8 @@ var introduction = {
       '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks.</li>' +
       '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion.</li>' +
       '<li><b>Phase 3:</b> you will practice swaping between color or motion tasks.</li>' +
-      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></br>' +
-      '</div>The experiment will take approximately 60 minutes to complete.' +
+      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></div>' +
+      intro_reward + 'The experiment will take approximately 60 minutes to complete.' +
       '<p>Click next to continue.</p>',
       "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
       "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
@@ -1320,19 +1351,79 @@ var practice_example6 = {
   }],
 }
 
-var instructions_prc2 = {
+var reward_instructions_prc2 = {
   type: 'instructions',
   pages: [
+
     "<div style='font-size:24px'>Fantastic! Now you'll start the practice blocks.</div></br>" +
     "Just like in Phase 1, you will have a block of trials, but now we will add cues. </br>" +
     "Before each set of trials you will see a cue that indicates " +
     "the current task to be performed.</br>",
-    'You will get a cue followed by a few trials before getting to another cue.</br></br>' +
+    'You will get a cue followed by a few trials before getting to another cue.</br>' +
     'Do the same task for all the subsequent trials until you get a new cue. </br></br>'+
     "For example, the sequence may be something like this: </br>" +
-    "<b>"+mapping[1]+" cue</b> -> motion task -> motion task -> motion task -> motion task -> motion task -> </br> " +
-    "<b>"+mapping[3]+" cue</b> -> color task -> color task -> color task -> color task -> </br>" +
-    "<b>"+mapping[4]+" cue</b> -> color task -> color task -> color task ...</br></br>" +
+    "<img src='/static/images/instructions_color_" + mapping[3] + ".png'></img></br>",
+
+    "<div style='font-size:36px'>The following instructions will</br></br>"+
+    "explain how you will be awarded</br></br><u>bonus payments</u>.</div></br>",
+
+    "<div style='font-size:36px'>For " + reward_input[condition] + " trials, we award $0.03.</br></br>" +
+    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
+
+    "<div style='font-size:36px'>For " + reward_input[1-condition] + " trials, we award $0.01.</br></br>" +
+    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
+
+    "<div style='font-size:36px'>Summary: </br></br>"+
+    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + ".png'></img></br></br>" +
+    "We award $0.03 for " + reward_input[condition] + " trials and $0.01 for " + reward_input[1-condition] + " trials.</div>",
+
+    "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
+    "<img src='/static/images/" + reward_input[condition] + "_rule.png'></img></div></br></br>" +
+
+    "<div style='font-size:24px' align='left'>Also:</br>" +
+    "<ul><li>you only earn money in the first trial after a cue</li>"+
+    "<li>only fast and accurate responses are rewarded</li>" +
+    "<li>in phase 4, you can earn up to $2.56 in bonus payments, for a total of $8.56</li></ul>",
+
+    "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
+    'Click next to review the cues again.',
+
+    "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
+        "<div class='row'>"+
+          "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+          "<p class='small'><strong>MOTION task</br></strong></p></div>" +
+        "</div>" +
+        "<div class='row'>"+
+          "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
+          "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+          "<p class='small'><strong>COLOR task</br></strong></p></div>" +
+        "</div></br>",
+      "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+        'A is for up (motion) and blue (color)</br>' +
+        'L is for down (motion) and red (color)</br></br>' +
+        "<font color='#FA8072'><b>You'll no longer be waiting for the '?'</b></font></br>" +
+        "You'll have three seconds to respond.</br></br>" +
+      "Please ready your fingers on the A and L keys and press next whenever you're ready!"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+var instructions_prc2 = {
+  type: 'instructions',
+  pages: [
+
+    "<div style='font-size:24px'>Fantastic! Now you'll start the practice blocks.</div></br>" +
+    "Just like in Phase 1, you will have a block of trials, but now we will add cues. </br>" +
+    "Before each set of trials you will see a cue that indicates " +
+    "the current task to be performed.</br>",
+    'You will get a cue followed by a few trials before getting to another cue.</br>' +
+    'Do the same task for all the subsequent trials until you get a new cue. </br></br>'+
+    "For example, the sequence may be something like this: </br>" +
+    "<img src='/static/images/instructions_color_" + mapping[3] + ".png'></img></br>" +
     "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
     'Click next to review the cues again.',
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
@@ -1501,7 +1592,11 @@ function generateTrials(vars, phase){
 }
 
 if(phase32){
-  timeline.push(instructions_prc2);
+  if(reward){
+    timeline.push(reward_instructions_prc2);
+  }else{
+    timeline.push(instructions_prc2);
+  }
 
   for (line in prc_lines_1){
     var trial_vars_prc = generateTrials(prc_lines_1[line], '3.1'); //generate timeline variables
@@ -1549,6 +1644,75 @@ if(phase33){
 // --------------------
 // FOURTH PHASE
 // --------------------
+if(reward){
+  // defining two different response scales that can be used.
+  var question1 = ["$0.01", "$0.03"];
+  var question2 = ["$0.01", "$0.03"];
+  var question3 = ["First trial after a cue", "On every trial"];
+
+  var reward_questions = {
+    type: 'survey-multi-choice',
+    preamble: "<img src='/static/images/" + reward_input[condition] + "_rule.png'></img>"+
+    '</br><div align="left"> Before we begin, please answer the following questions about the bonus payments:</div>',
+    questions: [
+      {prompt: "How much bonus is awarded for switch trials?", options: question1, required: true, horizontal: false,},
+      {prompt: "How much bonis is awarded for repetition trials?", options: question2, required: true, horizontal: false},
+      {prompt: "When do you earn money?", options: question3, required: true, horizontal: false}
+    ],
+  };
+
+  var reward_instructions_exp1 = {
+    type: 'instructions',
+    pages: [
+        '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
+        "This phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
+        "The format is the same as Phase 3, but with no hints or feedback.</br>" +
+        "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>"
+    ],
+    show_clickable_nav: true,
+    post_trial_gap: 1000
+  };
+
+  var reward_instructions_exp2 = {
+    type: 'instructions',
+    pages: [
+        "<div style='font-size:24px' align='left'>Remember:</br>" +
+        "<ul><li>you only earn money in the first trial after a cue</li>"+
+        "<li>you earn $0.03 for a " + reward_input[condition] + " trial</li>"+
+        "<li>you earn $0.03 for a " + reward_input[1-condition] + " trial</li>"+
+        "<li>only fast and accurate responses are rewarded</li></ul></div>" +
+        "<div style='font-size:24px'>You can earn up to $2.56 in bonus payments, for a total of $8.56.</br></br>"+
+        'Click next to review the cues again.</div>',
+
+        "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
+            "<div class='row'>"+
+            "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
+            "<p class='small'><strong>MOTION task</br></strong></p></div>" +
+            "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[2] + ".png'></img>" +
+            "<p class='small'><strong>MOTION task</br></strong></p></div>" +
+            "</div>" +
+            "<div class='row'>"+
+            "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[3] + ".png'></img>" +
+            "<p class='small'><strong>COLOR task</br></strong></p></div>" +
+            "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
+            "<p class='small'><strong>COLOR task</br></strong></p></div>" +
+            "</div>",
+          "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+          "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
+            'A is for up (motion) and blue (color)</br>' +
+            'L is for down (motion) and red (color)</br></br>' +
+            "You'll no longer be waiting for the '?'.</br>" +
+            "You'll have three seconds to respond.</br></br>" +
+            "Remember, this phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
+          "Please ready your fingers on the A and L keys and press next whenever you're ready!"
+
+    ],
+    show_clickable_nav: true,
+    post_trial_gap: 1000
+  };
+}
+
+
 var instructions_exp = {
   type: 'instructions',
   pages: [
@@ -1583,7 +1747,14 @@ var instructions_exp = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-timeline.push(instructions_exp);
+
+if(reward){
+  timeline.push(reward_instructions_exp1);
+  timeline.push(reward_questions)
+  timeline.push(reward_instructions_exp2);
+}else{
+  timeline.push(instructions_exp);
+}
 
 var pause_text = {
   type: 'instructions',
