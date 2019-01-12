@@ -1362,7 +1362,7 @@ var reward_instructions_prc2 = {
     'You will get a cue followed by a few trials before getting to another cue.</br>' +
     'Do the same task for all the subsequent trials until you get a new cue. </br></br>'+
     "For example, the sequence may be something like this: </br>" +
-    "<img src='/static/images/instructions_color_" + mapping[3] + ".png'></img></br>",
+    "<img src='/static/images/instructions_color_" + mapping[3] + ".PNG'></img></br>",
 
     "<div style='font-size:36px'>The following instructions will</br></br>"+
     "explain how you will be awarded</br></br><u>bonus payments</u>.</div></br>",
@@ -1374,11 +1374,11 @@ var reward_instructions_prc2 = {
     "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
 
     "<div style='font-size:36px'>Summary: </br></br>"+
-    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + ".png'></img></br></br>" +
+    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + ".PNG'></img></br></br>" +
     "We award $0.03 for " + reward_input[condition] + " trials and $0.01 for " + reward_input[1-condition] + " trials.</div>",
 
     "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
-    "<img src='/static/images/" + reward_input[condition] + "_rule.png'></img></div></br></br>" +
+    "<img src='/static/images/" + reward_input[condition] + "_rule.PNG'></img></div></br></br>" +
 
     "<div style='font-size:24px' align='left'>Also:</br>" +
     "<ul><li>you only earn money in the first trial after a cue</li>"+
@@ -1423,7 +1423,7 @@ var instructions_prc2 = {
     'You will get a cue followed by a few trials before getting to another cue.</br>' +
     'Do the same task for all the subsequent trials until you get a new cue. </br></br>'+
     "For example, the sequence may be something like this: </br>" +
-    "<img src='/static/images/instructions_color_" + mapping[3] + ".png'></img></br>" +
+    "<img src='/static/images/instructions_color_" + mapping[3] + ".PNG'></img></br>" +
     "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
     'Click next to review the cues again.',
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
@@ -1652,7 +1652,7 @@ if(reward){
 
   var reward_questions = {
     type: 'survey-multi-choice',
-    preamble: "<img src='/static/images/" + reward_input[condition] + "_rule.png'></img>"+
+    preamble: "<img src='/static/images/" + reward_input[condition] + "_rule.PNG'></img>"+
     '</br><div align="left"> Before we begin, please answer the following questions about the bonus payments:</div>',
     questions: [
       {prompt: "How much bonus is awarded for switch trials?", options: question1, required: true, horizontal: false,},
