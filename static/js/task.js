@@ -1,11 +1,11 @@
 //  CONTROL PANEl
-var debug = true; // debug mode
+var debug = false; // debug mode
 var reward = true; // reward mode
-var phase1 = false;
-var phase2 = false;
-var phase31 = false;
+var phase1 = true;
+var phase2 = true;
+var phase31 = true;
 var phase32 = true;
-var phase33 = false;
+var phase33 = true;
 var phase4 = true;
 
 /* load psiturk */
