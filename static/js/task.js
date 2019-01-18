@@ -1,11 +1,11 @@
 //  CONTROL PANEl
 var debug = false; // debug mode
 var reward = true; // reward mode
-var phase1 = true;
-var phase2 = true;
-var phase31 = true;
+var phase1 = false;
+var phase2 = false;
+var phase31 = false;
 var phase32 = true;
-var phase33 = true;
+var phase33 = false;
 var phase4 = true;
 
 /* load psiturk */
@@ -21,22 +21,22 @@ if(debug){
 }
 
 // Setting up counterbalancing conditions
-var num_sequences = 4; // number of sequences we want to use
+var num_sequences = 8; // number of sequences we want to use
 var starting_sequence = 1;
 var sequence = (counterbalance % num_sequences) + starting_sequence; // compute the sequence number from counterbalance assignment
 
 // compute the counterbalance conditions based on counterbalance assignment
 var p1_cb, p2_cb;
-if(counterbalance < 4){
+if(counterbalance < (num_sequences * 1)){
   p1_cb = 0;
   p2_cb = 0;
-}else if(counterbalance < 8){
+}else if(counterbalance < (num_sequences * 2)){
   p1_cb = 1;
   p2_cb = 0;
-}else if(counterbalance < 12){
+}else if(counterbalance < (num_sequences * 3)){
   p1_cb = 0;
   p2_cb = 1;
-}else if(counterbalance < 16){
+}else if(counterbalance < (num_sequences * 4)){
   p1_cb = 1;
   p2_cb = 1;
 }
@@ -83,9 +83,6 @@ if(parseInt(sequence) == (num_sequences + starting_sequence - 1)){ // (wraps aro
     practice_url = "/static/trial_data/switch/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
   }
 }
-
-console.log(practice_url)
-console.log(trial_url)
 
 $.ajax({
     url: practice_url, // load the practice file (phase 3)
@@ -1378,7 +1375,7 @@ var reward_instructions_prc2 = {
     "We award $0.03 for " + reward_input[condition] + " trials and $0.01 for " + reward_input[1-condition] + " trials.</div>",
 
     "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
-    "<img src='/static/images/" + reward_input[condition] + "_rule.PNG'></img></div></br></br>" +
+    "<img src='/static/images/" + reward_input[condition] + "_rule_"+mapping[3]+".PNG'></img></div></br></br>" +
 
     "<div style='font-size:24px' align='left'>Also:</br>" +
     "<ul><li>you only earn money in the first trial after a cue</li>"+
@@ -1652,8 +1649,8 @@ if(reward){
 
   var reward_questions = {
     type: 'survey-multi-choice',
-    preamble: "<img src='/static/images/" + reward_input[condition] + "_rule.PNG'></img>"+
-    '</br><div align="left"> Before we begin, please answer the following questions about the bonus payments:</div>',
+    preamble: "<img src='/static/images/" + reward_input[condition] + "_rule_" + mapping[3] + ".PNG'></img>"+
+    '</br><div align="left"> Please correctly answer the following questions about the bonus payments:</div>',
     questions: [
       {prompt: "How much bonus is awarded for switch trials?", options: question1, required: true, horizontal: false,},
       {prompt: "How much bonis is awarded for repetition trials?", options: question2, required: true, horizontal: false},
@@ -1667,7 +1664,16 @@ if(reward){
         '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
         "This phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
         "The format is the same as Phase 3, but with no hints or feedback.</br>" +
-        "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>"
+        "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>",
+        "<div style='font-size:32px'>You will now be quizzed on the reward payments!</div></br></br>" +
+        "<div style='font-size:24px' align='left'>Remember:</br>" +
+        "<ul><li>you only earn money in the first trial after a cue</li>"+
+        "<li>you earn $0.03 for a " + reward_input[condition] + " trial</li>"+
+        "<li>you earn $0.01 for a " + reward_input[1-condition] + " trial</li>"+
+        "<li>only fast and accurate responses are rewarded</li></ul></div>" +
+        "<div style='font-size:18px'>You can earn up to $2.56 in bonus payments, for a total of $8.56.</br>"+
+        "If you answer incorrectly, you risk not getting your bonus payment!</br></br></div>" +
+        "Press next to begin the quiz."
     ],
     show_clickable_nav: true,
     post_trial_gap: 1000
@@ -1676,13 +1682,13 @@ if(reward){
   var reward_instructions_exp2 = {
     type: 'instructions',
     pages: [
-        "<div style='font-size:24px' align='left'>Remember:</br>" +
+        "<div style='font-size:24px' align='left'>Great job! Now we're going to start the experiment.</br></br>" +
+        "Here are the reminders again:</br>" +
         "<ul><li>you only earn money in the first trial after a cue</li>"+
         "<li>you earn $0.03 for a " + reward_input[condition] + " trial</li>"+
-        "<li>you earn $0.03 for a " + reward_input[1-condition] + " trial</li>"+
-        "<li>only fast and accurate responses are rewarded</li></ul></div>" +
-        "<div style='font-size:24px'>You can earn up to $2.56 in bonus payments, for a total of $8.56.</br></br>"+
-        'Click next to review the cues again.</div>',
+        "<li>you earn $0.01 for a " + reward_input[1-condition] + " trial</li>"+
+        "<li>only fast and accurate responses are rewarded</li></ul></div></br>" +
+        "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
         "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
             "<div class='row'>"+
