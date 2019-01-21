@@ -1,11 +1,11 @@
 //  CONTROL PANEl
-var debug = true; // debug mode
+var debug = false; // debug mode
 var reward = true; // reward mode
-var phase1 = false;
-var phase2 = false;
-var phase31 = false;
-var phase32 = false;
-var phase33 = false;
+var phase1 = true;
+var phase2 = true;
+var phase31 = true;
+var phase32 = true;
+var phase33 = true;
 var phase4 = true;
 
 /* load psiturk */
@@ -295,7 +295,7 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          if(reward && fixation.data.miniblock_trial == '1'){
+          if(reward && fixation.phase == '3.1' && fixation.data.miniblock_trial == '1'){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>' +
                 reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
@@ -599,7 +599,7 @@ var numTrials = 75;
 var currentMotionCoherence = 0.4; // starting coherence
 var currentColorCoherence = 0.4; // starting coherence
 var learningRate = 0.011;
-var minMotionCoherence = 0.05;
+var minMotionCoherence = 0.08;
 var minColorCoherence = 0.05;
 var maxCoherence = 0.7;
 
@@ -1796,7 +1796,7 @@ if(reward){
   var reward_questions = {
     type: 'survey-multi-choice',
     preamble: "<img src='/static/images/" + reward_input[condition] + "_rule_" + mapping[3] + ".PNG'></img>"+
-    '</br><div align="left"> Please correctly answer the following questions about the point rewards:</div>',
+    '</br><div align="left"> Please correctly answer the following questions about the point rewards. Press <u>enter</u> to submit.</div>',
     questions: [
       {prompt: "How many points are awarded for switch trials?", options: question1, required: true, horizontal: false,},
       {prompt: "How many points are awarded for repetition trials?", options: question2, required: true, horizontal: false},
@@ -1926,9 +1926,7 @@ if(phase4){
   var pause = true;
   for (line in exp_lines){
     var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
-    if(pause && trial_vars_exp[0].data.miniblock >= 4){
-      continue;
-    }
+    
     // pause before block two
     if(pause && trial_vars_exp[0].data.block == 2){
       pause = false;
