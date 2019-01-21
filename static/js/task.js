@@ -1,10 +1,10 @@
 //  CONTROL PANEl
-var debug = false; // debug mode
+var debug = true; // debug mode
 var reward = true; // reward mode
 var phase1 = false;
 var phase2 = false;
 var phase31 = false;
-var phase32 = true;
+var phase32 = false;
 var phase33 = false;
 var phase4 = true;
 
@@ -17,11 +17,12 @@ if(!debug){
 var timeline = [];
 
 if(debug){
-  condition = counterbalance = 1;
+  condition = 0;
+  counterbalance = 12;
 }
 
 // Setting up counterbalancing conditions
-var num_sequences = 8; // number of sequences we want to use
+var num_sequences = 4; // number of sequences we want to use
 var starting_sequence = 1;
 var sequence = (counterbalance % num_sequences) + starting_sequence; // compute the sequence number from counterbalance assignment
 
@@ -41,12 +42,11 @@ if(counterbalance < (num_sequences * 1)){
   p2_cb = 1;
 }
 
-if(reward){
-  var reward_input = {
-    0: 'repetition',
-    1: 'switch'
-  };
-}
+// reward selection
+var reward_input = {
+  0: 'repetition',
+  1: 'switch'
+};
 
 // Loading config and trial data files synchronously
 var config, headers, lines;
@@ -135,7 +135,11 @@ function processData(allText, option) {
               var tarr = [];
               // loop through the individual elements on each line (trial)
               for (var j=0; j<prc_headers.length; j++) {
-                  tarr.push(data[j]);
+                  if(reward && data[10] == '7' && j == 4){
+                    tarr.push('-1'); //as if this is the first miniblock
+                  }else{
+                    tarr.push(data[j]);
+                  }
               }
               prc_lines_2.push(tarr);
             }
@@ -163,6 +167,49 @@ timeline.push({
 });
 }
 
+// reward feedback and score keeping
+var score = 0;
+function reward_feedback(type, transition, cond){
+  if(type == 'cue'){
+    if(transition == '1'){ // switch
+      if(cond == 0){ //repetition rewarded more
+        return "</br>This is a TASK SWITCH</br>Next trial is worth 1 POINT."
+      }else if(cond == 1){ // switch rewarded more
+        return "</br>This is a TASK SWITCH</br>Next trial is worth 10 POINTS."
+      }
+    }else if(transition == '0'){ //repetition
+      if(cond == 0){ //repetition rewarded more
+        return "</br></br>This is a TASK REPETITION</br>Next trial is worth 10 POINTS."
+      }else if(cond == 1){ // switch rewarded more
+        return "</br></br>This is a TASK REPETITION</br>Next trial is worth 1 POINT."
+      }
+    }else{
+      return '';
+    }
+  }else if(type == 'fixation'){
+    if(transition == '1'){ // switch
+      if(cond == 0){ //repetition rewarded more
+        score += 1;
+        return "+1 POINT!"
+      }else if(cond == 1){ // switch rewarded more
+        score += 10;
+        return "+10 POINTS!"
+      }
+    }else if(transition == '0'){ //repetition
+      if(cond == 0){ //repetition rewarded more
+        score += 10;
+        return "+10 POINTS!"
+      }else if(cond == 1){ // switch rewarded more
+        score += 1;
+        return "+1 POINT!"
+      }
+    }else{
+      return 'Correct!';
+    }
+  }
+
+}
+
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
 //    task: "motion" or "color"
@@ -181,22 +228,50 @@ var cue = {
   data: jsPsych.timelineVariable('data'), //additional data tagged for consistency
 
   on_start: function(cue){
+
     if(typeof cue.cue_shape === "undefined"){ //by default, show a circle if no cue shape is inputted
       cue.stimulus = "<div style='float: center;'><img src='/static/images/circle.png'></img></div>";
     }else{
       if(cue.phase == '3.1'){
-        cue.stimulus = "<div style='width: 700px;'>" +
+        cue.stimulus += "<div style='width: 700px;'>" +
            "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>" +
-        "(this cues a " + cue.task + " task)</div>"; // extra feedback
+                "(this cues a " + cue.task + " task)</div>"; // extra feedback
+
+        if(reward){
+          cue.stimulus += reward_feedback('cue', cue.data.task_transition, condition)
+          cue.trial_duration = cue.trial_duration + 2000;
+        }
 
         cue.trial_duration = cue.trial_duration + 2000; //extend the cue duration if it's still the practice phase
 
-      }else{ // phase 3.1 or 4
+      }else if(cue.phase == '3.2'){
+        cue.stimulus = "<div style='width: 700px;'>" +
+           "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>";
+
+        if(reward){
+           cue.stimulus += reward_feedback('cue', cue.data.task_transition, condition)
+           cue.trial_duration = cue.trial_duration + 1000;
+
+           if(cue.data.task_transition == -1){
+             score = 0; // reset score
+           }
+         }
+
+        cue.trial_duration = cue.trial_duration + 1000; //extend the cue duration if it's still the practice phase
+
+      }else{ // phase 4
+        if(reward){
+          if(cue.data.task_transition == -1){
+            score = 0; // reset score
+          }
+        }
         cue.stimulus = "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>";
       }
     }
   }
 }
+
+
 
 // Generates template for fixation stimulus
 //    phase: "1.1", "1.2", "3.1", "3.2", or "4"
@@ -220,9 +295,17 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-          '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
-          '</div><p style="color:grey;">Filler</p>';
+          if(reward && fixation.data.miniblock_trial == '1'){
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>' +
+                reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
+            '</div><p>Total score: ' + score + ' points.</p>';
+            fixation.trial_duration = fixation.trial_duration + 2000;
+          }else{
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
+            '</div><p style="color:grey;">Filler</p>';
+          }
         }else if(!data.correct){
           if(data.rt == -1){
             if(fixation.phase == '3.1'){
@@ -264,9 +347,17 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-          '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
-          '</div><p style="color:grey;">Filler</p>';
+          if(reward && fixation.data.miniblock_trial == '1'){
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>' +
+                reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
+            '</div><p>Total score: ' + score + ' points.</p>';
+            fixation.trial_duration = fixation.trial_duration + 2000;
+          }else{
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
+            '</div><p style="color:grey;">Filler</p>';
+          }
         }else if(!data.correct){
           if(data.rt == -1){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
@@ -291,12 +382,31 @@ var fixation = {
           if(typeof data.correct === "undefined"){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
           }else if(data.correct){
-            fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b></div>';
+            if(reward && fixation.data.miniblock_trial == '1'){
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>' +
+                  reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
+              '</div><p>Total score: ' + score + ' points.</p>';
+              fixation.trial_duration = fixation.trial_duration + 500;
+            }else{
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
+              '</div><p style="color:grey;">Filler</p>';
+            }
           }else if(!data.correct){
             if(data.rt == -1){
               fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Respond Faster</b></div>';
             }else{
-              fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b></div>';
+              if(reward && fixation.data.miniblock_trial == '1'){
+                fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+                '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>'+
+                '</div><p>Total score: ' + score + ' points.</p>';
+                fixation.trial_duration = fixation.trial_duration + 500;
+              }else{
+                fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+                '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>'+
+                '</div><p style="color:grey;">Filler</p>';
+              }
             }
           }else if(config.fixation_cross){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
@@ -496,7 +606,7 @@ var maxCoherence = 0.7;
 /* define introduction block */
 var intro_reward = '';
 if(reward){
-  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of up to <u><b>$2.56</b></u> </br> " +
+  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of up to <u><b>$3.00</b></u> </br> " +
         "if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
 }
 
@@ -1237,13 +1347,16 @@ var instructions_prc_m = {
   pages: [
     '<div style="font-size:24px">We will now focus on the <u>motion</u> cues.</div></br>' +
     'You will see a motion cue (' + mapping[1] + ' or ' + mapping[2] + ')'+
-    ' and then complete a number of motion tasks.</br></br>' +
-    "<b>Remember:</b></br>" +
+    ' and then complete a number of motion tasks.</br>' +
+    "<img src='/static/images/miniblock_color_" + mapping[3] + "_motion.PNG'></img></br>" +
+    "This is what we call a <u>mini-block</u> (cue + several trials).</br>",
+
+    "<div style='font-size:24px'><b>Remember:</b></br>" +
     "We're coming back to 'A' or 'L' responses.</br>" +
     'A is for majority upward motion.</br>' +
     'L is for majority downward motion.</br></br>' +
     "<b>Also:</b>"+
-    "<font color='#FA8072'><b><h3>You'll no longer be waiting for the '?'</b></br>Respond as soon as you know the answer.</h3></font>"+
+    "<font color='#FA8072'><b><h3>You'll no longer be waiting for the '?'</b></br>Respond as soon as you know the answer.</h3></font>" +
     'Click next for an example motion cue + trial.'
   ],
   show_clickable_nav: true,
@@ -1260,7 +1373,8 @@ var practice_example1 = {
     text: 'Motion Task - Down (Press L)',
     trial_duration: 4000,
     cue_shape: mapping[1],
-    phase: '3.1'
+    phase: '3.1',
+    data: [{task_transition: '-1'}]
   }],
 }
 
@@ -1273,7 +1387,8 @@ var practice_example2 = {
     coherent_color: 'blue',
     text: 'Motion Task - Up (Press A)',
     trial_duration: 4000,
-    phase: '3.1'
+    phase: '3.1',
+    data: [{task_transition: '-1'}]
   }],
 }
 
@@ -1286,7 +1401,8 @@ var practice_example3 = {
     coherent_color: 'red',
     text: 'Motion Task - Down (Press L)',
     trial_duration: 4000,
-    phase: '3.1'
+    phase: '3.1',
+    data: [{task_transition: '-1'}]
   }],
 }
 
@@ -1295,8 +1411,10 @@ var instructions_prc_c = {
   pages: [
     '<div style="font-size:24px">We will now focus on the <u>color</u> cues.</div></br>' +
     'You will see a color cue (' + mapping[3] + ' or ' + mapping[4] + ')' +
-    ' and then complete a number of color tasks.</br></br>' +
-    "<b>Remember:</b></br>" +
+    ' and then complete a number of color tasks.</br>' +
+    "<img src='/static/images/miniblock_color_" + mapping[3] + ".PNG'></img></br>" +
+    "This is what we call a <u>mini-block</u> (cue + several trials).</br>",
+    "<div style='font-size:24px'><b>Remember:</b></br>" +
     "We're coming back to 'A' or 'L' responses.</br>" +
     'A is for majority blue dots.</br>' +
     'L is for majority red dots.</br></br>' +
@@ -1318,7 +1436,8 @@ var practice_example4 = {
     text: 'Color Task - Blue (Press A)',
     trial_duration: 4000,
     cue_shape: mapping[3],
-    phase: '3.1'
+    phase: '3.1',
+    data: [{task_transition: '-1'}]
   }],
 }
 
@@ -1331,7 +1450,8 @@ var practice_example5 = {
     coherent_color: 'red',
     text: 'Color Task - Red (Press L)',
     trial_duration: 4000,
-    phase: '3.1'
+    phase: '3.1',
+    data: [{task_transition: '-1'}]
   }],
 }
 
@@ -1344,7 +1464,8 @@ var practice_example6 = {
     coherent_color: 'blue',
     text: 'Color Task - Blue (Press A)',
     trial_duration: 4000,
-    phase: '3.1'
+    phase: '3.1',
+    data: [{task_transition: '-1'}]
   }],
 }
 
@@ -1352,27 +1473,52 @@ var reward_instructions_prc2 = {
   type: 'instructions',
   pages: [
 
-    "<div style='font-size:24px'>Fantastic! Now you'll start the practice blocks.</div></br>" +
-    "Just like in Phase 1, you will have a block of trials, but now we will add cues. </br>" +
-    "Before each set of trials you will see a cue that indicates " +
-    "the current task to be performed.</br>",
-    'You will get a cue followed by a few trials before getting to another cue.</br>' +
-    'Do the same task for all the subsequent trials until you get a new cue. </br></br>'+
-    "For example, the sequence may be something like this: </br>" +
-    "<img src='/static/images/instructions_color_" + mapping[3] + ".PNG'></img></br>",
+    "<div style='font-size:36px'>Fantastic! Now you'll start the practice blocks.</div></br>" +
+    "<div style='font-size:24px'>" +
+    "Just like in Phase 1, you will have a block of trials, but now</br>"+
+    "we will add the <u>four cues</u> (square, diamond, triangle, circle).</br></br>"+
+    "Press next for important instructions!",
+    "<div style='font-size:24px'>" +
+    "In a <u>mini-block</u>, you will see a cue followed by a number of trials.</br></br>" +
+    "<img src='/static/images/miniblock_color_" + mapping[3] + ".PNG'></img></br>" +
+    "The cue indicates the task (color or motion) that you should be doing for all the trials.</div>",
 
-    "<div style='font-size:36px'>The following instructions will</br></br>"+
-    "explain how you will be awarded</br></br><u>bonus payments</u>.</div></br>",
+    "<div style='font-size:24px'>" +
+    'Do the same task for all the subsequent trials until you get a new cue.</br></br>'+
+    "<img src='/static/images/miniblock2_color_" + mapping[3] + ".PNG'></img></br>" +
+    "Sometimes, the task will change from color to motion (or vice versa).</br></br>" +
+    "This is called a <u>switch</u>.</div></br>",
 
-    "<div style='font-size:36px'>For " + reward_input[condition] + " trials, we award $0.03.</br></br>" +
+    "<div style='font-size:24px'>" +
+    'Other times, the task will stay the same between mini-blocks.</br></br>'+
+    "<img src='/static/images/miniblock3_color_" + mapping[3] + ".PNG'></img></br>" +
+    "This is called a <u>repetition</u>.</div></br>",
+
+    "<div style='font-size:24px'>" +
+    "The entire sequence will be made up of mini-blocks: </br></br>" +
+    "<img src='/static/images/instructions_color_" + mapping[3] + ".PNG'></img></br></br>" +
+    "This will make more sense with some practice. </div></br>",
+
+    "<div style='font-size:36px'>The following instructions will explain how</br></br>"+
+    "you will be awarded <u>bonus payments</u>.</br></br></br>"+
+    "Please pay attention!</div></br>",
+
+    "<div style='font-size:24px'>During the study, you will steadily be <u>earning points</u>.</br></br>"+
+    "Before explaining how the points are awarded, it is important to know that</br>"+
+    "<u>only fast and accurate responses are rewarded.</u></br></br>"+
+    "At the end of the study, we will compare your total number of points to the other</br>"+
+    "participants taking this study, and we will reward you accordingly (maximum of $3.00).</div></br>"+
+    "Press next to learn how the points are awarded.",
+
+    "<div style='font-size:36px'>For " + reward_input[condition] + " trials, we award 10 points.</br></br>" +
     "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
 
-    "<div style='font-size:36px'>For " + reward_input[1-condition] + " trials, we award $0.01.</br></br>" +
+    "<div style='font-size:36px'>For " + reward_input[1-condition] + " trials, we award 1 point.</br></br>" +
     "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
 
     "<div style='font-size:36px'>Summary: </br></br>"+
     "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + ".PNG'></img></br></br>" +
-    "We award $0.03 for " + reward_input[condition] + " trials and $0.01 for " + reward_input[1-condition] + " trials.</div>",
+    "We award 10 points for " + reward_input[condition] + " trials and 1 point for " + reward_input[1-condition] + " trials.</div></br>",
 
     "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
     "<img src='/static/images/" + reward_input[condition] + "_rule_"+mapping[3]+".PNG'></img></div></br></br>" +
@@ -1380,7 +1526,7 @@ var reward_instructions_prc2 = {
     "<div style='font-size:24px' align='left'>Also:</br>" +
     "<ul><li>you only earn money in the first trial after a cue</li>"+
     "<li>only fast and accurate responses are rewarded</li>" +
-    "<li>in phase 4, you can earn up to $2.56 in bonus payments, for a total of $8.56</li></ul>",
+    "<li>in phase 4, you can earn up to $3.00 in bonus payments, for a total of $9.00</li></ul>",
 
     "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
     'Click next to review the cues again.',
@@ -1643,18 +1789,18 @@ if(phase33){
 // --------------------
 if(reward){
   // defining two different response scales that can be used.
-  var question1 = ["$0.01", "$0.03"];
-  var question2 = ["$0.01", "$0.03"];
+  var question1 = ["1 point", "10 points"];
+  var question2 = ["1 point", "10 points"];
   var question3 = ["First trial after a cue", "On every trial"];
 
   var reward_questions = {
     type: 'survey-multi-choice',
     preamble: "<img src='/static/images/" + reward_input[condition] + "_rule_" + mapping[3] + ".PNG'></img>"+
-    '</br><div align="left"> Please correctly answer the following questions about the bonus payments:</div>',
+    '</br><div align="left"> Please correctly answer the following questions about the point rewards:</div>',
     questions: [
-      {prompt: "How much bonus is awarded for switch trials?", options: question1, required: true, horizontal: false,},
-      {prompt: "How much bonis is awarded for repetition trials?", options: question2, required: true, horizontal: false},
-      {prompt: "When do you earn money?", options: question3, required: true, horizontal: false}
+      {prompt: "How many points are awarded for switch trials?", options: question1, required: true, horizontal: false,},
+      {prompt: "How many points are awarded for repetition trials?", options: question2, required: true, horizontal: false},
+      {prompt: "When do you earn points?", options: question3, required: true, horizontal: false}
     ],
   };
 
@@ -1664,15 +1810,16 @@ if(reward){
         '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
         "This phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
         "The format is the same as Phase 3, but with no hints or feedback.</br>" +
-        "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>",
-        "<div style='font-size:32px'>You will now be quizzed on the reward payments!</div></br></br>" +
+        "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
+        "Also, your score has been reset to 0!</br>",
+        "<div style='font-size:32px'>You will now be quizzed on the point rewards!</div></br></br>" +
         "<div style='font-size:24px' align='left'>Remember:</br>" +
-        "<ul><li>you only earn money in the first trial after a cue</li>"+
-        "<li>you earn $0.03 for a " + reward_input[condition] + " trial</li>"+
-        "<li>you earn $0.01 for a " + reward_input[1-condition] + " trial</li>"+
+        "<ul><li>you only earn points in the first trial after a cue</li>"+
+        "<li>you earn 10 points for a " + reward_input[condition] + " trial</li>"+
+        "<li>you earn 1 point for a " + reward_input[1-condition] + " trial</li>"+
         "<li>only fast and accurate responses are rewarded</li></ul></div>" +
-        "<div style='font-size:18px'>You can earn up to $2.56 in bonus payments, for a total of $8.56.</br>"+
-        "If you answer incorrectly, you risk not getting your bonus payment!</br></br></div>" +
+        "<div style='font-size:18px'>You can earn up to $3.00 in bonus payments, for a total of $9.00.</br>"+
+        "If you answer the quiz incorrectly, you risk not getting your bonus payment!</br></br></div>" +
         "Press next to begin the quiz."
     ],
     show_clickable_nav: true,
@@ -1684,9 +1831,9 @@ if(reward){
     pages: [
         "<div style='font-size:24px' align='left'>Great job! Now we're going to start the experiment.</br></br>" +
         "Here are the reminders again:</br>" +
-        "<ul><li>you only earn money in the first trial after a cue</li>"+
-        "<li>you earn $0.03 for a " + reward_input[condition] + " trial</li>"+
-        "<li>you earn $0.01 for a " + reward_input[1-condition] + " trial</li>"+
+        "<ul><li>you only earn points in the first trial after a cue</li>"+
+        "<li>you earn 10 points for a " + reward_input[condition] + " trial</li>"+
+        "<li>you earn 1 point for a " + reward_input[1-condition] + " trial</li>"+
         "<li>only fast and accurate responses are rewarded</li></ul></div></br>" +
         "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
@@ -1779,6 +1926,9 @@ if(phase4){
   var pause = true;
   for (line in exp_lines){
     var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
+    if(pause && trial_vars_exp[0].data.miniblock >= 4){
+      continue;
+    }
     // pause before block two
     if(pause && trial_vars_exp[0].data.block == 2){
       pause = false;
@@ -1801,6 +1951,34 @@ if(phase4){
   }
 }
 
+var instructions_final = {
+  type: 'instructions',
+  pages: [
+      '<div style="font-size:32px">Congratulations on finishing the experiment!</div></br></br>' +
+      'Press next to finish the HIT!'
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 0
+};
+
+var instructions_reward_final = {
+    type: 'html-keyboard-response',
+    stimulus: '',
+    on_start: function(instructions_reward_final){
+      instructions_reward_final.stimulus = "<div style='font-size:32px'>Congratulations on finishing the experiment!</div></br>" +
+      '<div style="font-size:24px">Your total final score is ' + score + '.</br></br>' +
+      "It will be compared to the performance of the other participants taking this study,</br>" +
+      "and we will reward you accordingly (for a maximum of $3.00).</div></br>"+
+      'Press <u>any key</u> to finish the HIT!';
+    },
+};
+
+if(reward){
+  timeline.push(instructions_reward_final);
+}else{
+  timeline.push(instructions_final);
+}
+
 // record id, condition, counterbalance on every trial
 jsPsych.data.addProperties({
     uniqueId: uniqueId,
@@ -1808,7 +1986,8 @@ jsPsych.data.addProperties({
     //counterbalance: counterbalance // counterbalance number (total: 32)
     sequence: sequence, // sequence number (total: 8)
     phase1_counterbalance: p1_cb, // 0: motion color, 1: color motion
-    phase2_counterbalance: p2_cb // 0: circle triangle first, 1: diamond square first
+    phase2_counterbalance: p2_cb, // 0: circle triangle first, 1: diamond square first
+    score: score
 });
 
 //---------Run the experiment---------

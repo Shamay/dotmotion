@@ -1,5 +1,5 @@
 [HIT Configuration]
-title = Dot Motion task (up to $2.56 bonus)
+title = Dot Motion task (up to $3.00 bonus)
 description = Judge the motion and color of a swarm of moving dots.
 amt_keywords = Perception, Psychology, Neuroscience
 lifetime = 24
@@ -35,7 +35,7 @@ secret_key = '112233'
 [Task Parameters]
 experiment_code_version = 1.0
 num_conds = 2
-num_counters = 32
+num_counters = 16
 
 [Shell Parameters]
 launch_in_sandbox_mode = true
