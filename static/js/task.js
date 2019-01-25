@@ -297,7 +297,7 @@ var fixation = {
         }else if(data.correct){
           if(reward && fixation.phase == '3.1' && fixation.data.miniblock_trial == '1'){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-            '<div style="color:white;font-size60px"; class = center-text><b>' +
+            '<div style="color:white;font-size:60px"; class = center-text><b>' +
                 reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>' +
                 '</div><p style="color:grey;">Filler</p>';
             //'</div><p>Total score: ' + score + ' points.</p>';
@@ -621,7 +621,7 @@ var introduction = {
       '<div align="left"><p>There will be four phases:</p>' +
       '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks.</li>' +
       '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion.</li>' +
-      '<li><b>Phase 3:</b> you will practice swaping between color or motion tasks.</li>' +
+      '<li><b>Phase 3:</b> you will practice swapping between color or motion tasks.</li>' +
       '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></div>' +
       intro_reward + 'The experiment will take approximately 60 minutes to complete.' +
       '<p>Click next to continue.</p>'
@@ -1362,7 +1362,7 @@ var instructions_prc = {
   type: 'instructions',
   pages: [
     '<div style="font-size:32px">Welcome to the <strong>Phase 3</strong>. </div></br>'+
-    '<div style="font-size:24px">We will be swaping between color and motion tasks.</div></br>' +
+    '<div style="font-size:24px">We will be swapping between color and motion tasks.</div></br>' +
     'The cues you learned earlier will tell you if you </br>'+
     'are supposed to focus on color or motion.</br></br>' +
     'Note: there are approximately 40 minutes left in the experiment from this point.</br></br>',
@@ -2029,9 +2029,9 @@ var new_reward_instructions_exp2 = {
 if(phase4){
   var pause = true;
   for (line in exp_lines){
-    if(line < 250){
-      continue;
-    }
+    // if(line < 250){
+    //   continue;
+    // }
     var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
 
     // pause before block two
