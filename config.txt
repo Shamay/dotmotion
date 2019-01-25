@@ -1,5 +1,5 @@
 [HIT Configuration]
-title = Dot Motion task (up to $3.00 bonus)
+title = Dot Motion task (up to $2.56 bonus)
 description = Judge the motion and color of a swarm of moving dots.
 amt_keywords = Perception, Psychology, Neuroscience
 lifetime = 24
