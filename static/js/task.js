@@ -1629,6 +1629,7 @@ var instructions_prc2 = {
   post_trial_gap: 1000
 };
 
+
 var instructions_prc3 = {
   type: 'instructions',
   pages: [
@@ -1636,7 +1637,14 @@ var instructions_prc3 = {
     "<div style='font-size:24px'>For this block, we <b> remove the cue hints</b> and <b>reduce feedback after each trial</b>.</div></br>" +
     "Just like in the last block, you will have a series of trials, but now there will be no cue hints. </br>"+
     "In addition, the feedback after each trial will only tell you whether it was a motion or color task.</br></br>" +
-    'Click next to review the cues again.',
+    'Click next to review the reward rules again.',
+
+    "<div style='font-size:32px'>Here are the reward rules again:</div></br>" +
+    "<div style='font-size:24px'><ul><li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
+    "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
+    "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
+    "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
+
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
@@ -2036,9 +2044,6 @@ if(phase4){
   var pause = true;
   for (line in exp_lines){
     var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
-    if(line < 520){
-      continue;
-    }
 
     // pause before block two
     if(pause && trial_vars_exp[0].data.block == 2){
