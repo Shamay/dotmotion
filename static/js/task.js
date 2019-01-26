@@ -1956,7 +1956,7 @@ var pause_text = {
         "<div style='font-size:36px'>After a task " + reward_input[1-condition] + ", each miniblock trial is worth 3 points.</br></br>" +
         "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
 
-        "<div style='font-size:36px'>After a task " + reward_input[1-condition] + ", each miniblock trial is worth 1 point.</br></br>" +
+        "<div style='font-size:36px'>After a task " + reward_input[condition] + ", each miniblock trial is worth 1 point.</br></br>" +
         "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
 
         "<div style='font-size:36px'>Summary: </br></br>"+
