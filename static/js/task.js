@@ -1640,8 +1640,8 @@ var instructions_prc3 = {
     'Click next to review the reward rules again.',
 
     "<div style='font-size:32px'>Here are the reward rules again:</div></br>" +
-    "<div style='font-size:24px'><ul><li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
-    "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
+    "<div style='font-size:24px'><ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
+    "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
     "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
     "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
