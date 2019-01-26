@@ -173,15 +173,15 @@ function reward_feedback(type, transition, cond){
   if(type == 'cue'){
     if(transition == '1'){ // switch
       if(cond == 0){ //repetition rewarded more
-        return "</br><b>TASK SWITCH</b></br>Next trial is worth $0.01."
+        return "</br>TASK SWITCH</br>Next trials are worth 1 POINT."
       }else if(cond == 1){ // switch rewarded more
-        return "</br><b>TASK SWITCH</b></br>Next trial is worth $0.03."
+        return "</br>TASK SWITCH</br>Next trials are worth 3 POINTS."
       }
     }else if(transition == '0'){ //repetition
       if(cond == 0){ //repetition rewarded more
-        return "</br><b>TASK REPETITION</b></br>Next trial is worth $0.03."
+        return "</br>TASK REPETITION</br>Next trials are worth 3 POINTS."
       }else if(cond == 1){ // switch rewarded more
-        return "</br><b>TASK REPETITION</b></br>Next trial is worth $0.01."
+        return "</br>TASK REPETITION</br>Next trials are worth 1 POINT."
       }
     }else{
       return '';
@@ -189,22 +189,25 @@ function reward_feedback(type, transition, cond){
   }else if(type == 'fixation'){
     if(transition == '1'){ // switch
       if(cond == 0){ //repetition rewarded more
-        score += 0.01;
-        return "+$0.01"
+        score += 1;
+        return "+1 POINT!"
       }else if(cond == 1){ // switch rewarded more
-        score += 0.03;
-        return "+$0.03"
+        score += 3;
+        return "+3 POINTS!"
       }
     }else if(transition == '0'){ //repetition
       if(cond == 0){ //repetition rewarded more
-        score += 0.03;
-        return "+$0.03"
+        score += 3;
+        return "+3 POINTS!"
       }else if(cond == 1){ // switch rewarded more
-        score += 0.01;
-        return "+$0.01"
+        score += 1;
+        return "+1 POINT!"
       }
+    }else if(transition == '-1'){
+      score += 1;
+      return "+1 POINT!";
     }else{
-      return 'Correct!';
+      return "Correct!"
     }
   }
 
@@ -250,7 +253,7 @@ var cue = {
 
         if(reward){
            cue.stimulus += reward_feedback('cue', cue.data.task_transition, condition)
-           cue.trial_duration = cue.trial_duration + 1500;
+           cue.trial_duration = cue.trial_duration + 1000;
 
            if(cue.data.task_transition == -1){
              score = 0; // reset score
@@ -295,13 +298,12 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          if(reward && fixation.phase == '3.1' && fixation.data.miniblock_trial == '1'){
+          if(reward && fixation.phase == '3.1'){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-            '<div style="color:white;font-size:60px"; class = center-text><b>' +
-                reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>' +
-            //    '</div><p style="color:grey;">Filler</p>';
-            '</div><p>Total: $' + score + '.</p>';
-            fixation.trial_duration = fixation.trial_duration + 2000;
+            '<div style="color:white;font-size:30px"; class = center-text><b>' +
+                reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
+            '</div><p>Total score: ' + score + ' points.</p>';
+            fixation.trial_duration = fixation.trial_duration + 300;
           }else{
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
@@ -311,14 +313,13 @@ var fixation = {
           if(data.rt == -1){
             if(fixation.phase == '3.1'){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-              '<div style="color:white;font-size:30px"; class = center-text><b>Too slow!</b>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b>' +
               "</div><p>Do not wait for the '?', respond as soon as you can.</p>";
             }else{
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-              '<div style="color:white;font-size:30px"; class = center-text><b>Too slow!</b>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b>' +
               "</div><p>Respond as fast as you can when you see the '?'.</p>";
             }
-            fixation.trial_duration = fixation.trial_duration + 500;
           }else if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
@@ -340,7 +341,7 @@ var fixation = {
               '</div><p>Press L for mostly red dots.</p>';
             }
           }
-          fixation.trial_duration = fixation.trial_duration + 1750;
+          fixation.trial_duration = fixation.trial_duration + 2000;
         }else if(config.fixation_cross){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }
@@ -348,13 +349,12 @@ var fixation = {
         if(typeof data.correct === "undefined"){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }else if(data.correct){
-          if(reward && fixation.data.miniblock_trial == '1'){
+          if(reward){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-            '<div style="color:white;font-size:60px"; class = center-text><b>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>' +
                 reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
-            //    '</div><p style="color:grey;">Filler</p>';
-            '</div><p>Total: $' + score + '</p>';
-            fixation.trial_duration = fixation.trial_duration + 2000;
+            '</div><p>Total score: ' + score + ' points.</p>';
+            fixation.trial_duration = fixation.trial_duration + 300;
           }else{
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
@@ -363,9 +363,8 @@ var fixation = {
         }else if(!data.correct){
           if(data.rt == -1){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-            '<div style="color:white;font-size:30px"; class = center-text><b>Too slow!</b>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b>' +
             "</div><p>Do not wait for the '?', respond as soon as you can.</p>";
-            fixation.trial_duration = fixation.trial_duration + 500;
           }else if(data.task == 'motion'){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
@@ -384,13 +383,11 @@ var fixation = {
           if(typeof data.correct === "undefined"){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
           }else if(data.correct){
-            if(reward && fixation.data.miniblock_trial == '1'){
+            if(reward){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-              '<div style="color:white;font-size:60px"; class = center-text><b>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>' +
                   reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
-              //    '</div><p style="color:grey;">Filler</p>';
-              '</div><p>Total: $' + score + '</p>';
-              fixation.trial_duration = fixation.trial_duration + 500;
+              '</div><p>Total score: ' + score + ' points.</p>';
             }else{
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
@@ -398,17 +395,18 @@ var fixation = {
             }
           }else if(!data.correct){
             if(data.rt == -1){
-              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
-              '<div style="color:white;font-size:30px"; class = center-text><b>Too slow!</b></div>' +
-              '</div><p>Total: $' + score + '</p>';
-              fixation.trial_duration = fixation.trial_duration + 500;
+              if(reward){
+                fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+                '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b></div>' +
+                '</div><p>Total score: ' + score + ' points.</p>';
+              }else{
+                fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b></div>';
+              }
             }else{
-              if(reward && fixation.data.miniblock_trial == '1'){
+              if(reward){
                 fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
                 '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>'+
-                //'</div><p style="color:grey;">Filler</p>';
-                '</div><p>Total: $' + score + '</p>';
-                fixation.trial_duration = fixation.trial_duration + 500;
+                '</div><p>Total score: ' + score + ' points.</p>';
               }else{
                 fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
                 '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>'+
@@ -492,9 +490,10 @@ var stimulus = {
       stimulus.colorCoherence = currentColorCoherence + minColorCoherence;
     }
   },
+
   on_start: function(stimulus){
     if (stimulus.phase == '4'){
-      stimulus.trial_duration = 950;
+      stimulus.trial_duration = 1000;
     }
   },
 
@@ -618,7 +617,7 @@ var maxCoherence = 0.7;
 /* define introduction block */
 var intro_reward = '';
 if(reward){
-  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of <u><b>$2.56</b></u> </br> " +
+  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of up to <u><b>$3.00</b></u> </br> " +
         "if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
 }
 
@@ -637,12 +636,13 @@ var introduction = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
+
 var introduction2 = {
   type: 'instructions',
   pages: [
-    "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
-    "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
-    "<p>A swarm of red and blue dots will be moving on the screen.</p>"
+      "<div style='font-size:32px'>Welcome to the <strong>Phase 1</strong>.</div></br>" +
+      "<div style='font-size:24px'>Let's learn about the <u>stimulus</u>.</div>" +
+      "<p>A swarm of red and blue dots will be moving on the screen.</p>"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -1539,27 +1539,29 @@ var reward_instructions_prc2 = {
     "you will be awarded</font> <b>bonus payments</b>.</br></br></br>"+
     "<font color='#FA8072'>Please pay attention!</h3></div></br>",
 
-    "<div style='font-size:24px'>During the study, you will be steadily <u>earning money</u>."+
-    "<font color='#FA8072'><h3>It is important to know that you get </br><b></font>more money<font color='#FA8072'> for responding </font>"+
+    "<div style='font-size:24px'>During the study, you will steadily be <u>earning points</u>.</br></br>"+
+    "<font color='#FA8072'><h3>It is important to know that you get </br><b></font>more points<font color='#FA8072'> for responding </font>"+
     "</br>(1) quickly<font color='#FA8072'> and </font>(2) accurately.</h3>"+
     "At the end, we will compare your performance to the other participants, </br>"+
-    "and we will reward you accordingly (maximum of $2.56).</div></br>"+
-    "Press next to learn how the money is awarded.",
+    "and we will reward you accordingly (maximum of $3.00).</div></br>"+
+    "Press next to learn how the points are awarded.",
 
-    "<div style='font-size:36px'>For " + reward_input[condition] + " trials, we award $0.03.</br></br>" +
+    "<div style='font-size:36px'>After a task " + reward_input[condition] + ", each miniblock trial is worth 3 points.</br></br>" +
     "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
 
-    "<div style='font-size:36px'>For " + reward_input[1-condition] + " trials, we award $0.01.</br></br>" +
+    "<div style='font-size:36px'>After a task " + reward_input[1-condition] + ", each miniblock trial is worth 1 point.</br></br>" +
     "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
 
     "<div style='font-size:36px'>Summary: </br></br>"+
-    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + ".PNG'></img></div></br></br>" +
-    "<div style='font-size:28px'>We award three times more for " + reward_input[condition] + " trials ($0.03) than for " + reward_input[1-condition] + " trials ($0.01).</div></br>",
+    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + ".PNG'></img></div></br>" +
+    "<div style='font-size:28px'>We award 3 points per trial after a task " + reward_input[condition] + ", and 1 point per trial after a task " + reward_input[1-condition] + ".</div></br>",
 
     "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
-    "<img src='/static/images/" + reward_input[condition] + "_rule_"+mapping[3]+".PNG'></img></div></br>" +
+    "<img src='/static/images/" + reward_input[condition] + "_rule_"+mapping[3]+".PNG'></img></div></br></br>" +
+
     "<div style='font-size:24px' align='left'>Please note:</br>" +
-    "<ul><li>you only earn money in the first trial after a cue</li>"+
+    "<ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
+    "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
     "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul>",
 
     "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
@@ -1825,12 +1827,11 @@ if(reward){
   var reward_questions = {
     type: 'survey-multi-choice',
     preamble: "<img src='/static/images/" + reward_input[condition] + "_rule_" + mapping[3] + ".PNG'></img>"+
-    '</br><div align="left"> Please correctly answer the following questions about the bonus payments. Press <u>enter</u> to submit.</div>',
+    '</br><div align="left"> Please correctly answer the following questions about the point rewards. Press <u>enter</u> to submit.</div>',
     questions: [
       {prompt: "What kinds of responses are rewarded?", options: ["Fast", "Accurate", "Fast and Accurate"], required: true, horizontal: false,},
-      {prompt: "How much money is awarded for a switch trial?", options: ["$0.01", "$0.03"], required: true, horizontal: false,},
-      {prompt: "How much money is awarded for a repetition trial?", options: ["$0.01", "$0.03"], required: true, horizontal: false},
-      {prompt: "When do you earn money?", options: ["First trial after a cue", "On every trial"], required: true, horizontal: false}
+      {prompt: "How many points are awarded for each trial after a task switch?", options: ["1 point", "3 points"], required: true, horizontal: false,},
+      {prompt: "How many points are awarded for each trial after a task repetition?", options: ["1 point", "3 points"], required: true, horizontal: false}
     ],
   };
 
@@ -1840,14 +1841,14 @@ if(reward){
         '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
         "This phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
         "The format is the same as Phase 3, but with no hints or feedback.</br>" +
-        "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br>",
-        "<div style='font-size:32px'><h3><font color='#3CB371'>You will now be quizzed on the bonus rewards!</font></h3></div>" +
+        "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
+        "Also, your score has been reset to 0!</br>",
+        "<div style='font-size:32px'><h3><font color='#3CB371'>You will now be quizzed on the point rewards!</font></h3></div></br></br>" +
         "<div style='font-size:24px' align='left'>Remember this for the quiz:</br>" +
-        "<ul><li>you only earn money in the first trial after a cue</li>"+
-        "<li>you earn $0.03 for a " + reward_input[condition] + " trial</li>"+
-        "<li>you earn $0.01 for a " + reward_input[1-condition] + " trial</li>"+
+        "<ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
+        "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
         "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div>" +
-        "<div style='font-size:18px'>You can earn $2.56 in bonus payments, for a total of $8.56.</br>"+
+        "<div style='font-size:18px'>You can earn up to $3.00 in bonus payments, for a total of $9.00.</br>"+
         "If you answer the quiz incorrectly, you risk not getting your bonus payment!</br></br></div>" +
         "Press next to begin the quiz."
     ],
@@ -1860,9 +1861,8 @@ if(reward){
     pages: [
         "<div style='font-size:24px' align='left'>Great job! Now we're going to start the experiment.</br></br>" +
         "Here are the reminders again:</br>" +
-        "<ul><li>you only earn money in the first trial after a cue</li>"+
-        "<li>you earn $0.03 for a " + reward_input[condition] + " trial</li>"+
-        "<li>you earn $0.01 for a " + reward_input[1-condition] + " trial</li>"+
+        "<ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
+        "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
         "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
         "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
@@ -1945,21 +1945,23 @@ var pause_text = {
         "<div style='font-size:32px'><font color='#FA8072'><h3>Now, we will be </font><b>REVERSING</b><font color='#FA8072'> the </font><b>payment rules</b>.</br></br>" +
         "<font color='#FA8072'>Please pay very careful attention!</h3></font></div>",
 
-    "<div style='font-size:36px'>For " + reward_input[1-condition] + " trials, we award $0.03.</br></br>" +
-    "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
+        "<div style='font-size:36px'>After a task " + reward_input[1-condition] + ", each miniblock trial is worth 3 points.</br></br>" +
+        "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
 
-    "<div style='font-size:36px'>For " + reward_input[condition] + " trials, we award $0.01.</br></br>" +
-    "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
+        "<div style='font-size:36px'>After a task " + reward_input[1-condition] + ", each miniblock trial is worth 1 point.</br></br>" +
+        "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
 
-    "<div style='font-size:36px'>Summary: </br></br>"+
-    "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + ".PNG'></img></div></br></br>" +
-    "<div style='font-size:28px'>We award three times more for " + reward_input[condition] + " trials ($0.03) than for " + reward_input[1-condition] + " trials ($0.01).</div></br>",
+        "<div style='font-size:36px'>Summary: </br></br>"+
+        "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + ".PNG'></img></div></br>" +
+        "<div style='font-size:28px'>We award 3 points per trial after a task " + reward_input[1-condition] + ", and 1 point per trial after a task " + reward_input[condition] + ".</div></br>",
 
-    "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
-    "<img src='/static/images/" + reward_input[1-condition] + "_rule_"+mapping[3]+".PNG'></img></div></br>" +
-    "<div style='font-size:24px' align='left'>Please note:</br>" +
-    "<ul><li>you only earn money in the first trial after a cue</li>"+
-    "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul>"
+        "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
+        "<img src='/static/images/" + reward_input[1-condition] + "_rule_"+mapping[3]+".PNG'></img></div></br></br>" +
+
+        "<div style='font-size:24px' align='left'>Please note:</br>" +
+        "<ul><li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
+        "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
+        "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul>"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -1971,9 +1973,8 @@ var new_reward_instructions_exp1 = {
       "<div style='font-size:32px'><h3><font color='#3CB371'>You will now be quizzed on the bonus rewards!</font></h3></div>" +
       "<div style='font-size:24px' align='left'>Remember this for the quiz:</br>" +
       "<ul><li><b>the reward rules have reversed!</b></li>"+
-      "<li>you only earn money in the first trial after a cue</li>"+
-      "<li>you earn $0.03 for a " + reward_input[1-condition] + " trial</li>"+
-      "<li>you earn $0.01 for a " + reward_input[condition] + " trial</li>"+
+      "<li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
+      "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
       "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div>" +
       "If you answer the quiz incorrectly, you risk not getting your bonus payment!</br></br></div>" +
       "Press next to begin the quiz."
@@ -1989,9 +1990,8 @@ var new_questions = {
   questions: [
     {prompt: "Have the payment rules stayed the same or reversed?", options: ["Stayed the same", "Reversed"], required: true, horizontal: false,},
     {prompt: "What kinds of responses are rewarded?", options: ["Fast", "Accurate", "Fast and Accurate"], required: true, horizontal: false,},
-    {prompt: "How much money is awarded for a switch trial?", options: ["$0.01", "$0.03"], required: true, horizontal: false,},
-    {prompt: "How much money is awarded for a repetition trial?", options: ["$0.01", "$0.03"], required: true, horizontal: false},
-    {prompt: "When do you earn money?", options: ["First trial after a cue", "On every trial"], required: true, horizontal: false}
+    {prompt: "How many points are awarded for each trial after a task switch?", options: ["1 point", "3 points"], required: true, horizontal: false,},
+    {prompt: "How many points are awarded for each trial after a task repetition?", options: ["1 point", "3 points"], required: true, horizontal: false}
   ],
   on_start: function(){
     condition = 1 - condition //switch the condition
@@ -2004,9 +2004,8 @@ var new_reward_instructions_exp2 = {
       "<div style='font-size:24px' align='left'>Now we're going to start the experiment again.</br></br>" +
       "Here are the reminders again:</br>" +
       "<ul><li><b>the reward rules have reversed!</b></li>"+
-      "<li>you only earn money in the first trial after a cue</li>"+
-      "<li>you earn $0.03 for a " + reward_input[1-condition] + " trial</li>"+
-      "<li>you earn up to $0.01 for a " + reward_input[condition] + " trial</li>"+
+      "<li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
+      "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
       "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
       "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
@@ -2033,14 +2032,13 @@ var new_reward_instructions_exp2 = {
   post_trial_gap: 1000
 };
 
-
 if(phase4){
   var pause = true;
   for (line in exp_lines){
-    // if(line < 500){
-    //   continue;
-    // }
     var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
+    if(line < 520){
+      continue;
+    }
 
     // pause before block two
     if(pause && trial_vars_exp[0].data.block == 2){
@@ -2080,29 +2078,19 @@ var instructions_final = {
 var instructions_reward_final = {
   type: 'instructions',
   pages: [
-    "<div style='font-size:32px'>Congratulations on finishing the experiment!</div></br>"
+      "<div style='font-size:32px'>Congratulations on finishing the experiment!</div></br>"
   ],
   show_clickable_nav: true,
   post_trial_gap: 0
 };
 
-// var instructions_reward_final = {
-//   type: 'instructions',
-//   pages: [
-//     "<div style='font-size:32px'>Congratulations on finishing the experiment!</div></br>" +
-//     '<div style="font-size:24px">Your performance will be compared to that of the other participants,</br>' +
-//     "and we will reward you accordingly (for a maximum of $2.56).</div></br>"+
-//     'Press <u>any key</u> to finish the HIT!'
-//   ],
-//   show_clickable_nav: true,
-//   post_trial_gap: 0
-// };
-
 var instructions_reward_final2 = {
     type: 'html-keyboard-response',
     stimulus: '',
-    on_start: function(instructions_reward_final2){
-      instructions_reward_final2.stimulus = "<div style='font-size:32px'>You finished with a bonus of $" + score + ".</div></br>"+
+    on_start: function(instructions_reward_final){
+      instructions_reward_final.stimulus = '<div style="font-size:24px">Your total final score is ' + score + '.</br></br>' +
+      "It will be compared to the performance of the other participants taking this study,</br>" +
+      "and we will reward you accordingly (for a maximum of $3.00).</div></br>"+
       'Press <u>any key</u> to finish the HIT!';
     },
 };
@@ -2121,8 +2109,8 @@ jsPsych.data.addProperties({
     //counterbalance: counterbalance // counterbalance number (total: 32)
     sequence: sequence, // sequence number (total: 8)
     phase1_counterbalance: p1_cb, // 0: motion color, 1: color motion
-    phase2_counterbalance: p2_cb // 0: circle triangle first, 1: diamond square first
-    //score: score
+    phase2_counterbalance: p2_cb, // 0: circle triangle first, 1: diamond square first
+    score: score
 });
 
 //---------Run the experiment---------
@@ -2151,12 +2139,10 @@ jsPsych.init({
               psiturk.completeHIT();
 
                 /*
-
                 // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
                 psiturk.computeBonus("compute_bonus", function(){
                     psiturk.completeHIT();
                 });
-
                 */
 
 
