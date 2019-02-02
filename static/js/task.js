@@ -23,7 +23,7 @@ if(debug){
 
 // Setting up counterbalancing conditions
 var num_sequences = 4; // number of sequences we want to use
-var starting_sequence = 1;
+var starting_sequence = 5;
 var sequence = (counterbalance % num_sequences) + starting_sequence; // compute the sequence number from counterbalance assignment
 
 // compute the counterbalance conditions based on counterbalance assignment
