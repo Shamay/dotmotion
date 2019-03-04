@@ -214,15 +214,8 @@ function reward_feedback(type, transition, cond){
 }
 
 // adjust timings
-var cue_duration;
-var inter_trial_interval;
-if(p1_cb == 0){
-  cue_duration = config.cue_duration + 100
-  inter_trial_interval= config.inter_trial_interval + 100
-}else{
-  cue_duration = config.cue_duration - 100
-  inter_trial_interval= config.inter_trial_interval - 100
-}
+var cue_duration = config.cue_duration;
+var inter_trial_interval = config.inter_trial_interval;
 
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
