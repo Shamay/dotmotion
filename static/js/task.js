@@ -1,9 +1,9 @@
 //  CONTROL PANEl
-var debug = true; // debug mode
+var debug = false; // debug mode
 var reward = true; // reward mode
-var phase1 = false;
-var phase2 = false;
-var phase31 = false;
+var phase1 = true;
+var phase2 = true;
+var phase31 = true;
 var phase32 = true;
 var phase33 = true;
 var phase4 = true;
@@ -223,8 +223,6 @@ if(p1_cb == 0){
   cue_duration = config.cue_duration - 100
   inter_trial_interval= config.inter_trial_interval - 100
 }
-
-console.log(cue_duration, inter_trial_interval)
 
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
@@ -558,13 +556,13 @@ var stimulus = {
 
       // set a baseline of 750 and 1500
       if(output1 + output2 < 750){
-        console.log(output1, output2, 'too low');
+        //console.log(output1, output2, 'too low');
         currentTrialDuration = 750;
       }else if(output1 + output2 > 1500){
-        console.log(output1, output2, 'too high');
+        //console.log(output1, output2, 'too high');
         currentTrialDuration = 1500;
       }else{
-        console.log(output1, output2);
+        //console.log(output1, output2);
         currentTrialDuration = output1 + output2;
       }
 
