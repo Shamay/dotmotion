@@ -1,9 +1,9 @@
 //  CONTROL PANEl
-var debug = false; // debug mode
+var debug = true; // debug mode
 var reward = true; // reward mode
-var phase1 = true;
-var phase2 = true;
-var phase31 = true;
+var phase1 = false;
+var phase2 = false;
+var phase31 = false;
 var phase32 = true;
 var phase33 = true;
 var phase4 = true;
@@ -213,10 +213,24 @@ function reward_feedback(type, transition, cond){
 
 }
 
+// adjust timings
+var cue_duration;
+var inter_trial_interval;
+if(p1_cb == 0){
+  cue_duration = config.cue_duration + 100
+  inter_trial_interval= config.inter_trial_interval + 100
+}else{
+  cue_duration = config.cue_duration - 100
+  inter_trial_interval= config.inter_trial_interval - 100
+}
+
+console.log(cue_duration, inter_trial_interval)
+
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
 //    task: "motion" or "color"
 //    cue_shape: "circle", "triangle", "diamond", or "square"
+
 var cue = {
   type: 'html-keyboard-response',
   stimulus: '',
@@ -226,7 +240,7 @@ var cue = {
   task: jsPsych.timelineVariable('task'),
   cue_shape: jsPsych.timelineVariable('cue_shape'),
 
-  trial_duration: config.cue_duration, //Duration of each cue in ms
+  trial_duration: cue_duration, //Duration of each cue in ms
 
   data: jsPsych.timelineVariable('data'), //additional data tagged for consistency
 
@@ -283,7 +297,7 @@ var fixation = {
   type: 'html-keyboard-response',
   stimulus: '',
   choices: jsPsych.NO_KEYS,
-  trial_duration: config.inter_trial_interval,
+  trial_duration: inter_trial_interval,
 
   phase: jsPsych.timelineVariable('phase'),
   data: jsPsych.timelineVariable('data'),
@@ -489,11 +503,9 @@ var stimulus = {
       stimulus.motionCoherence = currentMotionCoherence + minMotionCoherence;
       stimulus.colorCoherence = currentColorCoherence + minColorCoherence;
     }
-  },
 
-  on_start: function(stimulus){
     if (stimulus.phase == '4'){
-      stimulus.trial_duration = 1000;
+      stimulus.trial_duration = currentTrialDuration;
     }
   },
 
@@ -538,6 +550,25 @@ var stimulus = {
           }
         }
       }
+    }else if(stimulus.miniblock_trial == 1 && (stimulus.phase == '3.1' || stimulus.phase == '3.2' || stimulus.phase == '4')){
+      var data = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && (x.phase == '3.1' || x.phase == '3.2' || x.phase == '4') && x.rt != -1; });
+
+      var output1 = data.select('rt').mean();
+      var output2 = data.select('rt').sd();
+
+      // set a baseline of 750 and 1500
+      if(output1 + output2 < 750){
+        console.log(output1, output2, 'too low');
+        currentTrialDuration = 750;
+      }else if(output1 + output2 > 1500){
+        console.log(output1, output2, 'too high');
+        currentTrialDuration = 1500;
+      }else{
+        console.log(output1, output2);
+        currentTrialDuration = output1 + output2;
+      }
+
+
     }
   }
 }
@@ -1174,7 +1205,7 @@ var cue_fixation = {
   type: 'html-keyboard-response',
   stimulus: '<div style="float: center; font-size:60px; color:black;">+</div>',
   choices: jsPsych.NO_KEYS,
-  trial_duration: config.inter_trial_interval
+  trial_duration: inter_trial_interval
 }
 
 function generateCue(cue, swap, practice = false, answer = '', correct = true, trial_counter = -1){
@@ -1831,6 +1862,8 @@ if(phase33){
 // --------------------
 // FOURTH PHASE
 // --------------------
+var currentTrialDuration = config.trial_duration;
+
 if(reward){
   var reward_questions = {
     type: 'survey-multi-choice',
@@ -2115,7 +2148,8 @@ jsPsych.data.addProperties({
     sequence: sequence, // sequence number (total: 8)
     phase1_counterbalance: p1_cb, // 0: motion color, 1: color motion
     phase2_counterbalance: p2_cb, // 0: circle triangle first, 1: diamond square first
-    score: score
+    score: score,
+    trial_duration: currentTrialDuration
 });
 
 //---------Run the experiment---------
