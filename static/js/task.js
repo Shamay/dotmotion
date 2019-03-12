@@ -1,9 +1,9 @@
 //  CONTROL PANEl
 var debug = false; // debug mode
 var reward = true; // reward mode
-var phase1 = false;
-var phase2 = false;
-var phase31 = false;
+var phase1 = true;
+var phase2 = true;
+var phase31 = true;
 var phase32 = true;
 var phase33 = true;
 var phase4 = true;
@@ -17,7 +17,7 @@ if(!debug){
 var timeline = [];
 
 if(debug){
-  condition = 1;
+  condition = 0;
   counterbalance = 2;
 }
 
@@ -677,8 +677,7 @@ var maxCoherence = 0.7;
 /* define introduction block */
 var intro_reward = '';
 if(reward){
-  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of up to <u><b>$3.00</b></u> </br> " +
-        "if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
+  intro_reward = "<div style='font-size:24px'>You can earn a large <b>bonus payment</b> if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
 }
 
 var introduction = {
@@ -1647,7 +1646,7 @@ var reward_instructions_reward = {
         'A is for up (motion) and blue (color)</br>' +
         'L is for down (motion) and red (color)</br></br>' +
         "<font color='#FA8072'><b>You'll no longer be waiting for the '?'</b></font></br>" +
-        "You'll have three seconds to respond.</br></br>" +
+        "You'll have 1.5 seconds to respond.</br></br>" +
       "Please ready your fingers on the A and L keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
@@ -1681,11 +1680,11 @@ var instructions_prc2 = {
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
           "<p class='small'><strong>COLOR task</br></strong></p></div>" +
         "</div></br>",
-      "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+      "<div style='font-size:24px'><h1>Some reminders before you begin:</h1></div>" +
         'A is for up (motion) and blue (color)</br>' +
         'L is for down (motion) and red (color)</br></br>' +
         "<font color='#FA8072'><b>You'll no longer be waiting for the '?'</b></font></br>" +
-        "You'll have three seconds to respond.</br></br>" +
+        "You'll have 1.5 seconds to respond.</br></br>" +
       "Please ready your fingers on the A and L keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
@@ -1746,13 +1745,13 @@ var instructions_prc3 = {
           "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
           "<p class='small'><strong>COLOR task</br></strong></p></div>" +
         "</div></br>",
-      "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+      "<div style='font-size:24px'><h1>Some reminders before you begin:</h1></div>" +
       "There will be no cue hints. </br>"+
       "The feedback after each trial will only tell you whether it was a motion or color task.</br></br>" +
         'A is for up (motion) and blue (color)</br>' +
         'L is for down (motion) and red (color)</br></br>' +
         "You'll no longer be waiting for the '?'.</br>" +
-        "You'll have three seconds to respond.</br></br>" +
+        "You'll have 1.5 seconds to respond.</br></br>" +
       "Please ready your fingers on the A and L keys and press next whenever you're ready!"
   ],
   show_clickable_nav: true,
@@ -1874,6 +1873,7 @@ var reset_score = {
   type: 'call-function',
   func: function(){
     document.querySelector('#srt-bonus').innerHTML = '$0.00'
+    bonus = 0.00;
   }
 }
 
@@ -2092,7 +2092,7 @@ if(reward){
   var reward_instructions_exp1 = {
     type: 'instructions',
     pages: [
-        '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>! </div></br>' +
+        '<div style="font-size:54px">Welcome to the <strong>Phase 4</strong>! </div></br>' +
         "<h1>This is the <font color='#FA8072'>real experiment!</font></h1>" +
         "<h2><font color='#FA8072'>There are two 10-minute blocks</font> in this phase,</br>during which you <font color='#FA8072'>earning bonus payment.</font></h2>" +
         "The format is the same as Phase 3, but with no hints or feedback.</br>" +
@@ -2123,13 +2123,11 @@ if(reward){
             "<div class='column' style='float:right; border-style: solid;'><img src='/static/images/" + mapping[4] + ".png'></img>" +
             "<p class='small'><strong>COLOR task</br></strong></p></div>" +
             "</div>",
-          "<div style='font-size:24px'>Some reminders before you begin:</div></br>" +
+          "<div style='font-size:24px'><h1>Some reminders before you begin:</h1></div>" +
+          "There are two 10-minute blocks in this phase, with a short break in the middle!</br></br>" +
           "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
             'A is for up (motion) and blue (color)</br>' +
             'L is for down (motion) and red (color)</br></br>' +
-            "You'll no longer be waiting for the '?'.</br>" +
-            "You'll have three seconds to respond.</br></br>" +
-            "Remember, this phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
           "Please ready your fingers on the A and L keys and press next whenever you're ready!"
 
     ],
@@ -2273,7 +2271,6 @@ if(phase4){
        }else{
          cur_trial = 0;
        }
-       console.log(cur_trial)
 
        if(Date.now() - block_start_time < block_length){
           return true;
@@ -2339,7 +2336,6 @@ if(phase4){
          }else{
            cur_trial = 0;
          }
-         console.log(cur_trial)
 
          if(Date.now() - block_start_time < block_length){
             return true;
