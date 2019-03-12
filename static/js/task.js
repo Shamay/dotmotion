@@ -677,7 +677,7 @@ var maxCoherence = 0.7;
 /* define introduction block */
 var intro_reward = '';
 if(reward){
-  intro_reward = "<div style='font-size:24px'>You can earn a large <b>bonus payment</b> if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
+  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of up to $9.00</br>if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
 }
 
 var introduction = {
@@ -1849,7 +1849,7 @@ var init_timer_practice = {
 var init_timer_exp = {
   type: 'call-function',
   func: function(){
-    block_length = 600000
+    block_length = 500000
     cur_trial = 0
   }
 }
