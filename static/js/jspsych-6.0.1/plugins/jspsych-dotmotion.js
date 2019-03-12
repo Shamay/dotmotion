@@ -385,7 +385,9 @@ jsPsych.plugins["dotmotion"] = (function() {
 					//Return true if the user's response matches the correct answer. Return false otherwise.
 					return response.key == trial.correct_choice.toUpperCase().charCodeAt(0);
 				}
-			}
+			}else{
+        return false;
+      }
 		}
 
 		//----JsPsych Functions End----

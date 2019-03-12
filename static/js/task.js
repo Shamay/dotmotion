@@ -1,9 +1,9 @@
 //  CONTROL PANEl
-var debug = false; // debug mode
+var debug = true; // debug mode
 var reward = true; // reward mode
-var phase1 = true;
-var phase2 = true;
-var phase31 = true;
+var phase1 = false;
+var phase2 = false;
+var phase31 = false;
 var phase32 = true;
 var phase33 = true;
 var phase4 = true;
@@ -17,8 +17,8 @@ if(!debug){
 var timeline = [];
 
 if(debug){
-  condition = 0;
-  counterbalance = 12;
+  condition = 1;
+  counterbalance = 2;
 }
 
 // Setting up counterbalancing conditions
@@ -105,18 +105,19 @@ $.ajax({
 // This function reads into the trial sequence csv files
 //    option: 1 = practice (phase 3), 2 = test (phase 4)
 //    allText: raw text from csv files loaded above
+var prc_lines_1, prc_lines_2, exp_lines_1, exp_lines_2;
 function processData(allText, option) {
     var allTextLines = allText.split(/\r\n|\n/);
 
     // extract the headers into the respective variable
     if(option == 1){
       prc_headers = allTextLines[0].split(',');
-      number_miniblocks = 12; // number of miniblocks to extract for practice trials
       prc_lines_1 = [];
       prc_lines_2 = [];
     }else if(option == 2){
       exp_headers = allTextLines[0].split(',');
-      exp_lines = [];
+      exp_lines_1 = [];
+      exp_lines_2 = [];
     }
 
     // loop through each line (trial) in the sequence
@@ -124,34 +125,39 @@ function processData(allText, option) {
         var data = allTextLines[i].split(',');
         if(option == 1){
           if (data.length == prc_headers.length){
-            if(parseInt(data[10]) <= number_miniblocks / 2){ // extract first half of miniblocks
+            if(parseInt(data[11]) == 1){ // extract first half of miniblocks
               var tarr = [];
               // loop through the individual elements on each line (trial)
               for (var j=0; j<prc_headers.length; j++) {
                   tarr.push(data[j]);
               }
               prc_lines_1.push(tarr);
-            }else if(parseInt(data[10]) <= number_miniblocks){ // extract second half of miniblocks
+            }else if(parseInt(data[11]) == 2){ // extract second half of miniblocks
               var tarr = [];
               // loop through the individual elements on each line (trial)
               for (var j=0; j<prc_headers.length; j++) {
-                  if(reward && data[10] == '7' && j == 4){
-                    tarr.push('-1'); //as if this is the first miniblock
-                  }else{
-                    tarr.push(data[j]);
-                  }
+                  tarr.push(data[j]);
               }
               prc_lines_2.push(tarr);
             }
           }
         }else if(option == 2){
           if (data.length == exp_headers.length) {
+            if(parseInt(data[11]) == 1){
               var tarr = [];
               // loop through the individual elements on each line (trial)
               for (var j=0; j<exp_headers.length; j++) {
                   tarr.push(data[j]);
               }
-              exp_lines.push(tarr);
+              exp_lines_1.push(tarr);
+            }else if(parseInt(data[11]) == 2){ // extract second half of miniblocks
+              var tarr = [];
+              // loop through the individual elements on each line (trial)
+              for (var j=0; j<exp_headers.length; j++) {
+                  tarr.push(data[j]);
+              }
+              exp_lines_2.push(tarr);
+            }
           }
         }
     }
@@ -167,55 +173,69 @@ timeline.push({
 });
 }
 
-// reward feedback and score keeping
-var score = 0;
-function reward_feedback(type, transition, cond){
+var random_num = jsPsych.randomization.sampleWithoutReplacement([1,2,3,4,5], 1)[0];
+function point_probability(type, miniblock_trial){
+  //reset it;
+  if(miniblock_trial == 1){
+    random_num = jsPsych.randomization.sampleWithoutReplacement([1,2,3,4,5], 1)[0];
+  }
+
+  if(type == 'high'){
+    if(random_num > 1){
+      bonus += 0.03;
+      return "+3 CENTS!"
+    }else{
+      bonus += 0.01;
+      return "+1 CENT!"
+    }
+  }else if(type == 'low'){
+    if(random_num == 1){
+      bonus += 0.03;
+      return "+3 CENTS!"
+    }else{
+      bonus += 0.01;
+      return "+1 CENT!"
+    }
+  }
+}
+
+// reward feedback and bonus keeping
+function reward_feedback(type, transition, cond, miniblock_trial){
+  var output;
+
   if(type == 'cue'){
     if(transition == '1'){ // switch
-      if(cond == 0){ //repetition rewarded more
-        return "</br>TASK SWITCH</br>Next trials are worth 1 POINT."
-      }else if(cond == 1){ // switch rewarded more
-        return "</br>TASK SWITCH</br>Next trials are worth 3 POINTS."
-      }
+      return "TASK SWITCH";
     }else if(transition == '0'){ //repetition
-      if(cond == 0){ //repetition rewarded more
-        return "</br>TASK REPETITION</br>Next trials are worth 3 POINTS."
-      }else if(cond == 1){ // switch rewarded more
-        return "</br>TASK REPETITION</br>Next trials are worth 1 POINT."
-      }
+      return "TASK REPETITION"
     }else{
       return '';
     }
   }else if(type == 'fixation'){
     if(transition == '1'){ // switch
       if(cond == 0){ //repetition rewarded more
-        score += 1;
-        return "+1 POINT!"
+        output = point_probability('low', miniblock_trial);
       }else if(cond == 1){ // switch rewarded more
-        score += 3;
-        return "+3 POINTS!"
+        output = point_probability('high', miniblock_trial);
       }
     }else if(transition == '0'){ //repetition
       if(cond == 0){ //repetition rewarded more
-        score += 3;
-        return "+3 POINTS!"
+        output = point_probability('high', miniblock_trial);
       }else if(cond == 1){ // switch rewarded more
-        score += 1;
-        return "+1 POINT!"
+        output = point_probability('low', miniblock_trial);
       }
     }else if(transition == '-1'){
-      score += 1;
-      return "+1 POINT!";
+      output = point_probability('low', miniblock_trial);
     }else{
       return "Correct!"
     }
   }
 
-}
+  bonus = Math.round(bonus * 100) / 100
+  document.querySelector('#srt-bonus').innerHTML = '$'+ bonus.toString();
+  return output;
 
-// adjust timings
-var cue_duration = config.cue_duration;
-var inter_trial_interval = config.inter_trial_interval;
+}
 
 // Generates template for cue stimulus
 //    phase: "3.1", "3.2", or "4"
@@ -231,7 +251,7 @@ var cue = {
   task: jsPsych.timelineVariable('task'),
   cue_shape: jsPsych.timelineVariable('cue_shape'),
 
-  trial_duration: cue_duration, //Duration of each cue in ms
+  trial_duration: config.cue_duration, //Duration of each cue in ms
 
   data: jsPsych.timelineVariable('data'), //additional data tagged for consistency
 
@@ -246,33 +266,24 @@ var cue = {
                 "(this cues a " + cue.task + " task)</div>"; // extra feedback
 
         if(reward){
-          cue.stimulus += reward_feedback('cue', cue.data.task_transition, condition)
-          cue.trial_duration = cue.trial_duration + 2000;
+          //cue.stimulus += reward_feedback('cue', cue.data.task_transition, condition, 0)
+          cue.trial_duration = cue.trial_duration + 1500;
         }
 
-        cue.trial_duration = cue.trial_duration + 2000; //extend the cue duration if it's still the practice phase
+        cue.trial_duration = cue.trial_duration + 1500; //extend the cue duration if it's still the practice phase
 
       }else if(cue.phase == '3.2'){
         cue.stimulus = "<div style='width: 700px;'>" +
            "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>";
 
         if(reward){
-           cue.stimulus += reward_feedback('cue', cue.data.task_transition, condition)
-           cue.trial_duration = cue.trial_duration + 1000;
-
-           if(cue.data.task_transition == -1){
-             score = 0; // reset score
-           }
+           cue.stimulus += reward_feedback('cue', cue.data.task_transition, condition, 0)
+           cue.trial_duration = cue.trial_duration + 500;
          }
 
-        cue.trial_duration = cue.trial_duration + 1000; //extend the cue duration if it's still the practice phase
+        cue.trial_duration = cue.trial_duration + 500; //extend the cue duration if it's still the practice phase
 
       }else{ // phase 4
-        if(reward){
-          if(cue.data.task_transition == -1 && cue.data.block == 1){
-            score = 0; // reset score
-          }
-        }
         cue.stimulus = "<div style='float: center;'><img src='/static/images/" + cue.cue_shape + ".png'></img></div>";
       }
     }
@@ -288,7 +299,7 @@ var fixation = {
   type: 'html-keyboard-response',
   stimulus: '',
   choices: jsPsych.NO_KEYS,
-  trial_duration: inter_trial_interval,
+  trial_duration: config.inter_trial_interval,
 
   phase: jsPsych.timelineVariable('phase'),
   data: jsPsych.timelineVariable('data'),
@@ -306,13 +317,19 @@ var fixation = {
           if(reward && fixation.phase == '3.1'){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>' +
-                reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
-            '</div><p>Total score: ' + score + ' points.</p>';
-            fixation.trial_duration = fixation.trial_duration + 300;
-          }else{
+                reward_feedback('fixation', fixation.data.task_transition, condition, fixation.data.miniblock_trial) + '</b>'+
+            '</div><p style="color:grey;">filler</p>';
+            fixation.trial_duration = fixation.trial_duration + 200;
+          }else if(fixation.phase == '1.1'){
+            motionTrials = motionTrials - 1;
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
-            '</div><p style="color:grey;">Filler</p>';
+            '</div><p style="color:white;">'+ motionTrials +' trials left</p>';
+          }else if(fixation.phase == '1.2'){
+            colorTrials = colorTrials - 1;
+            fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+            '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
+            '</div><p style="color:white;">'+ colorTrials +' trials left</p>';
           }
         }else if(!data.correct){
           if(data.rt == -1){
@@ -320,10 +337,16 @@ var fixation = {
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b>' +
               "</div><p>Do not wait for the '?', respond as soon as you can.</p>";
-            }else{
+            }else if(fixation.phase == '1.1'){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b>' +
               "</div><p>Respond as fast as you can when you see the '?'.</p>";
+              motionTrials = motionTrials - 1;
+            }else if(fixation.phase == '1.2'){
+              fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
+              '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b>' +
+              "</div><p>Respond as fast as you can when you see the '?'.</p>";
+              colorTrials = colorTrials - 1;
             }
           }else if(data.task == 'motion'){
             if(data.correct_choice == 'a'){
@@ -335,6 +358,9 @@ var fixation = {
               '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
               '</div><p>Press L for mostly downward motion.</p>';
             }
+            if(fixation.phase == '1.1'){
+              motionTrials = motionTrials - 1;
+            }
           }else if(data.task == 'color'){
             if(data.correct_choice == 'a'){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
@@ -344,6 +370,9 @@ var fixation = {
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
               '</div><p>Press L for mostly red dots.</p>';
+            }
+            if(fixation.phase == '1.2'){
+              colorTrials = colorTrials - 1;
             }
           }
           fixation.trial_duration = fixation.trial_duration + 2000;
@@ -357,9 +386,9 @@ var fixation = {
           if(reward){
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>' +
-                reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
-            '</div><p>Total score: ' + score + ' points.</p>';
-            fixation.trial_duration = fixation.trial_duration + 300;
+                reward_feedback('fixation', fixation.data.task_transition, condition, fixation.data.miniblock_trial) + '</b>'+
+            '</div><p style="color:grey;">filler</p>';
+            fixation.trial_duration = fixation.trial_duration + 200;
           }else{
             fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
             '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
@@ -391,8 +420,8 @@ var fixation = {
             if(reward){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>' +
-                  reward_feedback('fixation', fixation.data.task_transition, condition) + '</b>'+
-              '</div><p>Total score: ' + score + ' points.</p>';
+                  reward_feedback('fixation', fixation.data.task_transition, condition, fixation.data.miniblock_trial) + '</b>'+
+              '</div><p style="color:grey;">filler</p>';
             }else{
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Correct</b>'+
@@ -403,7 +432,7 @@ var fixation = {
               if(reward){
                 fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
                 '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b></div>' +
-                '</div><p>Total score: ' + score + ' points.</p>';
+                '</div><p style="color:grey;">filler</p>';
               }else{
                 fixation.prompt = '<div style="color:white;font-size:30px"; class = center-text><b>Too Slow!</b></div>';
               }
@@ -411,7 +440,7 @@ var fixation = {
               if(reward){
                 fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
                 '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>'+
-                '</div><p>Total score: ' + score + ' points.</p>';
+                '</div><p style="color:grey;">filler</p>';
               }else{
                 fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
                 '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>'+
@@ -443,12 +472,18 @@ var fixation = {
       }
     }
 
-    if(fixation.phase == '3.1' || fixation.phase == '3.2' || fixation.phase == '4'){
-      // dynamically change inter_trial_interval
-      if(data.response_ends_trial && data.fill_ITT && data.rt != -1){
-        fixation.trial_duration += Math.floor(data.trial_duration - data.rt);
-      }
-    }
+    // if(fixation.phase == '3.1' || fixation.phase == '3.2'){
+    //   // dynamically change inter_trial_interval
+    //   if(config.response_ends_trial && config.fill_ITT && data.correct){
+    //     fixation.trial_duration += Math.round(data.trial_duration - data.rt) - 200;
+    //   }
+    // }else if(fixation.phase == '4'){
+    //   // dynamically change inter_trial_interval
+    //   if(config.response_ends_trial && config.fill_ITT && data.correct){
+    //     fixation.trial_duration += Math.round(data.trial_duration - data.rt);
+    //   }
+    // }
+
   }
 }
 
@@ -495,8 +530,8 @@ var stimulus = {
       stimulus.colorCoherence = currentColorCoherence + minColorCoherence;
     }
 
-    if (stimulus.phase == '4'){
-      stimulus.trial_duration = currentTrialDuration;
+    if(stimulus.phase == '3.2' || stimulus.phase == '4'){
+      stimulus.trial_duration = 1250;
     }
   },
 
@@ -541,26 +576,27 @@ var stimulus = {
           }
         }
       }
-    }else if(stimulus.miniblock_trial == 1 && (stimulus.phase == '3.1' || stimulus.phase == '3.2' || stimulus.phase == '4')){
-      var data = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && (x.phase == '3.1' || x.phase == '3.2' || x.phase == '4') && x.rt != -1; });
-
-      var output1 = data.select('rt').mean();
-      var output2 = data.select('rt').sd();
-
-      // set a baseline of 750 and 1500
-      if(output1 + output2 < 750){
-        //console.log(output1, output2, 'too low');
-        currentTrialDuration = 750;
-      }else if(output1 + output2 > 1500){
-        //console.log(output1, output2, 'too high');
-        currentTrialDuration = 1500;
-      }else{
-        //console.log(output1, output2);
-        currentTrialDuration = output1 + output2;
-      }
-
-
     }
+
+    // if(config.adaptive_trial_duration && stimulus.miniblock_trial == 1 && (stimulus.phase == '3.1' || stimulus.phase == '3.2' || stimulus.phase == '4')){
+    //   var data = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && (x.phase == '3.1' || x.phase == '3.2' || x.phase == '4') && x.rt != -1; });
+    //
+    //   var output1 = data.select('rt').mean();
+    //   var output2 = data.select('rt').sd();
+    //
+    //   // set a baseline of 750 and 1500
+    //   if(output1 + output2 < 750){
+    //     //console.log(output1, output2, 'too low');
+    //     currentTrialDuration = 750;
+    //   }else if(output1 + output2 > 1250){
+    //     //console.log(output1, output2, 'too high');
+    //     currentTrialDuration = 1250;
+    //   }else{
+    //     //console.log(output1, output2);
+    //     currentTrialDuration = output1 + output2;
+    //   }
+    // }
+
   }
 }
 
@@ -629,6 +665,8 @@ var color_stimulus = [
 // --------------------
 //staircasing phase
 var numTrials = 75;
+var motionTrials = numTrials;
+var colorTrials = numTrials;
 var currentMotionCoherence = 0.4; // starting coherence
 var currentColorCoherence = 0.4; // starting coherence
 var learningRate = 0.011;
@@ -648,10 +686,10 @@ var introduction = {
   pages: [
       '<div style="font-size:36px">Welcome to the dot-motion experiment!</div>' +
       '<div align="left"><p>There will be four phases:</p>' +
-      '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks.</li>' +
-      '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion.</li>' +
-      '<li><b>Phase 3:</b> you will practice swapping between color or motion tasks.</li>' +
-      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks.</p></li></ul></div>' +
+      '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks. (20 minutes)</li>' +
+      '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion. (10 minutes)</li>' +
+      '<li><b>Phase 3:</b> you will practice swapping between color or motion tasks. (10 minutes)</li>' +
+      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks. (20 minutes)</p></li></ul></div>' +
       intro_reward + 'The experiment will take approximately 60 minutes to complete.' +
       '<p>Click next to continue.</p>'
   ],
@@ -1196,7 +1234,7 @@ var cue_fixation = {
   type: 'html-keyboard-response',
   stimulus: '<div style="float: center; font-size:60px; color:black;">+</div>',
   choices: jsPsych.NO_KEYS,
-  trial_duration: inter_trial_interval
+  trial_duration: config.inter_trial_interval
 }
 
 function generateCue(cue, swap, practice = false, answer = '', correct = true, trial_counter = -1){
@@ -1531,7 +1569,7 @@ var reward_instructions_prc2 = {
   type: 'instructions',
   pages: [
 
-    "<div style='font-size:36px'>Fantastic! Now you'll start the practice blocks.</div></br>" +
+    "<div style='font-size:36px'>Fantastic! Now you'll start the practice blocks.</div></br></br>" +
     "<div style='font-size:24px'>" +
     "Just like in Phase 1, you will have a block of trials, but now</br>"+
     "we will add the <u>four cues</u> (square, diamond, triangle, circle).</br></br>"+
@@ -1552,43 +1590,46 @@ var reward_instructions_prc2 = {
     "<img src='/static/images/miniblock3_color_" + mapping[3] + ".PNG'></img></br>" +
     "This is called a <u>repetition</u>.</div></br>",
 
+    "<div style='font-size:24px'><p style='color:grey;'>Filler</p></div>" +
     "<div style='font-size:24px'>" +
     "The entire sequence will be made up of mini-blocks: </br></br>" +
     "<img src='/static/images/instructions_color_" + mapping[3] + ".PNG'></img></br></br>" +
-    "This will make more sense with some practice. </div></br>",
+    "This will make more sense with some practice. </div></br>"
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+var reward_instructions_reward = {
+  type: 'instructions',
+  pages: [
 
     "<div style='font-size:36px'><font color='#FA8072'><h3>The following instructions will explain how</br></br>"+
     "you will be awarded</font> <b>bonus payments</b>.</br></br></br>"+
     "<font color='#FA8072'>Please pay attention!</h3></div></br>",
 
-    "<div style='font-size:24px'>During the study, you will steadily be <u>earning points</u>.</br></br>"+
-    "<font color='#FA8072'><h3>It is important to know that you get </br><b></font>more points<font color='#FA8072'> for responding </font>"+
-    "</br>(1) quickly<font color='#FA8072'> and </font>(2) accurately.</h3>"+
-    "At the end, we will compare your performance to the other participants, </br>"+
-    "and we will reward you accordingly (maximum of $3.00).</div></br>"+
-    "Press next to learn how the points are awarded.",
+    "<img src='/static/images/arrow.gif'></img></br>" +
+    "<div style='font-size:24px'>Observe the bar that appeared at the top of the screen.</br></br>" +
+    "<div style='font-size:24px' align='left'>There are two parts:</br>" +
+    "<ul><li><u>Bonus Payment</u> - the total amount of money you have earned</li>"+
+    "<img src='/static/images/bonus_payment.png'></img></br>"+
+    "<li><u>Time Bar</u> - the time left to keep earning money</li>"+
+    "<img src='/static/images/time_bar.png'></img></ul></div>" +
+    "<div><font color='#FA8072'><h3>You want to earn </font>as much money <font color='#FA8072'>as you can" +
+    "</br>before the </font>time runs out!</h3></div>",
 
-    "<div style='font-size:36px'>After a task " + reward_input[condition] + ", each miniblock trial is worth 3 points.</br></br>" +
-    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
+    "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
+    "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
+    "<li>all trials in a miniblock are worth the same number of points</li>"+
+    "<li>only correct responses are rewarded</li></ul></div></br>",
 
-    "<div style='font-size:36px'>After a task " + reward_input[1-condition] + ", each miniblock trial is worth 1 point.</br></br>" +
-    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
-
-    "<div style='font-size:36px'>Summary: </br></br>"+
-    "<img src='/static/images/" + reward_input[condition] + "_color_" + mapping[3] + ".PNG'></img></div></br>" +
-    "<div style='font-size:28px'>We award 3 points per trial after a task " + reward_input[condition] + ", and 1 point per trial after a task " + reward_input[1-condition] + ".</div></br>",
-
-    "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
-    "<img src='/static/images/" + reward_input[condition] + "_rule_"+mapping[3]+".PNG'></img></div></br></br>" +
-
-    "<div style='font-size:24px' align='left'>Please note:</br>" +
-    "<ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
-    "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
-    "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul>",
-
-    "It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
+    "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
+    "<font color='#FA8072'><h3>It is important to know that you get </br><b></font>more money<font color='#FA8072'> for responding </font>"+
+    "</br>(1) quickly<font color='#FA8072'> and </font>(2) accurately.</h3></div>"+
+    "<div style='font-size:24px' align='center'>It's okay if this doesn't make sense right now. Let's get into a real example!</br></br>" +
     'Click next to review the cues again.',
 
+    "<div style='font-size:24px'><p style='color:grey;'>Filler</p></div>" +
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
@@ -1651,22 +1692,47 @@ var instructions_prc2 = {
   post_trial_gap: 1000
 };
 
+var practice_debrief = {
+  type: 'html-button-response',
+  choices: ['Continue'], //, 'Read Instructions Again'
+  is_html: true,
+  stimulus: function(){
+    var accuracy = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && x.phase == '3.1'}).select('correct');
+    var percent_accurate = Math.floor(accuracy.sum() / accuracy.count() * 100)
+    var mean_rt = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && x.phase == '3.1' && x.rt != -1}).select('rt').mean();
+
+    var msg = "<div style='font-size:24px'>Results:</div>" +
+      "<p>You responded correctly <strong>"+percent_accurate+"%</strong> of the time.</p>";
+    if(percent_accurate >= 75){
+      msg += "<p>Great job! Looks like you are ready to continue to the next practice block.</p>"
+    }else{
+      msg += "<p>Please try to focus and respond correctly more often!</p>"
+    }
+
+    return msg;
+  },
+}
 
 var instructions_prc3 = {
   type: 'instructions',
   pages: [
-    "<div style='font-size:32px'>Great job! You've reached the last practice block.</div></br>" +
+    "<div style='font-size:32px'><h3>Great job! You've reached the last practice block.</h3></div></br>" +
     "<div style='font-size:24px'>For this block, we <b> remove the cue hints</b> and <b>reduce feedback after each trial</b>.</div></br>" +
     "Just like in the last block, you will have a series of trials, but now there will be no cue hints. </br>"+
     "In addition, the feedback after each trial will only tell you whether it was a motion or color task.</br></br>" +
     'Click next to review the reward rules again.',
 
-    "<div style='font-size:32px'>Here are the reward rules again:</div></br>" +
-    "<div style='font-size:24px'><ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
-    "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
-    "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
+    "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
+    "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
+    "<li>all trials in a miniblock are worth the same number of points</li>"+
+    "<li>only correct responses are rewarded</li></ul></div></br>",
+
+    "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
+    "<font color='#FA8072'><h3>It is important to know that you get </br><b></font>more money<font color='#FA8072'> for responding </font>"+
+    "</br>(1) quickly<font color='#FA8072'> and </font>(2) accurately.</h3></div>"+
     "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
+    "<div style='font-size:24px'><p style='color:grey;'>Filler</p></div>" +
     "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
         "<div class='row'>"+
           "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
@@ -1692,41 +1758,6 @@ var instructions_prc3 = {
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
-
-
-
-// counterbalance showing motion or color first
-if(parseInt(p1_cb) % 2 == 0 && phase31){
-  timeline.push(instructions_prc);
-  timeline.push(instructions_prc_m);
-  timeline.push(practice_example1);
-  timeline.push(practice_example2);
-  timeline.push(practice_example3);
-  timeline.push(practice_example3);
-  timeline.push(practice_example2);
-
-  timeline.push(instructions_prc_c);
-  timeline.push(practice_example4);
-  timeline.push(practice_example5);
-  timeline.push(practice_example6);
-  timeline.push(practice_example6);
-  timeline.push(practice_example5);
-}else if(parseInt(p1_cb) % 2 == 1 && phase31){
-  timeline.push(instructions_prc);
-  timeline.push(instructions_prc_c);
-  timeline.push(practice_example4);
-  timeline.push(practice_example5);
-  timeline.push(practice_example6);
-  timeline.push(practice_example6);
-  timeline.push(practice_example5);
-
-  timeline.push(instructions_prc_m);
-  timeline.push(practice_example1);
-  timeline.push(practice_example2);
-  timeline.push(practice_example3);
-  timeline.push(practice_example3);
-  timeline.push(practice_example2);
-}
 
 //generate timeline variables
 function generateTrials(vars, phase){
@@ -1782,7 +1813,7 @@ function generateTrials(vars, phase){
   var miniblock = vars[10]
   var block = vars[11]
 
-  return [{
+  return {
       phase: phase,
       task: task,
       cue_shape: cue_shape,
@@ -1797,64 +1828,255 @@ function generateTrials(vars, phase){
             miniblock_trial: miniblock_trial,
             miniblock: miniblock,
             block: block}
-    }];
+    };
+}
+
+
+// Timer Initializations
+var bonus = 0.00;
+var block_start_time;
+var timer_ticks;
+var block_length;
+var cur_trial = 0;
+
+var init_timer_practice = {
+  type: 'call-function',
+  func: function(){
+    block_length = 150000
+    cur_trial = 0
+  }
+}
+
+var init_timer_exp = {
+  type: 'call-function',
+  func: function(){
+    block_length = 600000
+    cur_trial = 0
+  }
+}
+
+var show_timer = {
+  type: 'call-function',
+  func: function(){
+    document.querySelector('#srt-score').style.display = 'block';
+  }
+}
+
+var reset_timer = {
+  type: 'call-function',
+  func: function(){
+    clearInterval(timer_ticks);
+    document.querySelector('#srt-timer').value = 0
+  }
+}
+
+var reset_score = {
+  type: 'call-function',
+  func: function(){
+    document.querySelector('#srt-bonus').innerHTML = '$0.00'
+  }
+}
+
+var start_timer = {
+ type: 'call-function',
+ func: function(){
+   block_start_time = Date.now();
+   timer_ticks = setInterval(function(){
+     var proportion_time_elapsed = Math.floor((Date.now() - block_start_time) / block_length * 100);
+     document.querySelector('#srt-timer').value = proportion_time_elapsed;
+   }, 100)
+  }
+ }
+
+// // practice timeline
+// practice_timeline = [];
+// var repeat_practice = {
+//   timeline: practice_timeline,
+//   loop_function: function(data){
+//     return data.last(1).values()[0].button_pressed == 1;
+//   }
+// }
+
+// counterbalance showing motion or color first
+if(phase31){
+  if(parseInt(p1_cb) % 2 == 0){
+   timeline.push(instructions_prc);
+   timeline.push(instructions_prc_m);
+   timeline.push(practice_example1);
+   timeline.push(practice_example2);
+   timeline.push(practice_example3);
+   timeline.push(practice_example3);
+   timeline.push(practice_example2);
+
+   timeline.push(instructions_prc_c);
+   timeline.push(practice_example4);
+   timeline.push(practice_example5);
+   timeline.push(practice_example6);
+   timeline.push(practice_example6);
+   timeline.push(practice_example5);
+  }else if(parseInt(p1_cb) % 2 == 1){
+   timeline.push(instructions_prc);
+   timeline.push(instructions_prc_c);
+   timeline.push(practice_example4);
+   timeline.push(practice_example5);
+   timeline.push(practice_example6);
+   timeline.push(practice_example6);
+   timeline.push(practice_example5);
+
+   timeline.push(instructions_prc_m);
+   timeline.push(practice_example1);
+   timeline.push(practice_example2);
+   timeline.push(practice_example3);
+   timeline.push(practice_example3);
+   timeline.push(practice_example2);
+  }
 }
 
 if(phase32){
   if(reward){
-    timeline.push(reward_instructions_prc2);
+    //timeline.push(reward_instructions_prc2);
+    timeline.push(show_timer);
+    timeline.push(reward_instructions_reward);
   }else{
     timeline.push(instructions_prc2);
   }
 
+  var practice_trials_block1 = [];
   for (line in prc_lines_1){
-    var trial_vars_prc = generateTrials(prc_lines_1[line], '3.1'); //generate timeline variables
-
-      // if new miniblock then, else
-    if(trial_vars_prc[0].data.miniblock_trial == 1){
-      var cue_sequence = {
-        timeline: [cue, fixation, stimulus, fixation],
-        timeline_variables: trial_vars_prc
-        }
-      timeline.push(cue_sequence);
-    }else{
-      var stim_sequence = {
-        timeline: [stimulus, fixation],
-        timeline_variables: trial_vars_prc
-        }
-      timeline.push(stim_sequence);
-    }
+    practice_trials_block1.push(generateTrials(prc_lines_1[line], '3.1')); //generate timeline variables
   }
+
+   var cf_conditional_block1 = {
+    timeline: [cue, fixation],
+    timeline_variables: practice_trials_block1,
+    sample: {
+       type: 'custom',
+       fn: function(t){
+           // the first parameter to this function call is an array of integers
+           // from 0 to n-1, where n is the number of trials.
+           // the method needs to return an array of integers specifying the order
+           // that the trials should be executed. this array does not need to
+           // contain all of the integers.
+
+           return [t[cur_trial]];
+       }
+    },
+    conditional_function: function(){
+        if(practice_trials_block1[cur_trial].data.miniblock_trial == '1'){
+            return true;
+        }else{
+            return false;
+        }
+      }
+    }
+
+   var practice_block1 = {
+     timeline: [cf_conditional_block1, stimulus, fixation],
+     timeline_variables: practice_trials_block1,
+     sample: {
+        type: 'custom',
+        fn: function(t){
+            // the first parameter to this function call is an array of integers
+            // from 0 to n-1, where n is the number of trials.
+            // the method needs to return an array of integers specifying the order
+            // that the trials should be executed. this array does not need to
+            // contain all of the integers.
+            return [t[cur_trial]];
+        }
+     },
+     loop_function: function(practice_block1){
+       // increment the current trial
+       if(cur_trial < practice_trials_block1.length - 1){
+         cur_trial = cur_trial + 1;
+       }else{
+         cur_trial = 0;
+       }
+
+       if(Date.now() - block_start_time < block_length){
+          return true;
+       } else {
+          return false;
+       }
+
+      }
+     }
+
+    timeline.push(init_timer_practice, start_timer, practice_block1);
+    timeline.push(reset_timer, practice_debrief)
+    //timeline.push(repeat_practice)
+
 }
 
 if(phase33){
   timeline.push(instructions_prc3)
 
+  var practice_trials_block2 = [];
   for (line in prc_lines_2){
-    var trial_vars_prc = generateTrials(prc_lines_2[line], '3.2'); //generate timeline variables
-
-      // if new miniblock then, else
-    if(trial_vars_prc[0].data.miniblock_trial == 1){
-      var cue_sequence = {
-        timeline: [cue, fixation, stimulus, fixation],
-        timeline_variables: trial_vars_prc
-        }
-      timeline.push(cue_sequence);
-    }else{
-      var stim_sequence = {
-        timeline: [stimulus, fixation],
-        timeline_variables: trial_vars_prc
-        }
-      timeline.push(stim_sequence);
-    }
+    practice_trials_block2.push(generateTrials(prc_lines_2[line], '3.2')); //generate timeline variables
   }
+
+   var cf_conditional_block2 = {
+    timeline: [cue, fixation],
+    timeline_variables: practice_trials_block2,
+    sample: {
+       type: 'custom',
+       fn: function(t){
+           // the first parameter to this function call is an array of integers
+           // from 0 to n-1, where n is the number of trials.
+           // the method needs to return an array of integers specifying the order
+           // that the trials should be executed. this array does not need to
+           // contain all of the integers.
+
+           return [t[cur_trial]];
+       }
+    },
+    conditional_function: function(){
+        if(practice_trials_block2[cur_trial].data.miniblock_trial == '1'){
+            return true;
+        }else{
+            return false;
+        }
+      }
+    }
+
+   var practice_block2 = {
+     timeline: [cf_conditional_block2, stimulus, fixation],
+     timeline_variables: practice_trials_block2,
+     sample: {
+        type: 'custom',
+        fn: function(t){
+            // the first parameter to this function call is an array of integers
+            // from 0 to n-1, where n is the number of trials.
+            // the method needs to return an array of integers specifying the order
+            // that the trials should be executed. this array does not need to
+            // contain all of the integers.
+            return [t[cur_trial]];
+        }
+     },
+     loop_function: function(){
+       // increment the current trial
+       if(cur_trial < practice_trials_block2.length - 1){
+         cur_trial = cur_trial + 1;
+       }else{
+         cur_trial = 0;
+       }
+
+       if(Date.now() - block_start_time < block_length){
+          return true;
+       } else {
+          return false;
+       }
+
+      }
+     }
+
+    timeline.push(init_timer_practice, start_timer, practice_block2);
+
 }
 
 // --------------------
 // FOURTH PHASE
 // --------------------
-var currentTrialDuration = config.trial_duration;
-
 if(reward){
   var reward_questions = {
     type: 'survey-multi-choice',
@@ -1870,34 +2092,24 @@ if(reward){
   var reward_instructions_exp1 = {
     type: 'instructions',
     pages: [
-        '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
-        "This phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
+        '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>! </div></br>' +
+        "<h1>This is the <font color='#FA8072'>real experiment!</font></h1>" +
+        "<h2><font color='#FA8072'>There are two 10-minute blocks</font> in this phase,</br>during which you <font color='#FA8072'>earning bonus payment.</font></h2>" +
         "The format is the same as Phase 3, but with no hints or feedback.</br>" +
         "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
-        "Also, your score has been reset to 0!</br>",
-        "<div style='font-size:32px'><h3><font color='#3CB371'>You will now be quizzed on the point rewards!</font></h3></div></br></br>" +
-        "<div style='font-size:24px' align='left'>Remember this for the quiz:</br>" +
-        "<ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
-        "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
-        "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div>" +
-        "<div style='font-size:18px'>You can earn up to $3.00 in bonus payments, for a total of $9.00.</br>"+
-        "If you answer the quiz incorrectly, you risk not getting your bonus payment!</br></br></div>" +
-        "Press next to begin the quiz."
-    ],
-    show_clickable_nav: true,
-    post_trial_gap: 1000
-  };
+        "<font color='#FA8072'>Also, your bonus from the practice block has been reset to $0.00!</font></br>",
 
-  var reward_instructions_exp2 = {
-    type: 'instructions',
-    pages: [
-        "<div style='font-size:24px' align='left'>Great job! Now we're going to start the experiment.</br></br>" +
-        "Here are the reminders again:</br>" +
-        "<ul><li>after a task " + reward_input[condition] + ", each trial is worth 3 points</li>"+
-        "<li>after a task " + reward_input[1-condition] + " each trial is worth 1 point</li>"+
-        "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
+        "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
+        "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
+        "<li>all trials in a miniblock are worth the same number of points</li>"+
+        "<li>only correct responses are rewarded</li></ul></div></br>",
+
+        "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
+        "<font color='#FA8072'><h3>It is important to know that you get </br><b></font>more money<font color='#FA8072'> for responding </font>"+
+        "</br>(1) quickly<font color='#FA8072'> and </font>(2) accurately.</h3></div>"+
         "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
+        "<div style='font-size:24px'><p style='color:grey;'>Filler</p></div>" +
         "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
             "<div class='row'>"+
             "<div class='column' style='float:left; border-style: solid;'><img src='/static/images/" + mapping[1] + ".png'></img>" +
@@ -1962,82 +2174,21 @@ var instructions_exp = {
   post_trial_gap: 1000
 };
 
-if(reward){
-  timeline.push(reward_instructions_exp1);
-  timeline.push(reward_questions)
-  timeline.push(reward_instructions_exp2);
-}else{
-  timeline.push(instructions_exp);
-}
-
 var pause_text = {
   type: 'instructions',
   pages: [
-        "<div style='font-size:32px'>Great job! You're halfway there.</div></br>" +
-        "<div style='font-size:32px'><font color='#FA8072'><h3>Now, we will be </font><b>REVERSING</b><font color='#FA8072'> the </font><b>payment rules</b>.</br></br>" +
-        "<font color='#FA8072'>Please pay very careful attention!</h3></font></div>",
-
-        "<div style='font-size:36px'>After a task " + reward_input[1-condition] + ", each miniblock trial is worth 3 points.</br></br>" +
-        "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[1-condition] + ".jpg'></img></div></br>",
-
-        "<div style='font-size:36px'>After a task " + reward_input[condition] + ", each miniblock trial is worth 1 point.</br></br>" +
-        "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + "_" + reward_input[condition] + ".jpg'></img></div></br>",
-
-        "<div style='font-size:36px'>Summary: </br></br>"+
-        "<img src='/static/images/" + reward_input[1-condition] + "_color_" + mapping[3] + ".PNG'></img></div></br>" +
-        "<div style='font-size:28px'>We award 3 points per trial after a task " + reward_input[1-condition] + ", and 1 point per trial after a task " + reward_input[condition] + ".</div></br>",
-
-        "<div style='font-size:36px'>Here's another way to look at it: </br></br>" +
-        "<img src='/static/images/" + reward_input[1-condition] + "_rule_"+mapping[3]+".PNG'></img></div></br></br>" +
-
-        "<div style='font-size:24px' align='left'>Please note:</br>" +
-        "<ul><li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
-        "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
-        "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul>"
+        "<div style='font-size:32px'>Great job! You're halfway there.</div></br>"
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
 };
 
-var new_reward_instructions_exp1 = {
+var reward_instructions_exp2 = {
   type: 'instructions',
   pages: [
-      "<div style='font-size:32px'><h3><font color='#3CB371'>You will now be quizzed on the bonus rewards!</font></h3></div>" +
-      "<div style='font-size:24px' align='left'>Remember this for the quiz:</br>" +
-      "<ul><li><b>the reward rules have reversed!</b></li>"+
-      "<li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
-      "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
-      "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div>" +
-      "If you answer the quiz incorrectly, you risk not getting your bonus payment!</br></br></div>" +
-      "Press next to begin the quiz."
-  ],
-  show_clickable_nav: true,
-  post_trial_gap: 1000
-};
-
-var new_questions = {
-  type: 'survey-multi-choice',
-  preamble: "<img src='/static/images/" + reward_input[1- condition] + "_rule_" + mapping[3] + ".PNG'></img>"+
-  '</br><div align="left"> Please correctly answer the following questions about the NEW payment rules. Press <u>enter</u> to submit.</div>',
-  questions: [
-    {prompt: "Have the payment rules stayed the same or reversed?", options: ["Stayed the same", "Reversed"], required: true, horizontal: false,},
-    {prompt: "What kinds of responses are rewarded?", options: ["Fast", "Accurate", "Fast and Accurate"], required: true, horizontal: false,},
-    {prompt: "How many points are awarded for each trial after a task switch?", options: ["1 point", "3 points"], required: true, horizontal: false,},
-    {prompt: "How many points are awarded for each trial after a task repetition?", options: ["1 point", "3 points"], required: true, horizontal: false}
-  ],
-  on_start: function(){
-    condition = 1 - condition //switch the condition
-  }
-};
-
-var new_reward_instructions_exp2 = {
-  type: 'instructions',
-  pages: [
-      "<div style='font-size:24px' align='left'>Now we're going to start the experiment again.</br></br>" +
-      "Here are the reminders again:</br>" +
-      "<ul><li><b>the reward rules have reversed!</b></li>"+
-      "<li>after a task " + reward_input[1-condition] + ", each trial is worth 3 points</li>"+
-      "<li>after a task " + reward_input[condition] + " each trial is worth 1 point</li>"+
+      "<div style='font-size:24px' align='left'>Before we start again, here are some reminders:</br></br>" +
+      "<ul><li>points are awarded randomly (1 point or 3 points)</li>"+
+      "<li>all trials in a miniblock are worth the same number of points</li>"+
       "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
       "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
@@ -2065,33 +2216,141 @@ var new_reward_instructions_exp2 = {
 };
 
 if(phase4){
-  var pause = true;
-  for (line in exp_lines){
-    var trial_vars_exp = generateTrials(exp_lines[line], '4'); //generate timeline variables
-
-    // pause before block two
-    if(pause && trial_vars_exp[0].data.block == 2){
-      pause = false;
-      timeline.push(pause_text);
-      timeline.push(new_reward_instructions_exp1);
-      timeline.push(new_questions);
-      timeline.push(new_reward_instructions_exp2);
-    }
-    // if new miniblock then, else
-    if(trial_vars_exp[0].data.miniblock_trial == 1){
-      var cue_sequence = {
-        timeline: [cue, fixation, stimulus, fixation],
-        timeline_variables: trial_vars_exp
-        }
-      timeline.push(cue_sequence);
-    }else{
-      var stim_sequence = {
-        timeline: [stimulus, fixation],
-        timeline_variables: trial_vars_exp
-        }
-      timeline.push(stim_sequence);
-    }
+  if(reward){
+    timeline.push(reset_timer, reset_score, reward_instructions_exp1);
+    //timeline.push(reward_questions)
+  }else{
+    timeline.push(instructions_exp);
   }
+
+  var exp_trials_block1 = [];
+  for (line in exp_lines_1){
+    exp_trials_block1.push(generateTrials(exp_lines_1[line], '4')); //generate timeline variables
+  }
+
+   var cf_conditional_block1 = {
+    timeline: [cue, fixation],
+    timeline_variables: exp_trials_block1,
+    sample: {
+       type: 'custom',
+       fn: function(t){
+           // the first parameter to this function call is an array of integers
+           // from 0 to n-1, where n is the number of trials.
+           // the method needs to return an array of integers specifying the order
+           // that the trials should be executed. this array does not need to
+           // contain all of the integers.
+
+           return [t[cur_trial]];
+       }
+    },
+    conditional_function: function(){
+        if(exp_trials_block1[cur_trial].data.miniblock_trial == '1'){
+            return true;
+        }else{
+            return false;
+        }
+      }
+    }
+
+   var exp_block1 = {
+     timeline: [cf_conditional_block1, stimulus, fixation],
+     timeline_variables: exp_trials_block1,
+     sample: {
+        type: 'custom',
+        fn: function(t){
+            // the first parameter to this function call is an array of integers
+            // from 0 to n-1, where n is the number of trials.
+            // the method needs to return an array of integers specifying the order
+            // that the trials should be executed. this array does not need to
+            // contain all of the integers.
+            return [t[cur_trial]];
+        }
+     },
+     loop_function: function(){
+       // increment the current trial
+       if(cur_trial < exp_trials_block1.length - 1){
+         cur_trial = cur_trial + 1;
+       }else{
+         cur_trial = 0;
+       }
+       console.log(cur_trial)
+
+       if(Date.now() - block_start_time < block_length){
+          return true;
+       } else {
+          return false;
+       }
+
+      }
+     }
+
+    timeline.push(init_timer_exp, start_timer, exp_block1);
+
+    timeline.push(reset_timer, pause_text);
+    timeline.push(reward_instructions_exp2);
+
+    var exp_trials_block2 = [];
+    for (line in exp_lines_2){
+      exp_trials_block2.push(generateTrials(exp_lines_2[line], '4')); //generate timeline variables
+    }
+
+     var cf_conditional_block2 = {
+      timeline: [cue, fixation],
+      timeline_variables: exp_trials_block2,
+      sample: {
+         type: 'custom',
+         fn: function(t){
+             // the first parameter to this function call is an array of integers
+             // from 0 to n-1, where n is the number of trials.
+             // the method needs to return an array of integers specifying the order
+             // that the trials should be executed. this array does not need to
+             // contain all of the integers.
+
+             return [t[cur_trial]];
+         }
+      },
+      conditional_function: function(){
+          if(exp_trials_block2[cur_trial].data.miniblock_trial == '1'){
+              return true;
+          }else{
+              return false;
+          }
+        }
+      }
+
+     var exp_block2 = {
+       timeline: [cf_conditional_block2, stimulus, fixation],
+       timeline_variables: exp_trials_block2,
+       sample: {
+          type: 'custom',
+          fn: function(t){
+              // the first parameter to this function call is an array of integers
+              // from 0 to n-1, where n is the number of trials.
+              // the method needs to return an array of integers specifying the order
+              // that the trials should be executed. this array does not need to
+              // contain all of the integers.
+              return [t[cur_trial]];
+          }
+       },
+       loop_function: function(){
+         // increment the current trial
+         if(cur_trial < exp_trials_block2.length - 1){
+           cur_trial = cur_trial + 1;
+         }else{
+           cur_trial = 0;
+         }
+         console.log(cur_trial)
+
+         if(Date.now() - block_start_time < block_length){
+            return true;
+         } else {
+            return false;
+         }
+
+        }
+       }
+
+      timeline.push(init_timer_exp, start_timer, exp_block2);
 }
 
 var instructions_final = {
@@ -2117,15 +2376,13 @@ var instructions_reward_final2 = {
     type: 'html-keyboard-response',
     stimulus: '',
     on_start: function(instructions_reward_final){
-      instructions_reward_final.stimulus = '<div style="font-size:24px">Your total final score is ' + score + '.</br></br>' +
-      "It will be compared to the performance of the other participants taking this study,</br>" +
-      "and we will reward you accordingly (for a maximum of $3.00).</div></br>"+
+      instructions_reward_final.stimulus = '<div style="font-size:24px">Your total final bonus is $'+ bonus.toString() + '</br></br>' +
       'Press <u>any key</u> to finish the HIT!';
     },
 };
 
 if(reward){
-  timeline.push(instructions_reward_final);
+  timeline.push(reset_timer, instructions_reward_final);
   timeline.push(instructions_reward_final2);
 }else{
   timeline.push(instructions_final);
@@ -2139,16 +2396,15 @@ jsPsych.data.addProperties({
     sequence: sequence, // sequence number (total: 8)
     phase1_counterbalance: p1_cb, // 0: motion color, 1: color motion
     phase2_counterbalance: p2_cb, // 0: circle triangle first, 1: diamond square first
-    score: score,
-    trial_duration: currentTrialDuration
+    bonus: bonus
 });
 
 //---------Run the experiment---------
 jsPsych.init({
     timeline: timeline,
-    show_progress_bar: true,
+    //show_progress_bar: true,
 
-    //display_element: 'jspsych-target',
+    display_element: 'jspsych-target',
 
     // record data to psiTurk after each trial
     on_data_update: function(data) {

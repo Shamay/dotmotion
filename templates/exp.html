@@ -30,7 +30,6 @@
   		<script src="/static/js/psiturk.js" type="text/javascript"> </script>
 
       <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
       <script src="/static/js/jspsych.js"></script>
       <script src="/static/js/jspsych-6.0.1/plugins/jspsych-html-keyboard-response.js"></script>
@@ -39,12 +38,29 @@
       <script src="/static/js/jspsych-6.0.1/plugins/jspsych-instructions.js"></script>
       <script src="/static/js/jspsych-6.0.1/plugins/jspsych-dotmotion.js"></script>
       <script src="/static/js/jspsych-6.0.1/plugins/jspsych-fullscreen.js"></script>
+      <script src="/static/js/jspsych-6.0.1/plugins/jspsych-call-function.js"></script>
+      <script src="/static/js/jspsych-6.0.1/plugins/jspsych-html-button-response.js"></script>
+
 
       <link href="/static/css/jspsych.css" rel="stylesheet" type="text/css"></link>
       <link href="/static/css/style.css" rel="stylesheet" type="text/css"></link>
+
+      <style>
+          html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+          #jspsych-target { width: 100%; height: 100%;}
+          #srt-score { position: absolute; width: 100%; border-bottom: 1px solid #ddd; background-color: #fafafa; margin:0; text-align: center; display: none;}
+          #srt-score progress { width: 500px; }
+          #srt-score .srt-top { padding: 10px 75px; display: inline-block; font-family: 'Open Sans', 'Arial'; font-size: 16px; color: #333;}
+      </style>
   </head>
 
-  <body style="background-color:grey;"></body>
+  <body style="background-color:grey">
+    <div id="srt-score">
+      <span class="srt-top">Bonus Payment: <span id="srt-bonus">$0.00</span></span>
+      <span class="srt-top">Time: <progress max="100" value="0" id="srt-timer"></progress></span>
+    </div>
+    <div id="jspsych-target"></div>
+  </body>
 
   <!--
   @ Run the script @

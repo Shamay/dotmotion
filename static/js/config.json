@@ -1,15 +1,16 @@
 [
   {
     "number_of_dots": 200,
-
-    "response_ends_trial": true,
-    "fill_ITT": true,
+    "dot_timeout": 0,
 
     "cue_duration": 600,
     "trial_duration": 1500,
     "inter_trial_interval": 700,
     "feedback_duration": 1200,
-    "dot_timeout": 0,
+
+    "response_ends_trial": true,
+    "fill_ITT": false,
+    "adaptive_trial_duration": false,
 
     "fixation_cross": true,
     "training_feedback": true,
