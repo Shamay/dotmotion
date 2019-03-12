@@ -1,5 +1,5 @@
 //  CONTROL PANEl
-var debug = true; // debug mode
+var debug = false; // debug mode
 var reward = true; // reward mode
 var phase1 = false;
 var phase2 = false;
@@ -1611,10 +1611,10 @@ var reward_instructions_reward = {
     "<img src='/static/images/arrow.gif'></img></br>" +
     "<div style='font-size:24px'>Observe the bar that appeared at the top of the screen.</br></br>" +
     "<div style='font-size:24px' align='left'>There are two parts:</br>" +
-    "<ul><li><u>Bonus Payment</u> - the total amount of money you have earned</li>"+
-    "<img src='/static/images/bonus_payment.png'></img></br>"+
-    "<li><u>Time Bar</u> - the time left to keep earning money</li>"+
-    "<img src='/static/images/time_bar.png'></img></ul></div>" +
+    "<ul><li><u>Bonus Payment</u> - the total amount of money you have earned</li></ul>"+
+    "<img src='/static/images/bonus_payment.PNG'></img></br>"+
+    "<ul><li><u>Time Bar</u> - the time left to keep earning money</li></ul>"+
+    "<img src='/static/images/time_bar.PNG'></img></div>" +
     "<div><font color='#FA8072'><h3>You want to earn </font>as much money <font color='#FA8072'>as you can" +
     "</br>before the </font>time runs out!</h3></div>",
 
@@ -1934,7 +1934,7 @@ if(phase31){
 
 if(phase32){
   if(reward){
-    //timeline.push(reward_instructions_prc2);
+    timeline.push(reward_instructions_prc2);
     timeline.push(show_timer);
     timeline.push(reward_instructions_reward);
   }else{
