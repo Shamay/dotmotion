@@ -1,11 +1,11 @@
 //  CONTROL PANEl
 var debug = false; // debug mode
 var reward = true; // reward mode
-var phase1 = true;
-var phase2 = true;
+var phase1 = false;
+var phase2 = false;
+var phase3 = false;
 var phase31 = true;
 var phase32 = true;
-var phase33 = true;
 var phase4 = true;
 
 /* load psiturk */
@@ -23,7 +23,7 @@ if(debug){
 
 // Setting up counterbalancing conditions
 var num_sequences = 4; // number of sequences we want to use
-var starting_sequence = 5;
+var starting_sequence = 1;
 var sequence = (counterbalance % num_sequences) + starting_sequence; // compute the sequence number from counterbalance assignment
 
 // compute the counterbalance conditions based on counterbalance assignment
@@ -238,7 +238,7 @@ function reward_feedback(type, transition, cond, miniblock_trial){
 }
 
 // Generates template for cue stimulus
-//    phase: "3.1", "3.2", or "4"
+//    phase: "3.1", "3.2", "4.1", or '4.2'
 //    task: "motion" or "color"
 //    cue_shape: "circle", "triangle", "diamond", or "square"
 
@@ -293,7 +293,7 @@ var cue = {
 
 
 // Generates template for fixation stimulus
-//    phase: "1.1", "1.2", "3.1", "3.2", or "4"
+//    phase: "1.1", "1.2", "3.1", "3.2", "4.1",or "4.2"
 //      - changes the amount of feedback based on phase.
 var fixation = {
   type: 'html-keyboard-response',
@@ -412,7 +412,7 @@ var fixation = {
         }else if(config.fixation_cross){
           fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
         }
-      }else if(fixation.phase == '4'){
+      }else if(fixation.phase == '4.1' || fixation.phase == '4.2'){
         if(config.task_feedback){
           if(typeof data.correct === "undefined"){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
@@ -477,7 +477,7 @@ var fixation = {
     //   if(config.response_ends_trial && config.fill_ITT && data.correct){
     //     fixation.trial_duration += Math.round(data.trial_duration - data.rt) - 200;
     //   }
-    // }else if(fixation.phase == '4'){
+    // }else if(fixation.phase == '4.1' || fixation.phase == '4.2'){
     //   // dynamically change inter_trial_interval
     //   if(config.response_ends_trial && config.fill_ITT && data.correct){
     //     fixation.trial_duration += Math.round(data.trial_duration - data.rt);
@@ -488,7 +488,7 @@ var fixation = {
 }
 
 // Generates template for fixation stimulus
-//    phase: "1.1", "1.2", "3.1", "3.2", or "4"
+//    phase: "1.1", "1.2", "3.1", "3.2", "4.1", or "4.2"
 //      - changes the amount of feedback based on phase.
 //    task: "motion" or "color"
 //    correct_choice: "a" or "l"
@@ -530,7 +530,11 @@ var stimulus = {
       stimulus.colorCoherence = currentColorCoherence + minColorCoherence;
     }
 
-    if(stimulus.phase == '3.2' || stimulus.phase == '4'){
+    if(stimulus.phase == '3.1' || stimulus.phase == '3.2' || stimulus.phase == '4.1' || stimulus.phase == '4.2'){
+      stimulus.data.bonus = bonus;
+    }
+
+    if(stimulus.phase == '3.2' || stimulus.phase == '4.1' || stimulus.phase == '4.2'){
       stimulus.trial_duration = 1250;
     }
   },
@@ -578,8 +582,8 @@ var stimulus = {
       }
     }
 
-    // if(config.adaptive_trial_duration && stimulus.miniblock_trial == 1 && (stimulus.phase == '3.1' || stimulus.phase == '3.2' || stimulus.phase == '4')){
-    //   var data = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && (x.phase == '3.1' || x.phase == '3.2' || x.phase == '4') && x.rt != -1; });
+    // if(config.adaptive_trial_duration && stimulus.miniblock_trial == 1 && (stimulus.phase == '3.1' || stimulus.phase == '3.2' || stimulus.phase == '4.1' || stimulus.phase == '4.2')){
+    //   var data = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && (x.phase == '3.1' || x.phase == '3.2' || x.phase == '4.1' || x.phase == '4.2') && x.rt != -1; });
     //
     //   var output1 = data.select('rt').mean();
     //   var output2 = data.select('rt').sd();
@@ -1698,7 +1702,7 @@ var practice_debrief = {
   stimulus: function(){
     var accuracy = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && x.phase == '3.1'}).select('correct');
     var percent_accurate = Math.floor(accuracy.sum() / accuracy.count() * 100)
-    var mean_rt = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && x.phase == '3.1' && x.rt != -1}).select('rt').mean();
+    //var mean_rt = jsPsych.data.get().filterCustom(function(x){ return x.trial_type == 'dotmotion' && x.phase == '3.1' && x.rt != -1}).select('rt').mean();
 
     var msg = "<div style='font-size:24px'>Results:</div>" +
       "<p>You responded correctly <strong>"+percent_accurate+"%</strong> of the time.</p>";
@@ -1826,7 +1830,8 @@ function generateTrials(vars, phase){
             miniblock_size: miniblock_size,
             miniblock_trial: miniblock_trial,
             miniblock: miniblock,
-            block: block}
+            block: block,
+            bonus: bonus}
     };
 }
 
@@ -1849,7 +1854,7 @@ var init_timer_practice = {
 var init_timer_exp = {
   type: 'call-function',
   func: function(){
-    block_length = 500000
+    block_length = 600000
     cur_trial = 0
   }
 }
@@ -1858,6 +1863,7 @@ var show_timer = {
   type: 'call-function',
   func: function(){
     document.querySelector('#srt-score').style.display = 'block';
+    document.querySelector('#srt-timer').value = 100;
   }
 }
 
@@ -1865,7 +1871,7 @@ var reset_timer = {
   type: 'call-function',
   func: function(){
     clearInterval(timer_ticks);
-    document.querySelector('#srt-timer').value = 0
+    document.querySelector('#srt-timer').value = 100;
   }
 }
 
@@ -1883,7 +1889,7 @@ var start_timer = {
    block_start_time = Date.now();
    timer_ticks = setInterval(function(){
      var proportion_time_elapsed = Math.floor((Date.now() - block_start_time) / block_length * 100);
-     document.querySelector('#srt-timer').value = proportion_time_elapsed;
+     document.querySelector('#srt-timer').value = 100 - proportion_time_elapsed;
    }, 100)
   }
  }
@@ -1898,7 +1904,7 @@ var start_timer = {
 // }
 
 // counterbalance showing motion or color first
-if(phase31){
+if(phase3){
   if(parseInt(p1_cb) % 2 == 0){
    timeline.push(instructions_prc);
    timeline.push(instructions_prc_m);
@@ -1932,7 +1938,7 @@ if(phase31){
   }
 }
 
-if(phase32){
+if(phase31){
   if(reward){
     timeline.push(reward_instructions_prc2);
     timeline.push(show_timer);
@@ -2007,7 +2013,7 @@ if(phase32){
 
 }
 
-if(phase33){
+if(phase32){
   timeline.push(instructions_prc3)
 
   var practice_trials_block2 = [];
@@ -2223,7 +2229,7 @@ if(phase4){
 
   var exp_trials_block1 = [];
   for (line in exp_lines_1){
-    exp_trials_block1.push(generateTrials(exp_lines_1[line], '4')); //generate timeline variables
+    exp_trials_block1.push(generateTrials(exp_lines_1[line], '4.1')); //generate timeline variables
   }
 
    var cf_conditional_block1 = {
@@ -2288,7 +2294,7 @@ if(phase4){
 
     var exp_trials_block2 = [];
     for (line in exp_lines_2){
-      exp_trials_block2.push(generateTrials(exp_lines_2[line], '4')); //generate timeline variables
+      exp_trials_block2.push(generateTrials(exp_lines_2[line], '4.2')); //generate timeline variables
     }
 
      var cf_conditional_block2 = {
@@ -2368,6 +2374,18 @@ var instructions_reward_final = {
   post_trial_gap: 0
 };
 
+// defining groups of questions that will go together
+var exit_survey = {
+  type: 'survey-text',
+  preamble: "The experiment is now over, but we have two questions to ask you as the last part of the experiment.",
+  questions: [{prompt: "During the experiment, did you notice any patterns in how the bonus was awarded?", rows: 5, columns: 60},],
+};
+
+var exit_survey2 = {
+  type: 'survey-text',
+  questions: [{prompt: "What do you think the purpose of the experiment was?", rows: 5, columns: 60},],
+};
+
 var instructions_reward_final2 = {
     type: 'html-keyboard-response',
     stimulus: '',
@@ -2379,6 +2397,7 @@ var instructions_reward_final2 = {
 
 if(reward){
   timeline.push(reset_timer, instructions_reward_final);
+  timeline.push(exit_survey,exit_survey2)
   timeline.push(instructions_reward_final2);
 }else{
   timeline.push(instructions_final);
@@ -2392,7 +2411,6 @@ jsPsych.data.addProperties({
     sequence: sequence, // sequence number (total: 8)
     phase1_counterbalance: p1_cb, // 0: motion color, 1: color motion
     phase2_counterbalance: p2_cb, // 0: circle triangle first, 1: diamond square first
-    bonus: bonus
 });
 
 //---------Run the experiment---------
