@@ -1436,7 +1436,7 @@ var instructions_prc = {
     '<div style="font-size:24px">We will be swapping between color and motion tasks.</div></br>' +
     'The cues you learned earlier will tell you if you </br>'+
     'are supposed to focus on color or motion.</br></br>' +
-    'Note: there are approximately 40 minutes left in the experiment from this point.</br></br>',
+    'Note: there are approximately 30 minutes left in the experiment from this point.</br></br>',
   ],
   show_clickable_nav: true
 };
@@ -1623,7 +1623,7 @@ var reward_instructions_reward = {
 
     "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
     "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
-    "<li>all trials in a miniblock are worth the same number of points</li>"+
+    "<li>all trials in a miniblock are worth the same amount of money</li>"+
     "<li>only correct responses are rewarded</li></ul></div></br>",
 
     "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
@@ -1727,7 +1727,7 @@ var instructions_prc3 = {
 
     "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
     "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
-    "<li>all trials in a miniblock are worth the same number of points</li>"+
+    "<li>all trials in a miniblock are worth the same amount of money</li>"+
     "<li>only correct responses are rewarded</li></ul></div></br>",
 
     "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
@@ -2107,7 +2107,7 @@ if(reward){
 
         "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
         "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
-        "<li>all trials in a miniblock are worth the same number of points</li>"+
+        "<li>all trials in a miniblock are worth the same amount of money</li>"+
         "<li>only correct responses are rewarded</li></ul></div></br>",
 
         "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
@@ -2170,7 +2170,7 @@ var instructions_exp = {
           'L is for down (motion) and red (color)</br></br>' +
           "You'll no longer be waiting for the '?'.</br>" +
           "You'll have three seconds to respond.</br></br>" +
-          "Remember, this phase will take approximately <b>30 minutes</b>, with a short break in the middle!</br></br>" +
+          "Remember, this phase will take approximately <b>20 minutes</b>, with a short break in the middle!</br></br>" +
         "Please ready your fingers on the A and L keys and press next whenever you're ready!"
 
   ],
@@ -2190,10 +2190,10 @@ var pause_text = {
 var reward_instructions_exp2 = {
   type: 'instructions',
   pages: [
-      "<div style='font-size:24px' align='left'>Before we start again, here are some reminders:</br></br>" +
-      "<ul><li>points are awarded randomly (1 point or 3 points)</li>"+
-      "<li>all trials in a miniblock are worth the same number of points</li>"+
-      "<li>only <u>fast</u> AND <u>accurate</u> responses are rewarded</li></ul></div></br>" +
+      "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
+      "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
+      "<li>all trials in a miniblock are worth the same amount of money</li>"+
+      "<li>only correct responses are rewarded</li></ul></div></br>" +
       "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
       "<div style='font-size:24px'>Here are the cues and the tasks they indicate:</div>" +
@@ -2390,7 +2390,7 @@ var instructions_reward_final2 = {
     type: 'html-keyboard-response',
     stimulus: '',
     on_start: function(instructions_reward_final){
-      instructions_reward_final.stimulus = '<div style="font-size:24px">Your total final bonus is $'+ bonus.toString() + '</br></br>' +
+      instructions_reward_final.stimulus = '<div style="font-size:24px">Your total final bonus is $'+ bonus.toString() + '.</br></br>' +
       'Press <u>any key</u> to finish the HIT!';
     },
 };
