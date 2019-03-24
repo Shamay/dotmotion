@@ -1,9 +1,9 @@
 //  CONTROL PANEl
 var debug = false; // debug mode
 var reward = true; // reward mode
-var phase1 = false;
-var phase2 = false;
-var phase3 = false;
+var phase1 = true;
+var phase2 = true;
+var phase3 = true;
 var phase31 = true;
 var phase32 = true;
 var phase4 = true;

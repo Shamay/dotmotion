@@ -814,6 +814,12 @@ window.jsPsych = (function() {
       trial.on_start(trial);
     }
 
+    // apply the focus to the element containing the experiment.
+    DOM_container.focus();
+
+    // reset the scroll on the DOM target
+    DOM_target.scrollTop = 0;
+
     // execute trial method
     jsPsych.plugins[trial.type].trial(DOM_target, trial);
 
