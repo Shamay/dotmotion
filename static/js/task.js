@@ -21,32 +21,38 @@ if(debug){
   counterbalance = 2;
 }
 
-// Setting up counterbalancing conditions
-var num_sequences = 4; // number of sequences we want to use
-var starting_sequence = 1;
-var sequence = (counterbalance % num_sequences) + starting_sequence; // compute the sequence number from counterbalance assignment
-
-// compute the counterbalance conditions based on counterbalance assignment
-var p1_cb, p2_cb;
-if(counterbalance < (num_sequences * 1)){
-  p1_cb = 0;
-  p2_cb = 0;
-}else if(counterbalance < (num_sequences * 2)){
-  p1_cb = 1;
-  p2_cb = 0;
-}else if(counterbalance < (num_sequences * 3)){
-  p1_cb = 0;
-  p2_cb = 1;
-}else if(counterbalance < (num_sequences * 4)){
-  p1_cb = 1;
-  p2_cb = 1;
-}
-
 // reward selection
 var reward_input = {
   0: 'repetition',
   1: 'switch'
 };
+
+// Setting up counterbalancing conditions
+var num_sequences = 32; // number of sequences we want to use
+
+// compute the counterbalance conditions based on counterbalance assignment
+var p1_cb, p2_cb;
+if(counterbalance < num_sequences / 4){
+  p1_cb = 0;
+  p2_cb = 0;
+}else if(counterbalance < num_sequences / 2){
+  p1_cb = 1;
+  p2_cb = 0;
+}else if(counterbalance < (num_sequences / 4) * 3){
+  p1_cb = 0;
+  p2_cb = 1;
+}else {
+  p1_cb = 1;
+  p2_cb = 1;
+}
+
+// Loading trial data files synchronously
+var experiment_sequence = (parseInt(counterbalance) + 1); // compute the sequence number from counterbalance assignment
+var practice_sequence = experiment_sequence % num_sequences + 1 // for the practice sequence, select the next sequence number (wraps around)
+
+var manipulation ='reward_miniBlockSize1';
+var experiment_url = "/static/trial_data/" + manipulation + "/sequence" + experiment_sequence + ".csv";
+var practice_url = "/static/trial_data/" + manipulation + "/sequence" + practice_sequence + ".csv";
 
 // Loading config and trial data files synchronously
 var config, headers, lines;
@@ -60,30 +66,6 @@ $.ajax({
   }
 });
 
-// generate the proper file names for the practice (phase 3) and test (phase 4) data
-var trial_url;
-if(reward){
-   trial_url = "/static/trial_data/reward/sequence" + parseInt(sequence) + ".csv";
-}else{
-   trial_url = "/static/trial_data/switch/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(sequence) + ".csv";
-}
-
-
-var practice_url; // for the practice sequence, select the next sequence number
-if(parseInt(sequence) == (num_sequences + starting_sequence - 1)){ // (wraps around)
-  if(reward){
-    practice_url = "/static/trial_data/reward/sequence" + parseInt(starting_sequence) + ".csv";
-  }else{
-    practice_url = "/static/trial_data/switch/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + parseInt(starting_sequence) + ".csv";
-  }
-}else{
-  if(reward){
-    practice_url = "/static/trial_data/reward/sequence" + (parseInt(sequence) + 1) + ".csv";
-  }else{
-    practice_url = "/static/trial_data/switch/effortGroup_" + (parseInt(condition) + 1) + "_sequence" + (parseInt(sequence) + 1) + ".csv";
-  }
-}
-
 $.ajax({
     url: practice_url, // load the practice file (phase 3)
     async: false,
@@ -94,7 +76,7 @@ $.ajax({
  });
 
  $.ajax({
-     url: trial_url, // load the test file (phase 4)
+     url: experiment_url, // load the test file (phase 4)
      async: false,
      dataType: "text",
      success: function (response) {
@@ -173,25 +155,21 @@ timeline.push({
 });
 }
 
-var random_num = jsPsych.randomization.sampleWithoutReplacement([1,2,3,4,5], 1)[0];
 function point_probability(type, miniblock_trial){
-  //reset it;
-  if(miniblock_trial == 1){
-    random_num = jsPsych.randomization.sampleWithoutReplacement([1,2,3,4,5], 1)[0];
-  }
+  var random_num = jsPsych.randomization.sampleWithoutReplacement([1,2,3,4,5], 1)[0];
 
   if(type == 'high'){
     if(random_num > 1){
-      bonus += 0.03;
-      return "+3 CENTS!"
+      bonus += 0.05;
+      return "+5 CENTS!"
     }else{
       bonus += 0.01;
       return "+1 CENT!"
     }
   }else if(type == 'low'){
     if(random_num == 1){
-      bonus += 0.03;
-      return "+3 CENTS!"
+      bonus += 0.05;
+      return "+5 CENTS!"
     }else{
       bonus += 0.01;
       return "+1 CENT!"
@@ -521,21 +499,11 @@ var stimulus = {
   text: jsPsych.timelineVariable('text'),
 
   on_start: function(stimulus){
-    if(stimulus.phase == '1.1' || stimulus.phase == '1.2'){
-      stimulus.motionCoherence = currentMotionCoherence;
-      stimulus.colorCoherence = currentColorCoherence;
-    }else{
-      // increase the coherence by the minimum coherence for all phases other than the staircasing procedure
-      stimulus.motionCoherence = currentMotionCoherence + minMotionCoherence;
-      stimulus.colorCoherence = currentColorCoherence + minColorCoherence;
-    }
+    stimulus.motionCoherence = currentMotionCoherence;
+    stimulus.colorCoherence = currentColorCoherence;
 
     if(stimulus.phase == '3.1' || stimulus.phase == '3.2' || stimulus.phase == '4.1' || stimulus.phase == '4.2'){
       stimulus.data.bonus = bonus;
-    }
-
-    if(stimulus.phase == '3.2' || stimulus.phase == '4.1' || stimulus.phase == '4.2'){
-      stimulus.trial_duration = 1250;
     }
   },
 
@@ -545,38 +513,38 @@ var stimulus = {
     if(stimulus.phase == '1.1'){
       // update coherence for staircasing
       if(typeof data.correct === "undefined"){
-        currentMotionCoherence = currentMotionCoherence + (2*learningRate - 0.002);
+        currentMotionCoherence = currentMotionCoherence + incorrectDelta;
       }else if(data.correct){
-        if(currentMotionCoherence  - learningRate > minMotionCoherence){
-          currentMotionCoherence = currentMotionCoherence - learningRate;
+        if(currentMotionCoherence - correctDelta > minMotionCoherence){
+          currentMotionCoherence = currentMotionCoherence - correctDelta;
         }else{
           currentMotionCoherence = minMotionCoherence
         }
       }else{
         if(currentMotionCoherence < maxCoherence){
-          if(currentMotionCoherence + (2*learningRate - 0.002) >= maxCoherence){
+          if(currentMotionCoherence + incorrectDelta >= maxCoherence){
             currentMotionCoherence = maxCoherence;
           }else{
-            currentMotionCoherence = currentMotionCoherence + (2*learningRate - 0.002);
+            currentMotionCoherence = currentMotionCoherence + incorrectDelta;
           }
         }
       }
     }else if(stimulus.phase == '1.2'){
       // update coherence for staircasing
       if(typeof data.correct === "undefined"){
-        currentColorCoherence = currentColorCoherence + (2*learningRate - 0.002);
+        currentColorCoherence = currentColorCoherence + incorrectDelta;
       }else if(data.correct){
-        if(currentColorCoherence - learningRate > minColorCoherence){
-          currentColorCoherence = currentColorCoherence - learningRate;
+        if(currentColorCoherence - correctDelta > minColorCoherence){
+          currentColorCoherence = currentColorCoherence - correctDelta;
         }else{
           currentColorCoherence = minColorCoherence
         }
       }else{
         if(currentColorCoherence < maxCoherence){
-          if(currentColorCoherence + (2*learningRate - 0.002) >= maxCoherence){
+          if(currentColorCoherence + incorrectDelta >= maxCoherence){
             currentColorCoherence = maxCoherence;
           }else{
-            currentColorCoherence = currentColorCoherence + (2*learningRate - 0.002);
+            currentColorCoherence = currentColorCoherence + incorrectDelta;
           }
         }
       }
@@ -668,14 +636,15 @@ var color_stimulus = [
 // FIRST PHASE
 // --------------------
 //staircasing phase
-var numTrials = 75;
+var numTrials = 100;
 var motionTrials = numTrials;
 var colorTrials = numTrials;
-var currentMotionCoherence = 0.4; // starting coherence
-var currentColorCoherence = 0.4; // starting coherence
-var learningRate = 0.011;
-var minMotionCoherence = 0.08;
-var minColorCoherence = 0.05;
+var currentMotionCoherence = 0.35; // starting coherence
+var currentColorCoherence = 0.35; // starting coherence
+var incorrectDelta = 0.0566;
+var correctDelta = 0.01;
+var minMotionCoherence = 0.005;
+var minColorCoherence = 0.005;
 var maxCoherence = 0.7;
 
 /* define introduction block */
@@ -752,28 +721,27 @@ var instructions_mc = {
 var instructions_motion = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Motion Instructions</div>" +
-      "<p>In the <strong>motion</strong> task, there will be colored dots moving in all directions," +
-      "</br><font color='grey'>filler</font>" +
-      "<font color='#FA8072'><b>and you must figure out whether there are more dots going <u>UP or DOWN</u>.</b></font>"+
-      "<font color='grey'>filler</font></p>",
-      "If more dots are going <strong>upward</strong>,</br>" +
+      "<p>In the <strong>motion</strong> task, there will be two kinds of moving colored dots:</br></br>" +
+      "1. <b><u>'Random'</u></b> dots move in <u>random directions</u>.</br>2. <b><u>'Coherent'</u></b> dots move either <u>UP</u> or <u>DOWN</u>. </br>" +
+      "<p style='font-size:24px'> <b>The task <font color='#FA8072'>is to figure out whether the </font>coherent dots <font color='#FA8072'>are going</font> UP or DOWN.</b></p>",
+      "If the <u>coherent</u> dots are moving <strong>upward</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/up.gif'></img>" +
-        "</br><strong>Press A for mostly up</strong>",
-      "If more dots are going <strong>downward</strong>,</br>"+
+        "</br><strong>Press A for coherent dots moving UP</strong>",
+      "If the <u>coherent</u> dots are going <strong>downward</strong>,</br>"+
         "press the <u>L key</u>.</br></br><img src='/static/images/down.gif'></img>" +
-        "</br><strong>Press L for mostly down</strong>",
+        "</br><strong>Press L for coherent dots moving DOWN</strong>",
+
       "<div style='font-size:32px'>Motion Instructions Summary</div>" +
-      "<p>In the <strong>motion</strong> task, there will be colored dots moving in all directions," +
-      "</br><font color='grey'>filler</font>" +
-      "<font color='#FA8072'><b>and you must figure out whether more dots are going <u>UP or DOWN</u>.</b></font>"+
-      "<font color='grey'>filler</font></p>" +
+      "<p>In the <strong>motion</strong> task, there will be two kinds of moving colored dots:</br></br>" +
+      "1. <b><u>'Random'</u></b> dots move in <u>random directions</u>.</br>2. <b><u>'Coherent'</u></b> dots move either <u>UP</u> or <u>DOWN</u>. </br>" +
+      "<p style='font-size:24px'> <b>The task <font color='#FA8072'>is to figure out whether the </font>coherent dots <font color='#FA8072'>are going</font> UP or DOWN.</b></p>" +
       "<div class='row'>" +
-        "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If more dots are going <strong>upward</strong>,</br>" +
+        "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If coherent dots are going <strong>UP</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/up.gif'></img>" +
-        "</br><strong>Press A for mostly up</strong></div>" +
-        "<div class='column' style='float:center; border-style: solid;'>If more dots are going <strong>downward</strong>,</br>"+
+        "</br><strong>Press A for coherent dots moving UP</strong></div>" +
+        "<div class='column' style='float:center; border-style: solid;'>If coherent dots are going <strong>DOWN</strong>,</br>"+
         "press the <u>L key</u>.</br></br><img src='/static/images/down.gif'></img>" +
-        "</br><strong>Press L for mostly down</strong></div>" +
+        "</br><strong>Press L for coherent dots moving DOWN</strong></div>" +
       "</div></br>Press next for an example of each."],
   show_clickable_nav: true,
   post_trial_gap: 1000
@@ -782,8 +750,8 @@ var instructions_motion = {
 var instructions_color = {
   type: 'instructions',
   pages: ["<div style='font-size:32px'>Color Instructions</div>" +
-  "<p>In the <strong>color</strong> task, there will be colored dots moving in all directions," +
-  "</br><font color='#FA8072'><b>and you must figure out whether the dots are mostly <u>BLUE or RED</u>.</b></font></p>",
+  "<p>In the <strong>color</strong> task, there will be moving colored dots.</p>" +
+  "<p style='font-size:24px'><font color='#FA8072'><b>The task</font><font color='#FA8072'> is to figure out whether the dots are </font>mostly <u>BLUE or RED</u>.</b></p>",
       "If most of the dots are <strong>blue</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/blue.gif'></img>" +
         "</br><strong>Press A for mostly blue</strong>",
@@ -791,8 +759,8 @@ var instructions_color = {
         "press the <u>L key</u>.</br></br><img src='/static/images/red.gif'></img>" +
         "</br><strong>Press L for mostly red</strong>",
     "<div style='font-size:32px'>Color Instructions Summary</div>" +
-  "<p>In the <strong>color</strong> task, there will be colored dots moving in all directions," +
-  "</br><font color='#FA8072'><b>and you must figure out whether the dots are mostly <u>BLUE or RED</u>.</b></font></p>" +
+    "<p>In the <strong>color</strong> task, there will be moving colored dots.</p>" +
+    "<p style='font-size:24px'><font color='#FA8072'><b>The task</font><font color='#FA8072'> is to figure out whether the dots are </font>mostly <u>BLUE or RED</u>.</b></p>" +
       "<div class='row'>" +
         "<div class='column' style='float:center; border-style: solid; border-right: 0;'>If most of the dots are <strong>blue</strong>,</br>" +
         "press the <u>A key</u>.</br></br><img src='/static/images/blue.gif'></img>" +
@@ -820,14 +788,15 @@ var instructions_block = {
 
 var instructions_motion_block = {
   type: 'instructions',
-  pages: ["<div style='font-size:32px'>Motion Block</div></br>" +
-      "In this block, you will focus on MOTION. There will be around "+numTrials+" motion tasks.</br></br>" +
+  pages: ["<div style='font-size:32px'>Motion Block</div>" +
+      "<p style='font-size:24px'>In this block, you will focus on MOTION.</p>" +
+      "There will be around "+numTrials+" motion tasks.</br></br>" +
       "As you get more trials correct, they will get harder. Try to reach</br>" +
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
       "You can only respond when you see the '?'.</br></br>" +
-      "A key = mostly UP </br>" +
-      "L key = mostly DOWN </br></br>" +
+      "A key = coherent dots UP </br>" +
+      "L key = coherent dots DOWN </br></br>" +
       "Press next to begin the motion block!"
   ],
   show_clickable_nav: true,
@@ -836,8 +805,9 @@ var instructions_motion_block = {
 
 var instructions_color_block = {
   type: 'instructions',
-  pages: ["<div style='font-size:32px'>Color Block</div></br>" +
-      "In this block, you will focus on COLOR. There will be around "+numTrials+" color tasks.</br></br>" +
+  pages: ["<div style='font-size:32px'>Color Block</div>" +
+      "<p style='font-size:24px'>In this block, you will focus on COLOR.</p>" +
+      "There will be around "+numTrials+" color tasks.</br></br>" +
       "As you get more trials correct, they will get harder. Try to reach</br>" +
       "your highest performance level and stay at that for a while.</br></br>" +
       "Remember:</br></br>"+
@@ -1021,7 +991,7 @@ var trial_counter = 0;
 if (trial_counter == 0) {var sum = 0;}
 var response_array = [];
 var end_phase = false;
-var maxTrials = 50;
+var maxTrials = 100;
 
 var shapes = [["circle","triangle"],["diamond","square"]];
 
@@ -1216,7 +1186,7 @@ var cue_response = {
       if(response_array.length >= 20){ // start checking at 20 trials
         var temp = response_array.slice(trial_counter - 20);
         sum = temp.reduce(function(pv, cv) { return pv + cv; }, 0);
-        if(sum >= 18 || trial_counter >= 100){
+        if(sum >= 18 || trial_counter >= maxTrials){
           end_phase = true;
         }
       }else{
@@ -1437,6 +1407,9 @@ var instructions_prc = {
     'The cues you learned earlier will tell you if you </br>'+
     'are supposed to focus on color or motion.</br></br>' +
     'Note: there are approximately 30 minutes left in the experiment from this point.</br></br>',
+
+    '<div style="font-size:24px">Here is what the sequence will look like:</div></br>' +
+    "<img src='/static/images/sequence_single.PNG'></img>"
   ],
   show_clickable_nav: true
 };
@@ -1446,16 +1419,13 @@ var instructions_prc_m = {
   pages: [
     '<div style="font-size:24px">We will now focus on the <u>motion</u> cues.</div></br>' +
     'You will see a motion cue (' + mapping[1] + ' or ' + mapping[2] + ')'+
-    ' and then complete a number of motion tasks.</br>' +
-    "<img src='/static/images/miniblock_color_" + mapping[3] + "_motion.PNG'></img></br>" +
-    "This is what we call a <u>mini-block</u> (cue + several trials).</br>",
-
-    "<div style='font-size:24px'><b>Remember:</b></br>" +
+    ' and then complete a motion task.</br></br>' +
+    "<b>Remember:</b></br>" +
     "We're coming back to 'A' or 'L' responses.</br>" +
-    'A is for majority upward motion.</br>' +
-    'L is for majority downward motion.</br></br>' +
+    'A is for coherent dots moving UP.</br>' +
+    'L is for coherent dots moving DOWN.</br></br>' +
     "<b>Also:</b>"+
-    "<font color='#FA8072'><b><h3>You'll no longer be waiting for the '?'</b></br>Respond as soon as you know the answer.</h3></font>" +
+    "<font color='#FA8072'><b><h3>You'll no longer be waiting for the '?'</b></br>Respond as soon as you know the answer.</h3></font>"+
     'Click next for an example motion cue + trial.'
   ],
   show_clickable_nav: true,
@@ -1478,7 +1448,7 @@ var practice_example1 = {
 }
 
 var practice_example2 = {
-  timeline: [stimulus,fixation],
+  timeline: [cue,fixation,stimulus,fixation],
   timeline_variables: [{
     task: 'motion',
     correct_choice: 'a',
@@ -1486,13 +1456,14 @@ var practice_example2 = {
     coherent_color: 'blue',
     text: 'Motion Task - Up (Press A)',
     trial_duration: 4000,
+    cue_shape: mapping[2],
     phase: '3.1',
     data: [{task_transition: '-1'}]
   }],
 }
 
 var practice_example3 = {
-  timeline: [stimulus,fixation],
+  timeline: [cue,fixation,stimulus,fixation],
   timeline_variables: [{
     task: 'motion',
     correct_choice: 'l',
@@ -1500,6 +1471,7 @@ var practice_example3 = {
     coherent_color: 'red',
     text: 'Motion Task - Down (Press L)',
     trial_duration: 4000,
+    cue_shape: mapping[1],
     phase: '3.1',
     data: [{task_transition: '-1'}]
   }],
@@ -1510,10 +1482,8 @@ var instructions_prc_c = {
   pages: [
     '<div style="font-size:24px">We will now focus on the <u>color</u> cues.</div></br>' +
     'You will see a color cue (' + mapping[3] + ' or ' + mapping[4] + ')' +
-    ' and then complete a number of color tasks.</br>' +
-    "<img src='/static/images/miniblock_color_" + mapping[3] + ".PNG'></img></br>" +
-    "This is what we call a <u>mini-block</u> (cue + several trials).</br>",
-    "<div style='font-size:24px'><b>Remember:</b></br>" +
+    ' and then complete a color task.</br></br>' +
+    "<b>Remember:</b></br>" +
     "We're coming back to 'A' or 'L' responses.</br>" +
     'A is for majority blue dots.</br>' +
     'L is for majority red dots.</br></br>' +
@@ -1523,7 +1493,7 @@ var instructions_prc_c = {
   ],
   show_clickable_nav: true,
   post_trial_gap: 1000
-};
+}
 
 var practice_example4 = {
   timeline: [cue,fixation,stimulus,fixation],
@@ -1541,7 +1511,7 @@ var practice_example4 = {
 }
 
 var practice_example5 = {
-  timeline: [stimulus,fixation],
+  timeline: [cue,fixation,stimulus,fixation],
   timeline_variables: [{
     task: 'color',
     correct_choice: 'l',
@@ -1549,13 +1519,14 @@ var practice_example5 = {
     coherent_color: 'red',
     text: 'Color Task - Red (Press L)',
     trial_duration: 4000,
+    cue_shape: mapping[4],
     phase: '3.1',
     data: [{task_transition: '-1'}]
   }],
 }
 
 var practice_example6 = {
-  timeline: [stimulus,fixation],
+  timeline: [cue,fixation, stimulus,fixation],
   timeline_variables: [{
     task: 'color',
     correct_choice: 'a',
@@ -1563,12 +1534,26 @@ var practice_example6 = {
     coherent_color: 'blue',
     text: 'Color Task - Blue (Press A)',
     trial_duration: 4000,
+    cue_shape: mapping[3],
     phase: '3.1',
     data: [{task_transition: '-1'}]
   }],
 }
 
 var reward_instructions_prc2 = {
+  type: 'instructions',
+  pages: [
+    "<div style='font-size:32px'>Fantastic! Now you'll start the practice blocks.</div></br>" +
+    "You will have a block of trials just like Phase 1, but now we will add cues </br>"+
+    "before each trial, to indicate the current task to be performed.</br></br>" +
+    "Click next to learn about bonus payments."
+  ],
+  show_clickable_nav: true,
+  post_trial_gap: 1000
+};
+
+
+var reward_instructions_prc2_miniblock = {
   type: 'instructions',
   pages: [
 
@@ -1622,8 +1607,8 @@ var reward_instructions_reward = {
     "</br>before the </font>time runs out!</h3></div>",
 
     "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
-    "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
-    "<li>all trials in a miniblock are worth the same amount of money</li>"+
+    "<ul><li>money is awarded randomly (1 cent or 5 cents)</li>"+
+    "<li>faster responses give you time to do more trials, which means more reward</li>"+
     "<li>only correct responses are rewarded</li></ul></div></br>",
 
     "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
@@ -1726,8 +1711,8 @@ var instructions_prc3 = {
     'Click next to review the reward rules again.',
 
     "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
-    "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
-    "<li>all trials in a miniblock are worth the same amount of money</li>"+
+    "<ul><li>money is awarded randomly (1 cent or 5 cents)</li>"+
+    "<li>faster responses give you time to do more trials, which means more reward</li>"+
     "<li>only correct responses are rewarded</li></ul></div></br>",
 
     "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
@@ -1766,9 +1751,9 @@ var instructions_prc3 = {
 function generateTrials(vars, phase){
   var task;
   if(vars[0] == 1){
-    task = 'motion';
-  }else if(vars[0] == 2){
     task = 'color';
+  }else if(vars[0] == 2){
+    task = 'motion';
   }
 
   var cue_select = vars[1];
@@ -1787,18 +1772,18 @@ function generateTrials(vars, phase){
     }
   }
 
-  var coherent_direction; // 1-up 2-down
+  var coherent_color; // 1-blue, 2-red
   if(vars[2] == 1){
-    coherent_direction = 'up';
+    coherent_color = 'blue';
   }else if(vars[2] == 2){
-    coherent_direction = 'down';
+    coherent_color = 'red';
   }
 
-  var coherent_color; // 1-blue, 2-red
+  var coherent_direction; // 1-up 2-down
   if(vars[3] == 1){
-    coherent_color = 'blue';
+    coherent_direction = 'up';
   }else if(vars[3] == 2){
-    coherent_color = 'red';
+    coherent_direction = 'down';
   }
 
   var correct_choice; // 1-a (left), 2-a (right)
@@ -1846,7 +1831,7 @@ var cur_trial = 0;
 var init_timer_practice = {
   type: 'call-function',
   func: function(){
-    block_length = 150000
+    block_length = 90000
     cur_trial = 0
   }
 }
@@ -1854,7 +1839,7 @@ var init_timer_practice = {
 var init_timer_exp = {
   type: 'call-function',
   func: function(){
-    block_length = 600000
+    block_length = 360000
     cur_trial = 0
   }
 }
@@ -2014,6 +1999,9 @@ if(phase31){
 }
 
 if(phase32){
+  if(debug){
+    timeline.push(show_timer);
+  }
   timeline.push(instructions_prc3)
 
   var practice_trials_block2 = [];
@@ -2106,8 +2094,8 @@ if(reward){
         "<font color='#FA8072'>Also, your bonus from the practice block has been reset to $0.00!</font></br>",
 
         "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
-        "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
-        "<li>all trials in a miniblock are worth the same amount of money</li>"+
+        "<ul><li>money is awarded randomly (1 cent or 5 cents)</li>"+
+        "<li>faster responses give you time to do more trials, which means more reward</li>"+
         "<li>only correct responses are rewarded</li></ul></div></br>",
 
         "<div style='font-size:24px'>You want to earn as much money as you can before the time runs out!</br>"+
@@ -2191,8 +2179,8 @@ var reward_instructions_exp2 = {
   type: 'instructions',
   pages: [
       "<div style='font-size:24px' align='left'><h1>Reward rules:</h1></br>" +
-      "<ul><li>money is awarded randomly (1 cent or 3 cents)</li>"+
-      "<li>all trials in a miniblock are worth the same amount of money</li>"+
+      "<ul><li>money is awarded randomly (1 cent or 5 cents)</li>"+
+      "<li>faster responses give you time to do more trials, which means more reward</li>"+
       "<li>only correct responses are rewarded</li></ul></div></br>" +
       "<div style='font-size:24px' align='center'>Click next to review the cues again.</div>",
 
@@ -2220,6 +2208,9 @@ var reward_instructions_exp2 = {
 };
 
 if(phase4){
+  if(debug){
+    timeline.push(show_timer);
+  }
   if(reward){
     timeline.push(reset_timer, reset_score, reward_instructions_exp1);
     //timeline.push(reward_questions)
@@ -2407,8 +2398,8 @@ if(reward){
 jsPsych.data.addProperties({
     uniqueId: uniqueId,
     condition: condition, // 0 or 1 for the two effort groups
-    //counterbalance: counterbalance // counterbalance number (total: 32)
-    sequence: sequence, // sequence number (total: 8)
+    counterbalance: counterbalance, // counterbalance number (total: 32)
+    sequence: experiment_sequence, // sequence number (total: 32)
     phase1_counterbalance: p1_cb, // 0: motion color, 1: color motion
     phase2_counterbalance: p2_cb, // 0: circle triangle first, 1: diamond square first
 });
@@ -2437,21 +2428,12 @@ jsPsych.init({
         psiturk.saveData({
             success: function() {
               psiturk.completeHIT();
-
-                /*
-                // upon saving, add proportion correct as a bonus (see custom.py) and complete HIT
-                psiturk.computeBonus("compute_bonus", function(){
-                    psiturk.completeHIT();
-                });
-                */
-
-
+            },
+            error: function() {
+              psiturk.completeHIT();
             }
         });
       }
-
-
-
     },
 
 });
