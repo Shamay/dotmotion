@@ -654,7 +654,7 @@ var maxCoherence = 0.7;
 /* define introduction block */
 var intro_reward = '';
 if(reward){
-  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of $7.00 to $10.00</br>if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
+  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of $5.00 to $7.50</br>if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
 }
 
 var introduction = {

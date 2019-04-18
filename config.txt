@@ -1,5 +1,5 @@
 [HIT Configuration]
-title = Dot Motion task ($7.00 - $10.00 bonus)
+title = Dot Motion task ($5.00 - $7.50 bonus)
 description = Judge the motion and color of a swarm of moving dots.
 amt_keywords = Perception, Psychology, Neuroscience
 lifetime = 24
@@ -18,7 +18,7 @@ table_name = turkdemo
 
 [Server Parameters]
 host = psiturk-sagaron.princeton.edu
-port = 9001
+port = 9002
 cutoff_time = 30
 logfile = server.log
 loglevel = 2
