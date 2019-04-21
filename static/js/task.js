@@ -330,11 +330,11 @@ var fixation = {
             if(data.correct_choice == 'a'){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
-              '</div><p>Press A for mostly upward motion.</p>';
+              '</div><p>Press A for coherent dots moving UP.</p>';
             }else if(data.correct_choice == 'l'){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
               '<div style="color:white;font-size:30px"; class = center-text><b>Incorrect</b>' +
-              '</div><p>Press L for mostly downward motion.</p>';
+              '</div><p>Press L for coherent dots moving DOWN.</p>';
             }
             if(fixation.phase == '1.1'){
               motionTrials = motionTrials - 1;
@@ -395,7 +395,7 @@ var fixation = {
           if(typeof data.correct === "undefined"){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
           }else if(data.correct){
-            //if(p2_cb == 1){ fixation.trial_duration = fixation.trial_duration + 700; } else{ fixation.trial_duration = fixation.trial_duration + 300; }
+            if(p2_cb == 1){ fixation.trial_duration = fixation.trial_duration + 600; } else{ fixation.trial_duration = fixation.trial_duration + 300; }
 
             if(reward){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
@@ -408,7 +408,7 @@ var fixation = {
               '</div><p style="color:grey;">Filler</p>';
             }
           }else if(!data.correct){
-            //if(p2_cb == 1){ fixation.trial_duration = fixation.trial_duration + 700; } else { fixation.trial_duration = fixation.trial_duration + 300; }
+            if(p2_cb == 1){ fixation.trial_duration = fixation.trial_duration + 600; } else { fixation.trial_duration = fixation.trial_duration + 300; }
 
             if(data.rt == -1){
               if(reward){
@@ -654,7 +654,7 @@ var maxCoherence = 0.7;
 /* define introduction block */
 var intro_reward = '';
 if(reward){
-  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of $5.00 to $7.50</br>if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
+  intro_reward = "<div style='font-size:24px'>You can earn a <b>bonus payment</b> of $4.00 to $7.50</br>if you respond quickly and accurately.</br>(more details in Phase 3)</div></br>"
 }
 
 var introduction = {
@@ -831,7 +831,7 @@ var down_example = {
     correct_choice: 'l',
     coherent_direction: 'down',
     coherent_color: 'blue',
-    text: 'Mostly Down (Press L)',
+    text: 'Coherent Dots Down (Press L)',
     trial_duration: 3000
   }],
 }
@@ -842,7 +842,7 @@ var up_example = {
     correct_choice: 'a',
     coherent_direction: 'up',
     coherent_color: 'blue',
-    text: 'Mostly Up (Press A)',
+    text: 'Coherent Dots Up (Press A)',
     trial_duration: 3000
   }],
 }
