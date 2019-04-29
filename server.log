@@ -4205,3 +4205,21 @@ OSError: [Errno 32] Broken pipe
 [2019-01-01 11:54:16 +0000] [77689] [CRITICAL] WORKER TIMEOUT (pid:77730)
 [2019-01-12 18:13:47 +0000] [84989] [CRITICAL] WORKER TIMEOUT (pid:84995)
 [2019-04-21 03:06:32 +0000] [127944] [CRITICAL] WORKER TIMEOUT (pid:127950)
+[2019-04-21 03:13:40 +0000] [128633] [ERROR] Error handling request
+Traceback (most recent call last):
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/gunicorn/workers/sync.py", line 174, in handle_request
+    resp.write_file(respiter)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/gunicorn/http/wsgi.py", line 397, in write_file
+    if not self.sendfile(respiter):
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/gunicorn/http/wsgi.py", line 387, in sendfile
+    sent += sendfile(sockno, fileno, offset + sent, count)
+  File "/home/sosipov/.conda/envs/psiturk/lib/python2.7/site-packages/gunicorn/http/_sendfile.py", line 67, in sendfile
+    raise OSError(e, os.strerror(e))
+OSError: [Errno 32] Broken pipe
+[2019-04-21 03:14:21 +0000] [128625] [CRITICAL] WORKER TIMEOUT (pid:128629)
+[2019-04-21 03:37:19 +0000] [128625] [CRITICAL] WORKER TIMEOUT (pid:128631)
+[2019-04-21 09:42:51 +0000] [128625] [CRITICAL] WORKER TIMEOUT (pid:129593)
+[2019-04-21 09:48:47 +0000] [128625] [CRITICAL] WORKER TIMEOUT (pid:128637)
+[2019-04-21 09:49:15 +0000] [128625] [CRITICAL] WORKER TIMEOUT (pid:128630)
+[2019-04-21 09:51:54 +0000] [128625] [CRITICAL] WORKER TIMEOUT (pid:129104)
+[2019-04-21 15:40:55 +0000] [128625] [CRITICAL] WORKER TIMEOUT (pid:4299)

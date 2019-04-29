@@ -28,7 +28,7 @@ var reward_input = {
 };
 
 // Setting up counterbalancing conditions
-var num_sequences = 8; // number of sequences we want to use
+var num_sequences = 16; // number of sequences we want to use
 
 // compute the counterbalance conditions based on counterbalance assignment
 var p1_cb, p2_cb;
@@ -395,7 +395,7 @@ var fixation = {
           if(typeof data.correct === "undefined"){
             fixation.prompt = '<div style="font-size:60px; color:black;">+</div>';
           }else if(data.correct){
-            if(p2_cb == 1){ fixation.trial_duration = fixation.trial_duration + 600; } else{ fixation.trial_duration = fixation.trial_duration + 300; }
+            fixation.trial_duration = fixation.trial_duration + 300;
 
             if(reward){
               fixation.prompt = '<p style="color:grey;font-size:12px">Filler</p>' +
@@ -408,7 +408,7 @@ var fixation = {
               '</div><p style="color:grey;">Filler</p>';
             }
           }else if(!data.correct){
-            if(p2_cb == 1){ fixation.trial_duration = fixation.trial_duration + 600; } else { fixation.trial_duration = fixation.trial_duration + 300; }
+            fixation.trial_duration = fixation.trial_duration + 300;
 
             if(data.rt == -1){
               if(reward){
@@ -664,9 +664,9 @@ var introduction = {
       '<div align="left"><p>There will be four phases:</p>' +
       '<ul><li><b>Phase 1:</b> you will get to know the color and motion tasks. (20 minutes)</li>' +
       '<li><b>Phase 2:</b> you will learn whether a cue indicates color or motion. (10 minutes)</li>' +
-      '<li><b>Phase 3:</b> you will practice swapping between color or motion tasks. (7 minutes)</li>' +
-      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks. (13 minutes)</p></li></ul></div>' +
-      intro_reward + 'The experiment will take approximately 50 minutes to complete.' +
+      '<li><b>Phase 3:</b> you will practice swapping between color or motion tasks. (10 minutes)</li>' +
+      '<li><b>Phase 4:</b> you will be cued to swap between color or motion tasks. (20 minutes)</p></li></ul></div>' +
+      intro_reward + 'The experiment will take approximately 60 minutes to complete.' +
       '<p>Click next to continue.</p>'
   ],
   show_clickable_nav: true,
@@ -1410,7 +1410,7 @@ var instructions_prc = {
     '<div style="font-size:24px">We will be swapping between color and motion tasks.</div></br>' +
     'The cues you learned earlier will tell you if you </br>'+
     'are supposed to focus on color or motion.</br></br>' +
-    'Note: there are approximately 20 minutes left in the experiment from this point.</br></br>',
+    'Note: there are approximately 30 minutes left in the experiment from this point.</br></br>',
 
     '<div style="font-size:24px">Here is what the sequence will look like:</div></br>' +
     "<img src='/static/images/sequence_single.PNG'></img>"
@@ -1835,7 +1835,7 @@ var cur_trial = 0;
 var init_timer_practice = {
   type: 'call-function',
   func: function(){
-    block_length = 90000
+    block_length = 130000
     cur_trial = 0
   }
 }
@@ -1843,7 +1843,7 @@ var init_timer_practice = {
 var init_timer_exp = {
   type: 'call-function',
   func: function(){
-    block_length = 360000
+    block_length = 520000
     cur_trial = 0
   }
 }
@@ -2092,7 +2092,7 @@ if(reward){
     pages: [
         '<div style="font-size:54px">Welcome to the <strong>Phase 4</strong>! </div></br>' +
         "<h1>This is the <font color='#FA8072'>real experiment!</font></h1>" +
-        "<h2><font color='#FA8072'>There are two 6-minute blocks</font> in this phase,</br>during which you <font color='#FA8072'>earning bonus payment.</font></h2>" +
+        "<h2><font color='#FA8072'>There are two 8-minute blocks</font> in this phase,</br>during which you <font color='#FA8072'>earning bonus payment.</font></h2>" +
         "The format is the same as Phase 3, but with no hints or feedback.</br>" +
         "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
         "<font color='#FA8072'>Also, your bonus from the practice block has been reset to $0.00!</font></br>",
@@ -2122,7 +2122,7 @@ if(reward){
             "<p class='small'><strong>COLOR task</br></strong></p></div>" +
             "</div>",
           "<div style='font-size:24px'><h1>Some reminders before you begin:</h1></div>" +
-          "There are two 6-minute blocks in this phase, with a short break in the middle!</br></br>" +
+          "There are two 8-minute blocks in this phase, with a short break in the middle!</br></br>" +
           "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
             'A is for up (motion) and blue (color)</br>' +
             'L is for down (motion) and red (color)</br></br>' +
@@ -2139,7 +2139,7 @@ var instructions_exp = {
   type: 'instructions',
   pages: [
       '<div style="font-size:32px">Welcome to the <strong>Phase 4</strong>. </div></br>' +
-      "This phase will take approximately <b>13 minutes</b>, with a short break in the middle!</br></br>" +
+      "This phase will take approximately <b>20 minutes</b>, with a short break in the middle!</br></br>" +
       "The format is the same as Phase 3, but with no hints or feedback.</br>" +
       "<b>The only feedback you'll get is whether your answer was correct or incorrect!</b></br></br>" +
       'Click next to review the cues again.',
@@ -2162,7 +2162,7 @@ var instructions_exp = {
           'L is for down (motion) and red (color)</br></br>' +
           "You'll no longer be waiting for the '?'.</br>" +
           "You'll have three seconds to respond.</br></br>" +
-          "Remember, this phase will take approximately <b>13 minutes</b>, with a short break in the middle!</br></br>" +
+          "Remember, this phase will take approximately <b>20 minutes</b>, with a short break in the middle!</br></br>" +
         "Please ready your fingers on the A and L keys and press next whenever you're ready!"
 
   ],
